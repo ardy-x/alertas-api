@@ -1,0 +1,4 @@
+{
+  "recommendations": ["biomejs.biome", "Prisma.prisma", "ardy-x.prisma-diagram"],
+  "unwantedRecommendations": ["esbenp.prettier-vscode", "dbaeumer.vscode-eslint"]
+}

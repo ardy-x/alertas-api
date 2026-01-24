@@ -1,0 +1,61 @@
+# Dependencias y compilación
+/node_modules
+/dist
+/build
+
+# Logs
+logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
+# Variables de entorno
+.env
+.env.dev
+.env.test.local
+.env.production
+.env.local
+.env.docker
+
+# IDEs y editores
+/.idea
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# VSCode
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# Sistema operativo
+.DS_Store
+
+# Tests y cobertura
+/coverage
+/.nyc_output
+
+# Runtime y temporales
+pids
+*.pid
+*.seed
+*.pid.lock
+.temp
+.tmp
+
+# Reportes de diagnóstico
+report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
+
+# Archivos específicos del proyecto
+.github
+firebase-admin.json
+keys/*
+*fake.js
