@@ -130,6 +130,10 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
       };
     }
 
+    if (filtros.origen && filtros.origen.length > 0) {
+      where.origen = { in: filtros.origen };
+    }
+
     if (filtros.idMunicipio) {
       where.idMunicipio = filtros.idMunicipio;
     }

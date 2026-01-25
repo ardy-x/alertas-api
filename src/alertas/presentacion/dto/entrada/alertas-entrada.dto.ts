@@ -54,14 +54,22 @@ export class ActualizarAlertaRequestDto {
 export class AlertasPaginacionQueryDto extends PaginacionQueryDto {
   @ApiPropertyOptional()
   @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) ? value : value ? [value] : undefined))
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') return value.split(',').map((s) => s.trim());
+    return undefined;
+  })
   @IsArray()
   @IsEnum(['FELCV', 'ATT'], { each: true })
   origen?: string[];
 
   @ApiPropertyOptional()
   @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) ? value : value ? [value] : undefined))
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') return value.split(',').map((s) => s.trim());
+    return undefined;
+  })
   @IsArray()
   @IsEnum(['RESUELTA', 'CANCELADA', 'FALSA_ALERTA'], { each: true })
   estadoAlerta?: string[];
