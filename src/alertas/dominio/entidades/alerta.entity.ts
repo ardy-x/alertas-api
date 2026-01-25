@@ -3,6 +3,7 @@ import { UbicacionPoint } from '@/integraciones/dominio/entidades/ubicacion.type
 import { VictimaBase, VictimaDetalle } from '@/victimas/dominio/entidades/victima.entity';
 import { EstadoAlerta, OrigenAlerta } from '../enums/alerta-enums';
 import { CierreAlertaEntity } from './cierre-alerta.entity';
+import { RutaAlertaEntity } from './ruta-alerta.entity';
 
 export interface AlertaEntity {
   id: string;
@@ -72,6 +73,7 @@ export interface AlertaExtendida {
   municipio?: string;
   provincia?: string;
   departamento?: string;
+  rutaAlerta?: RutaAlertaEntity;
 }
 
 export interface NuevaAlerta {

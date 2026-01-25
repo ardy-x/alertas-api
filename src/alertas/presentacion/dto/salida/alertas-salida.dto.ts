@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { PaginacionDto } from '@/core/dto/paginacion-response.dto';
-import { UbicacionPoint } from '@/integraciones/dominio/entidades/ubicacion.types';
+import { RutaLineString, UbicacionPoint } from '@/integraciones/dominio/entidades/ubicacion.types';
 import { VictimaBaseResponseDto, VictimaResponseDto } from '@/victimas/presentacion/dto/salida/victima.dto';
 
 export class FuncionarioAsignadoDto {
@@ -92,6 +92,17 @@ export class CierreAlertaDto {
   observaciones?: string | null;
 }
 
+export class RutaAlertaDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  idAlerta: string;
+
+  @ApiProperty()
+  ruta: RutaLineString;
+}
+
 export class AlertaDetalleDto {
   @ApiProperty()
   id: string;
@@ -140,6 +151,9 @@ export class AlertaDetalleDto {
 
   @ApiPropertyOptional()
   cierre?: CierreAlertaDto;
+
+  @ApiPropertyOptional()
+  rutaAlerta?: RutaAlertaDto;
 }
 
 export class AlertaBaseDto {
