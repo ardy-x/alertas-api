@@ -134,7 +134,9 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
       where.origen = { in: filtros.origen };
     }
 
-    if (filtros.idMunicipio) {
+    if (filtros.municipiosIds && filtros.municipiosIds.length > 0) {
+      where.idMunicipio = { in: filtros.municipiosIds };
+    } else if (filtros.idMunicipio) {
       where.idMunicipio = filtros.idMunicipio;
     }
 
@@ -144,6 +146,12 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
 
     if (filtros.fechaHasta) {
       where.fechaHora = { ...(where.fechaHora as Record<string, unknown>), lte: filtros.fechaHasta };
+    }
+
+    if (filtros.busqueda) {
+      where.victima = {
+        OR: [{ nombreCompleto: { contains: filtros.busqueda, mode: 'insensitive' } }, { cedulaIdentidad: { contains: filtros.busqueda } }],
+      };
     }
 
     // Configurar ordenamiento
