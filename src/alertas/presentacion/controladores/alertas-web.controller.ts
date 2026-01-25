@@ -9,7 +9,7 @@ import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 
 import { AlertasPaginacionQueryDto, FiltrosAlertasActivasRequestDto } from '../dto/entrada/alertas-entrada.dto';
-import { ObtenerAlertaResponseDto, ObtenerAlertasActivasResponseDto, ObtenerHistorialAlertasResponseDto } from '../dto/salida/alertas-salida.dto';
+import { AlertaActivaDto, AlertaDetalleDto, ObtenerHistorialAlertasResponseDto } from '../dto/salida/alertas-salida.dto';
 
 @ApiTags('ALERTAS WEB')
 @Controller('alertas')
@@ -24,11 +24,9 @@ export class AlertasWebController {
 
   @Get('alertas-activas')
   @ApiOperation({ summary: 'Obtener alertas activas' })
-  async obtenerAlertasActivas(@Query() filtros: FiltrosAlertasActivasRequestDto): Promise<RespuestaBaseDto<ObtenerAlertasActivasResponseDto>> {
+  async obtenerAlertasActivas(@Query() filtros: FiltrosAlertasActivasRequestDto): Promise<RespuestaBaseDto<AlertaActivaDto[]>> {
     const resultado = await this.obtenerAlertasActivasUseCase.ejecutar(filtros);
-    return RespuestaBuilder.exito(HttpStatus.OK, 'Alertas activas obtenidas exitosamente', {
-      alertas: resultado.alertas,
-    });
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Alertas activas obtenidas exitosamente', resultado.alertas);
   }
 
   @Get('historial-alertas')
@@ -40,10 +38,8 @@ export class AlertasWebController {
 
   @Get(':idAlerta/detalle')
   @ApiOperation({ summary: 'Obtener alerta por ID' })
-  async obtenerAlertaPorId(@Param('idAlerta', ParseUUIDPipe) idAlerta: string): Promise<RespuestaBaseDto<ObtenerAlertaResponseDto>> {
+  async obtenerAlertaPorId(@Param('idAlerta', ParseUUIDPipe) idAlerta: string): Promise<RespuestaBaseDto<AlertaDetalleDto>> {
     const resultado = await this.obtenerAlertaPorIdUseCase.ejecutar(idAlerta);
-    return RespuestaBuilder.exito(HttpStatus.OK, 'Alerta obtenida exitosamente', {
-      alerta: resultado.alerta,
-    });
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Alerta obtenida exitosamente', resultado.alerta);
   }
 }

@@ -11,7 +11,7 @@ import { USUARIO_WEB_KERBEROS_REPOSITORIO_TOKEN } from '@/usuarios-web/dominio/t
 
 import { AlertaExtendida } from '../../dominio/entidades/alerta.entity';
 import { OrigenAlerta } from '../../dominio/enums/alerta-enums';
-import { ObtenerAlertaResponseDto } from '../../presentacion/dto/salida/alertas-salida.dto';
+import { AlertaDetalleDto } from '../../presentacion/dto/salida/alertas-salida.dto';
 
 @Injectable()
 export class ObtenerAlertaPorIdUseCase {
@@ -27,7 +27,7 @@ export class ObtenerAlertaPorIdUseCase {
     private readonly obtenerProvinciaDepartamentoUseCase: ObtenerProvinciaDepartamentoUseCase,
   ) {}
 
-  async ejecutar(idAlerta: string): Promise<ObtenerAlertaResponseDto> {
+  async ejecutar(idAlerta: string): Promise<{ alerta: AlertaDetalleDto }> {
     const alerta: AlertaExtendida | null = await this.alertaRepositorio.obtenerDetalleAlerta(idAlerta);
 
     if (!alerta) {
@@ -89,7 +89,7 @@ export class ObtenerAlertaPorIdUseCase {
     }
 
     return {
-      alerta: alerta,
+      alerta: alerta as AlertaDetalleDto,
     };
   }
 }

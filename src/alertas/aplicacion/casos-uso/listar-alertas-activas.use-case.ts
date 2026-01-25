@@ -9,7 +9,7 @@ import { ObtenerProvinciaDepartamentoUseCase } from '@/integraciones/aplicacion/
 import { AlertaActiva, FiltrosAlertasActivas } from '../../dominio/entidades/alerta.entity';
 import { OrigenAlerta } from '../../dominio/enums/alerta-enums';
 import { FiltrosAlertasActivasRequestDto } from '../../presentacion/dto/entrada/alertas-entrada.dto';
-import { ObtenerAlertasActivasResponseDto } from '../../presentacion/dto/salida/alertas-salida.dto';
+import { AlertaActivaDto } from '../../presentacion/dto/salida/alertas-salida.dto';
 
 @Injectable()
 export class ListarAlertasActivasUseCase {
@@ -24,7 +24,7 @@ export class ListarAlertasActivasUseCase {
     private readonly obtenerMunicipiosPorFiltroGeograficoUseCase: ObtenerMunicipiosPorFiltroGeograficoUseCase,
   ) {}
 
-  async ejecutar(filtros?: FiltrosAlertasActivasRequestDto): Promise<ObtenerAlertasActivasResponseDto> {
+  async ejecutar(filtros?: FiltrosAlertasActivasRequestDto): Promise<{ alertas: AlertaActivaDto[] }> {
     const filtrosRepositorio: FiltrosAlertasActivas = {};
 
     // Manejar filtros geográficos si están presentes
@@ -79,7 +79,7 @@ export class ListarAlertasActivasUseCase {
     );
 
     return {
-      alertas: alertasActivas,
+      alertas: alertasActivas as AlertaActivaDto[],
     };
   }
 }

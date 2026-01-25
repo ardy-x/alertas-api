@@ -212,16 +212,6 @@ export class CrearAlertaResponseDto {
   };
 }
 
-export class ObtenerAlertaResponseDto {
-  @ApiProperty()
-  alerta: AlertaDetalleDto;
-}
-
-export class ObtenerAlertasActivasResponseDto {
-  @ApiProperty({ type: [AlertaActivaDto] })
-  alertas: AlertaActivaDto[];
-}
-
 export class ObtenerHistorialAlertasResponseDto {
   @ApiProperty({ type: [AlertaHistorialDto] })
   historial: AlertaHistorialDto[];
