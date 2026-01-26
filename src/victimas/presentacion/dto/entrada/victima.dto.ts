@@ -160,7 +160,11 @@ export class ListarVictimasRequestDto extends PaginacionQueryDto {
     enum: EstadoCuenta,
   })
   @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) ? value : value ? [value] : undefined))
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') return value.split(',').map((s) => s.trim());
+    return undefined;
+  })
   @IsArray()
   @IsEnum(EstadoCuenta, { each: true })
   estadoCuenta?: EstadoCuenta[];

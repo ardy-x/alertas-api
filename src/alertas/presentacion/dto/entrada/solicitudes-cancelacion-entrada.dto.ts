@@ -38,7 +38,11 @@ export class ProcesarSolicitudCancelacionRequestDto {
 export class ObtenerSolicitudesCancelacionRequestDto extends PaginacionQueryDto {
   @ApiPropertyOptional({ isArray: true, enum: EstadoSolicitudCancelacion })
   @IsOptional()
-  @Transform(({ value }) => (Array.isArray(value) ? value : value ? [value] : undefined))
+  @Transform(({ value }) => {
+    if (Array.isArray(value)) return value;
+    if (typeof value === 'string') return value.split(',').map((s) => s.trim());
+    return undefined;
+  })
   @IsEnum(EstadoSolicitudCancelacion, { each: true })
   estado?: EstadoSolicitudCancelacion[];
 
