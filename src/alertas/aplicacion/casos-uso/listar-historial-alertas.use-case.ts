@@ -66,7 +66,6 @@ export class ListarHistorialAlertasUseCase {
             if (datosExternos) {
               // Formatear como víctima en el formato del historial
               alerta.victima = {
-                id: '',
                 cedulaIdentidad: datosExternos.persona?.cedulaIdentidad || '',
                 nombreCompleto: `${datosExternos.persona?.nombres || 'Sin nombre'} ${datosExternos.persona?.apellidos || ''}`.trim(),
                 celular: datosExternos.contacto?.celular || '',

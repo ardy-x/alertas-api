@@ -122,7 +122,16 @@ export interface AlertaActiva extends AlertaConMunicipio {
   victima?: Partial<VictimaBase>;
 }
 
-export interface AlertaHistorial extends AlertaConMunicipio {
+export interface AlertaHistorial {
+  id: string;
+  idVictima: string | null;
+  estadoAlerta: EstadoAlerta;
+  fechaHora: Date;
+  origen: OrigenAlerta;
+  idMunicipio?: number | null;
+  municipio?: string;
+  provincia?: string;
+  departamento?: string;
   codigoCud?: string | null;
   codigoRegistro?: string | null;
   creadoEn?: Date;

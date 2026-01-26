@@ -162,7 +162,13 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
       this.prisma.alerta.findMany({
         where,
         include: {
-          victima: true,
+          victima: {
+            select: {
+              cedulaIdentidad: true,
+              nombreCompleto: true,
+              celular: true,
+            },
+          },
         },
         orderBy: { [campoOrden]: direccionOrden },
         skip: filtros.pagina ? (filtros.pagina - 1) * (filtros.elementosPorPagina || 10) : 0,
@@ -177,12 +183,12 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
         idVictima: alerta.idVictima,
         estadoAlerta: alerta.estadoAlerta as EstadoAlerta,
         fechaHora: alerta.fechaHora,
-        ubicacion: alerta.ubicacion as UbicacionPoint | null,
         idMunicipio: alerta.idMunicipio,
         origen: alerta.origen as OrigenAlerta,
+        codigoCud: alerta.codigoCud,
+        codigoRegistro: alerta.codigoRegistro,
         victima: alerta.victima
           ? {
-              id: alerta.victima.id,
               cedulaIdentidad: alerta.victima.cedulaIdentidad,
               nombreCompleto: alerta.victima.nombreCompleto,
               celular: alerta.victima.celular,

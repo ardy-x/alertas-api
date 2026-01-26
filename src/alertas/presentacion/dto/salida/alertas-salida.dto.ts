@@ -193,7 +193,34 @@ export class AlertaActivaDto extends AlertaBaseDto {
   departamento?: string;
 }
 
-export class AlertaHistorialDto extends AlertaBaseDto {
+export class AlertaHistorialDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiPropertyOptional()
+  idVictima?: string | null;
+
+  @ApiProperty()
+  estadoAlerta: string;
+
+  @ApiProperty()
+  fechaHora: Date;
+
+  @ApiProperty()
+  origen: string;
+
+  @ApiPropertyOptional()
+  idMunicipio?: number | null;
+
+  @ApiPropertyOptional()
+  municipio?: string;
+
+  @ApiPropertyOptional()
+  provincia?: string;
+
+  @ApiPropertyOptional()
+  departamento?: string;
+
   @ApiPropertyOptional()
   codigoCud?: string | null;
 
