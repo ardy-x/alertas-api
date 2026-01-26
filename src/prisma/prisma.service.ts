@@ -9,7 +9,7 @@ import { DATABASE_CONFIG } from '@/config/database.config';
 export class PrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor() {
     super({
-      log: process.env.NODE_ENV === 'development' ? ['query', 'info', 'warn', 'error'] : ['warn', 'error'],
+      log: ['warn', 'error'],
       adapter: new PrismaPg({ connectionString: DATABASE_CONFIG.url }),
     });
   }
