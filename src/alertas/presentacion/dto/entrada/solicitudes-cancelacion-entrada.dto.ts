@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { Transform, Type } from 'class-transformer';
-import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, Max, Min, ValidateNested } from 'class-validator';
+import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 import { EstadoSolicitudCancelacion } from '@/alertas/dominio/enums/alerta-enums';
 import { PaginacionQueryDto } from '@/core/dto/paginacion-query.dto';
@@ -45,13 +45,6 @@ export class ObtenerSolicitudesCancelacionRequestDto extends PaginacionQueryDto 
   })
   @IsEnum(EstadoSolicitudCancelacion, { each: true, message: 'cada valor en $property debe ser uno de: PENDIENTE, APROBADA, RECHAZADA' })
   estado?: EstadoSolicitudCancelacion[];
-
-  @ApiProperty({ default: 10, minimum: 1, maximum: 100 })
-  @Type(() => Number)
-  @IsNumber({})
-  @Min(1)
-  @Max(100)
-  elementosPorPagina: number = 10;
 
   @ApiPropertyOptional()
   @IsOptional()
