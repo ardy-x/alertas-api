@@ -166,7 +166,7 @@ export class ListarVictimasRequestDto extends PaginacionQueryDto {
     return undefined;
   })
   @IsArray()
-  @IsEnum(EstadoCuenta, { each: true })
+  @IsEnum(EstadoCuenta, { each: true, message: 'cada valor en $property debe ser uno de: ACTIVA, INACTIVA, SUSPENDIDA, PENDIENTE_VERIFICACION' })
   estadoCuenta?: EstadoCuenta[];
 
   @ApiPropertyOptional({ example: 1 })

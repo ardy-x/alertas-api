@@ -43,7 +43,7 @@ export class ObtenerSolicitudesCancelacionRequestDto extends PaginacionQueryDto 
     if (typeof value === 'string') return value.split(',').map((s) => s.trim());
     return undefined;
   })
-  @IsEnum(EstadoSolicitudCancelacion, { each: true })
+  @IsEnum(EstadoSolicitudCancelacion, { each: true, message: 'cada valor en $property debe ser uno de: PENDIENTE, APROBADA, RECHAZADA' })
   estado?: EstadoSolicitudCancelacion[];
 
   @ApiProperty({ default: 10, minimum: 1, maximum: 100 })

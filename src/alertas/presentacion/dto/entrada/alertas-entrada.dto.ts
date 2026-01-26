@@ -60,7 +60,7 @@ export class AlertasPaginacionQueryDto extends PaginacionQueryDto {
     return undefined;
   })
   @IsArray()
-  @IsEnum(['FELCV', 'ATT'], { each: true })
+  @IsEnum(['FELCV', 'ATT'], { each: true, message: 'cada valor en $property debe ser uno de: FELCV, ATT' })
   origen?: string[];
 
   @ApiPropertyOptional()
@@ -71,7 +71,7 @@ export class AlertasPaginacionQueryDto extends PaginacionQueryDto {
     return undefined;
   })
   @IsArray()
-  @IsEnum(['RESUELTA', 'CANCELADA', 'FALSA_ALERTA'], { each: true })
+  @IsEnum(['RESUELTA', 'CANCELADA', 'FALSA_ALERTA'], { each: true, message: 'cada valor en $property debe ser uno de: RESUELTA, CANCELADA, FALSA_ALERTA' })
   estadoAlerta?: string[];
 
   @ApiPropertyOptional()

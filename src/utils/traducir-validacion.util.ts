@@ -20,6 +20,8 @@ export function traducirMensaje(mensaje: string): string {
     'must be negative': 'debe ser un número negativo',
     'must not be greater than': 'no debe ser mayor que',
     'must not be less than': 'no debe ser menor que',
+    'each value in': 'cada valor en',
+    'must be one of the following values': 'debe ser uno de los siguientes valores',
     characters: 'caracteres',
   };
 
