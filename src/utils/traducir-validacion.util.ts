@@ -3,6 +3,7 @@ export function traducirMensaje(mensaje: string): string {
   let translated = mensaje;
   const traducciones: Record<string, string> = {
     'must be a UUID': 'debe ser un UUID válido',
+    'uuid is expected': 'se esperaba un UUID válido',
     'should not be empty': 'no debe estar vacío',
     'must be a string': 'debe ser un texto',
     'must be a number': 'debe ser un número',
