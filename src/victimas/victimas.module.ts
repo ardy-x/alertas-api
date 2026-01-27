@@ -43,13 +43,12 @@ import { VictimaPrismaAdapter } from './infraestructura/adaptadores/victima-pris
 import { ClaveApiGuard } from './infraestructura/guards/clave-api.guard';
 import { ContactosEmergenciaController } from './presentacion/controladores/contactos-emergencia.controller';
 import { ValidacionController } from './presentacion/controladores/validacion.controller';
-import { VerificarDenunciaController } from './presentacion/controladores/verificar-denuncia.controller';
 import { VictimasController } from './presentacion/controladores/victimas.controller';
 import { VictimasWebController } from './presentacion/controladores/victimas-web.controller';
 
 @Module({
   imports: [CoreModule, PrismaModule, IntegracionesModule],
-  controllers: [VictimasController, VictimasWebController, ContactosEmergenciaController, VerificarDenunciaController, ValidacionController],
+  controllers: [VictimasController, VictimasWebController, ContactosEmergenciaController, ValidacionController],
   providers: [
     // Casos de Uso - Víctimas
     CrearVictimaUseCase,

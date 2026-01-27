@@ -8,10 +8,13 @@ import { ActualizarDatosCuentaUseCase } from '@/victimas/aplicacion/casos-uso/ac
 import { ActualizarUbicacionUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-ubicacion.use-case';
 import { CrearVictimaUseCase } from '@/victimas/aplicacion/casos-uso/crear-victima.use-case';
 import { ObtenerVictimaUseCase } from '@/victimas/aplicacion/casos-uso/obtener-victima.use-case';
+import { VerificarDenunciaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-denuncia.use-case';
 import { VerificarVictimaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-victima.use-case';
 
 import { ClaveApiGuard } from '../../infraestructura/guards/clave-api.guard';
+import { VerificarDenunciaRequestDto } from '../dto/entrada/verificar-denuncia.dto';
 import { ActualizarDatosContactoRequestDto, ActualizarDatosCuentaRequestDto, ActualizarUbicacionRequestDto, CrearVictimaRequestDto, VerificarVictimaParamsDto } from '../dto/entrada/victima.dto';
+import { VictimaDto } from '../dto/salida/verificar-denuncia.dto';
 import { VerificarVictimaResponse, VictimaResponseDto } from '../dto/salida/victima.dto';
 @ApiTags('VÍCTIMAS')
 @Controller('victimas')
@@ -23,6 +26,7 @@ export class VictimasController {
     private readonly actualizarUbicacionUseCase: ActualizarUbicacionUseCase,
     private readonly actualizarDatosCuentaUseCase: ActualizarDatosCuentaUseCase,
     private readonly verificarVictimaUseCase: VerificarVictimaUseCase,
+    private readonly verificarDenunciaUseCase: VerificarDenunciaUseCase,
   ) {}
 
   @Post()
@@ -38,6 +42,13 @@ export class VictimasController {
   async verificarPorCi(@Query() params: VerificarVictimaParamsDto): Promise<RespuestaBaseDto<VerificarVictimaResponse>> {
     const resultado = await this.verificarVictimaUseCase.ejecutar(params);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Verificación completada', resultado);
+  }
+
+  @Get('/verificar-denuncia')
+  @ApiOperation({ summary: 'Verificar denuncia' })
+  async verificarDenuncia(@Query() request: VerificarDenunciaRequestDto): Promise<RespuestaBaseDto<{ victima: VictimaDto }>> {
+    const victima = await this.verificarDenunciaUseCase.ejecutar(request.codigoDenuncia, request.cedulaIdentidad);
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Denuncia verificada exitosamente', { victima });
   }
 
   @Get(':idVictima')
