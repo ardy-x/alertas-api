@@ -119,7 +119,7 @@ export class VictimaPrismaAdapter implements VictimaRepositorioPort {
     };
   }
 
-  async obtenerPorCedula(cedulaIdentidad: string): Promise<VictimaBase | null> {
+  async obtenerPorCedula(cedulaIdentidad: string): Promise<VictimaConDispositivo | null> {
     const victima = await this.prisma.victima.findFirst({
       where: {
         cedulaIdentidad: cedulaIdentidad,
@@ -138,6 +138,7 @@ export class VictimaPrismaAdapter implements VictimaRepositorioPort {
       estadoCuenta: victima.estadoCuenta as EstadoCuenta,
       correo: victima.correo || undefined,
       creadoEn: victima.creadoEn || undefined,
+      idDispositivo: victima.idDispositivo || undefined,
     };
   }
 

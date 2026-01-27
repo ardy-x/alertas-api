@@ -14,7 +14,7 @@ export class VerificarVictimaUseCase {
   ) {}
 
   async ejecutar(params: VerificarVictimaParamsDto): Promise<VerificarVictimaResponse> {
-    const victima = await this.victimaRepositorio.obtenerVictimaConDispositivo(params.ci.trim());
+    const victima = await this.victimaRepositorio.obtenerPorCedula(params.ci.trim());
     return {
       existe: !!victima,
       idVictima: victima?.id,

@@ -33,7 +33,7 @@ export interface VictimaRepositorioPort {
   obtenerVictimaSimple(id: string): Promise<VictimaBase | null>;
   obtenerVictimaConDispositivo(id: string): Promise<VictimaConDispositivo | null>;
   obtenerDetalleVictima(id: string): Promise<VictimaDetalle | null>;
-  obtenerPorCedula(cedulaIdentidad: string): Promise<VictimaBase | null>;
+  obtenerPorCedula(cedulaIdentidad: string): Promise<VictimaConDispositivo | null>;
   obtenerPorCelular(celular: string): Promise<VictimaBase | null>;
   obtenerPorEmail(email: string): Promise<VictimaBase | null>;
   actualizarUbicacion(id: string, datos: ActualizarUbicacion): Promise<void>;
