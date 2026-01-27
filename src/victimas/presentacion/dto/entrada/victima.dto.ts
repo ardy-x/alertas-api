@@ -31,7 +31,7 @@ export class CrearVictimaRequestDto {
   @ApiProperty({ example: '12345678' })
   @IsString()
   @IsNotEmpty()
-  @Length(6, 20)
+  @Length(4, 20)
   cedulaIdentidad: string;
 
   @ApiProperty({ example: 'Juan Pérez' })
