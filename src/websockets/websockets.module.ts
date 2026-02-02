@@ -7,11 +7,12 @@ import { AlertasGateway } from './infraestructura/alertas.gateway';
 @Module({
   providers: [
     AuthWebSocketService,
+    AlertasGateway,
     {
       provide: ALERTAS_GATEWAY_TOKEN,
-      useClass: AlertasGateway,
+      useExisting: AlertasGateway,
     },
   ],
-  exports: [ALERTAS_GATEWAY_TOKEN],
+  exports: [AlertasGateway, ALERTAS_GATEWAY_TOKEN],
 })
-export class WebsocketsModule {}
+export class WebSocketsModule {}

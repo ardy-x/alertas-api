@@ -1,2 +1,2 @@
-// Tokens para inyección de dependencias del dominio de Dashboard
 export const DASHBOARD_REPOSITORIO_TOKEN = 'DASHBOARD_REPOSITORIO_TOKEN';
+export const MONITOR_SISTEMA_TOKEN = 'MONITOR_SISTEMA_TOKEN';

@@ -9,7 +9,7 @@ import { IntegracionesModule } from './integraciones/integraciones.module';
 import { NotificacionesModule } from './notificaciones/notificaciones.module';
 import { UsuariosWebModule } from './usuarios-web/usuarios-web.module';
 import { VictimasModule } from './victimas/victimas.module';
-import { WebsocketsModule } from './websockets/websockets.module';
+import { WebSocketsModule } from './websockets/websockets.module';
 
 @Module({
   imports: [
@@ -23,7 +23,7 @@ import { WebsocketsModule } from './websockets/websockets.module';
     VictimasModule,
     AlertasModule,
     NotificacionesModule,
-    WebsocketsModule,
+    WebSocketsModule,
     DashboardModule,
   ],
 })
