@@ -27,12 +27,23 @@ class RecursosHardwareDto {
   used_mem: string;
 }
 
+class SupervisoresPorDepartamentoDto {
+  @ApiProperty()
+  departamento: string;
+
+  @ApiProperty()
+  supervisores_conectados: number;
+}
+
 class EstadoWebSocketDto {
   @ApiProperty({ enum: ['active', 'inactive'] })
   status: 'active' | 'inactive';
 
   @ApiProperty()
   supervisores_conectados: number;
+
+  @ApiProperty({ type: [SupervisoresPorDepartamentoDto] })
+  por_departamento: SupervisoresPorDepartamentoDto[];
 }
 
 class EstadoServicioExternoDto {

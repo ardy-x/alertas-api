@@ -3,8 +3,9 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import * as pm2 from 'pm2';
 
-import type { EstadoBaseDatos, EstadoProcesoPM2, EstadoServicioExterno, EstadoWebSocket, RecursosHardware } from '@/dashboard/dominio/entidades/estado-sistema.entity';
+import type { EstadoBaseDatos, EstadoProcesoPM2, EstadoServicioExterno, EstadoWebSocket, RecursosHardware, SupervisoresPorDepartamento } from '@/dashboard/dominio/entidades/estado-sistema.entity';
 import type { MonitorSistemaPuerto } from '@/dashboard/dominio/puertos/monitor-sistema.puerto';
+import { ObtenerDepartamentosUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-departamentos.use-case';
 import { PrismaService } from '@/prisma/prisma.service';
 import { AlertasGateway } from '@/websockets/infraestructura/alertas.gateway';
 
@@ -14,6 +15,7 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
     private readonly prismaService: PrismaService,
     private readonly alertasGateway: AlertasGateway,
     private readonly configService: ConfigService,
+    private readonly obtenerDepartamentosUseCase: ObtenerDepartamentosUseCase,
   ) {}
 
   async obtenerEstadoProcesosPM2(nombresProcesos: string[]): Promise<EstadoProcesoPM2[]> {
@@ -115,12 +117,14 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
   }
 
   async obtenerEstadoConexionesWebSocket(): Promise<EstadoWebSocket> {
-    const supervisoresConectados = this.contarSupervisoresConectados();
+    const porDepartamento = await this.obtenerSupervisoresPorDepartamento();
+    const supervisoresConectados = porDepartamento.reduce((total, dept) => total + dept.supervisores_conectados, 0);
     const servidorActivo = this.alertasGateway.servidor !== undefined && this.alertasGateway.servidor !== null;
 
     return {
       status: servidorActivo ? 'active' : 'inactive',
       supervisores_conectados: supervisoresConectados,
+      por_departamento: porDepartamento,
     };
   }
 
@@ -129,22 +133,41 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
     return `${gb.toFixed(2)}GB`;
   }
 
-  private contarSupervisoresConectados(): number {
+  private async obtenerSupervisoresPorDepartamento(): Promise<SupervisoresPorDepartamento[]> {
     if (!this.alertasGateway.servidor) {
-      return 0;
+      return [];
     }
 
-    let totalConectados = 0;
+    const departamentosMap = new Map<number, number>();
     const rooms = this.alertasGateway.servidor.sockets.adapter.rooms;
 
     for (const [roomName] of rooms) {
       if (roomName.startsWith('supervisores-')) {
-        const sala = this.alertasGateway.servidor.sockets.adapter.rooms.get(roomName);
-        totalConectados += sala?.size ?? 0;
+        const idDepartamento = parseInt(roomName.replace('supervisores-', ''), 10);
+        const sala = rooms.get(roomName);
+        const cantidad = sala?.size ?? 0;
+
+        if (cantidad > 0) {
+          departamentosMap.set(idDepartamento, cantidad);
+        }
       }
     }
 
-    return totalConectados;
+    if (departamentosMap.size === 0) {
+      return [];
+    }
+
+    const todosDepartamentos = await this.obtenerDepartamentosUseCase.ejecutar();
+
+    return Array.from(departamentosMap.entries())
+      .map(([idDept, cantidad]) => {
+        const dept = todosDepartamentos.find((d) => d.id === idDept);
+        return {
+          departamento: dept?.departamento ?? `Departamento ${idDept}`,
+          supervisores_conectados: cantidad,
+        };
+      })
+      .sort((a, b) => b.supervisores_conectados - a.supervisores_conectados);
   }
 
   async verificarServiciosExternos(): Promise<EstadoServicioExterno[]> {

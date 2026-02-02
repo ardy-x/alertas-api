@@ -14,9 +14,15 @@ export interface RecursosHardware {
   used_mem: string;
 }
 
+export interface SupervisoresPorDepartamento {
+  departamento: string;
+  supervisores_conectados: number;
+}
+
 export interface EstadoWebSocket {
   status: 'active' | 'inactive';
   supervisores_conectados: number;
+  por_departamento: SupervisoresPorDepartamento[];
 }
 
 export interface EstadoServicioExterno {
