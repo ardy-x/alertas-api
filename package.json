@@ -25,7 +25,9 @@
     "lint:check": "biome check src"
   },
   "lint-staged": {
-    "*.{js,ts,json}": "biome check --write --unsafe"
+    "*.{ts,tsx,js,jsx}": [
+      "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
+    ]
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
