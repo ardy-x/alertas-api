@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
 
 import { AlertasModule } from './alertas/alertas.module';
 import { AutenticacionModule } from './autenticacion/autenticacion.module';
@@ -12,19 +11,6 @@ import { VictimasModule } from './victimas/victimas.module';
 import { WebSocketsModule } from './websockets/websockets.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-    }),
-    CoreModule,
-    AutenticacionModule,
-    UsuariosWebModule,
-    IntegracionesModule,
-    VictimasModule,
-    AlertasModule,
-    NotificacionesModule,
-    WebSocketsModule,
-    DashboardModule,
-  ],
+  imports: [CoreModule, AutenticacionModule, UsuariosWebModule, IntegracionesModule, VictimasModule, AlertasModule, NotificacionesModule, WebSocketsModule, DashboardModule],
 })
 export class AppModule {}

@@ -1,8 +1,8 @@
 import * as os from 'node:os';
 import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
 import * as pm2 from 'pm2';
 
+import { SERVICIOS_CONFIG } from '@/config/servicios.config';
 import type { EstadoBaseDatos, EstadoProcesoPM2, EstadoServicioExterno, EstadoWebSocket, RecursosHardware, SupervisoresPorDepartamento } from '@/dashboard/dominio/entidades/estado-sistema.entity';
 import type { MonitorSistemaPuerto } from '@/dashboard/dominio/puertos/monitor-sistema.puerto';
 import { ObtenerDepartamentosUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-departamentos.use-case';
@@ -14,7 +14,6 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
   constructor(
     private readonly prismaService: PrismaService,
     private readonly alertasGateway: AlertasGateway,
-    private readonly configService: ConfigService,
     private readonly obtenerDepartamentosUseCase: ObtenerDepartamentosUseCase,
   ) {}
 
@@ -172,13 +171,13 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
 
   async verificarServiciosExternos(): Promise<EstadoServicioExterno[]> {
     const servicios = [
-      { nombre: 'Catálogos API', url: this.configService.get<string>('CATALOGOS_API_BASE') },
-      { nombre: 'GeoServer', url: this.configService.get<string>('GEOSERVER_API_BASE') },
-      { nombre: 'Jupiter API', url: this.configService.get<string>('JUPITER_API_BASE') },
-      { nombre: 'Kerberos API', url: this.configService.get<string>('KERBEROS_API_BASE') },
-      { nombre: 'WhatsApp API', url: this.configService.get<string>('WHATSAPP_API_BASE') },
-      { nombre: 'Email API', url: this.configService.get<string>('EMAIL_API_BASE') },
-      { nombre: 'Personal API', url: this.configService.get<string>('PERSONAL_API_BASE') },
+      { nombre: 'Catálogos API', url: SERVICIOS_CONFIG.catalogosApiBase },
+      { nombre: 'GeoServer', url: SERVICIOS_CONFIG.geoServerApiBase },
+      { nombre: 'Jupiter API', url: SERVICIOS_CONFIG.jupiterApiBase },
+      { nombre: 'Kerberos API', url: SERVICIOS_CONFIG.kerberosApiBase },
+      { nombre: 'WhatsApp API', url: SERVICIOS_CONFIG.whatsappApiBase },
+      { nombre: 'Email API', url: SERVICIOS_CONFIG.emailApiBase },
+      { nombre: 'Personal API', url: SERVICIOS_CONFIG.personalApiBase },
     ];
 
     const verificaciones = servicios.map(async (servicio) => {
