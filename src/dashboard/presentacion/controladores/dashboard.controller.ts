@@ -4,11 +4,17 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { ObtenerAlertasPorUbicacionUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-alertas-por-ubicacion.use-case';
 import { ObtenerAlertasRecientesUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-alertas-recientes.use-case';
+import { ObtenerDistribucionEstadosUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-distribucion-estados.use-case';
 import { ObtenerEstadoSistemaUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-estado-sistema.use-case';
+import { ObtenerMapaCalorUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-mapa-calor.use-case';
 import { ObtenerMetricasGeneralesUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-metricas-generales.use-case';
 import { ObtenerMetricasTiempoUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-metricas-tiempo.use-case';
+import { ObtenerPatronHorarioUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-patron-horario.use-case';
 
+import { DistribucionEstadosDto } from '../dto/distribucion-estados.dto';
 import { EstadoSistemaDto } from '../dto/estado-sistema.dto';
+import { MapaCalorQueryDto } from '../dto/mapa-calor-query.dto';
+import { PatronHorarioDto } from '../dto/patron-horario.dto';
 
 @ApiTags('DASHBOARD')
 @Controller('dashboard')
@@ -19,6 +25,9 @@ export class DashboardController {
     private readonly obtenerAlertasRecientesUseCase: ObtenerAlertasRecientesUseCase,
     private readonly obtenerMetricasTiempoUseCase: ObtenerMetricasTiempoUseCase,
     private readonly obtenerEstadoSistemaUseCase: ObtenerEstadoSistemaUseCase,
+    private readonly obtenerDistribucionEstadosUseCase: ObtenerDistribucionEstadosUseCase,
+    private readonly obtenerPatronHorarioUseCase: ObtenerPatronHorarioUseCase,
+    private readonly obtenerMapaCalorUseCase: ObtenerMapaCalorUseCase,
   ) {}
 
   @Get('metricas-generales')
@@ -56,5 +65,28 @@ export class DashboardController {
   async obtenerEstadoSistema() {
     const estado = await this.obtenerEstadoSistemaUseCase.ejecutar();
     return RespuestaBuilder.exito(HttpStatus.OK, 'Estado del sistema obtenido exitosamente', estado);
+  }
+
+  @Get('distribucion-estados')
+  @ApiOperation({ summary: 'Obtener distribución de alertas por estado' })
+  @ApiResponse({ status: 200, type: DistribucionEstadosDto })
+  async obtenerDistribucionEstados() {
+    const distribucion = await this.obtenerDistribucionEstadosUseCase.ejecutar();
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Distribución de estados obtenida exitosamente', distribucion);
+  }
+
+  @Get('patron-horario')
+  @ApiOperation({ summary: 'Obtener patrón horario de alertas (7 días × 24 horas)' })
+  @ApiResponse({ status: 200, type: PatronHorarioDto })
+  async obtenerPatronHorario() {
+    const patron = await this.obtenerPatronHorarioUseCase.ejecutar();
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Patrón horario obtenido exitosamente', patron);
+  }
+
+  @Get('mapa-calor')
+  @ApiOperation({ summary: 'Obtener alertas en formato GeoJSON para mapa con clustering' })
+  async obtenerMapaCalor(@Query() query: MapaCalorQueryDto) {
+    // Retornar GeoJSON directo (sin wrapper) para consumo del mapa
+    return await this.obtenerMapaCalorUseCase.ejecutar(query.idDepartamento, query.idProvincia, query.idMunicipio);
   }
 }
