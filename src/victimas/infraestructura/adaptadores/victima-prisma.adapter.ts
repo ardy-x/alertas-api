@@ -254,4 +254,13 @@ export class VictimaPrismaAdapter implements VictimaRepositorioPort {
       },
     });
   }
+
+  async actualizarEstadoCuenta(id: string, estado: EstadoCuenta): Promise<void> {
+    await this.prisma.victima.update({
+      where: { id },
+      data: {
+        estadoCuenta: estado,
+      },
+    });
+  }
 }

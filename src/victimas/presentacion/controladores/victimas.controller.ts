@@ -6,6 +6,7 @@ import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { ActualizarDatosContactoUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-datos-contacto.use-case';
 import { ActualizarDatosCuentaUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-datos-cuenta.use-case';
 import { ActualizarUbicacionUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-ubicacion.use-case';
+import { CerrarSesionUseCase } from '@/victimas/aplicacion/casos-uso/cerrar-sesion.use-case';
 import { CrearVictimaUseCase } from '@/victimas/aplicacion/casos-uso/crear-victima.use-case';
 import { ObtenerVictimaUseCase } from '@/victimas/aplicacion/casos-uso/obtener-victima.use-case';
 import { VerificarDenunciaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-denuncia.use-case';
@@ -27,6 +28,7 @@ export class VictimasController {
     private readonly actualizarDatosCuentaUseCase: ActualizarDatosCuentaUseCase,
     private readonly verificarVictimaUseCase: VerificarVictimaUseCase,
     private readonly verificarDenunciaUseCase: VerificarDenunciaUseCase,
+    private readonly cerrarSesionUseCase: CerrarSesionUseCase,
   ) {}
 
   @Post()
@@ -83,5 +85,13 @@ export class VictimasController {
   async actualizarCuenta(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() actualizarDatosCuentaDto: ActualizarDatosCuentaRequestDto) {
     await this.actualizarDatosCuentaUseCase.ejecutar(idVictima, actualizarDatosCuentaDto);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Datos de cuenta actualizados exitosamente');
+  }
+
+  @Patch(':idVictima/cerrar-sesion')
+  @UseGuards(ClaveApiGuard)
+  @ApiOperation({ summary: 'Cerrar sesión de la víctima (cambiar estado a INACTIVA)' })
+  async cerrarSesion(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto> {
+    await this.cerrarSesionUseCase.ejecutar(idVictima);
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Sesión cerrada exitosamente');
   }
 }

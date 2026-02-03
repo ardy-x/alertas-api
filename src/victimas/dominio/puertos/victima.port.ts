@@ -12,6 +12,7 @@ import {
   VictimaConDispositivo,
   VictimaDetalle,
 } from '../entidades/victima.entity';
+import { EstadoCuenta } from '../enums/victima-enums';
 
 export {
   VictimaDetalle,
@@ -40,4 +41,5 @@ export interface VictimaRepositorioPort {
   actualizarDatosContacto(id: string, datos: ActualizarDatosContacto): Promise<void>;
   actualizarDatosCuenta(id: string, datos: ActualizarDatosCuenta): Promise<void>;
   actualizarApiKey(id: string, apiKey: string): Promise<void>;
+  actualizarEstadoCuenta(id: string, estado: EstadoCuenta): Promise<void>;
 }

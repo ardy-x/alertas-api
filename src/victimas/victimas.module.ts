@@ -8,6 +8,7 @@ import { ActualizarDatosContactoUseCase } from './aplicacion/casos-uso/actualiza
 import { ActualizarDatosCuentaUseCase } from './aplicacion/casos-uso/actualizar-datos-cuenta.use-case';
 import { ActualizarUbicacionUseCase } from './aplicacion/casos-uso/actualizar-ubicacion.use-case';
 import { AgregarContactoVictimaUseCase } from './aplicacion/casos-uso/agregar-contacto-victima.use-case';
+import { CerrarSesionUseCase } from './aplicacion/casos-uso/cerrar-sesion.use-case';
 import { CrearVictimaUseCase } from './aplicacion/casos-uso/crear-victima.use-case';
 import { EliminarContactoEmergenciaUseCase } from './aplicacion/casos-uso/eliminar-contacto-emergencia.use-case';
 import { ListarVictimasUseCase } from './aplicacion/casos-uso/listar-victimas.use-case';
@@ -60,6 +61,7 @@ import { VictimasWebController } from './presentacion/controladores/victimas-web
     VerificarVictimaUseCase,
     SuspenderCuentaUseCase,
     ObtenerHistorialAlertasVictimaUseCase,
+    CerrarSesionUseCase,
 
     // Casos de Uso - Contactos de Emergencia
     AgregarContactoVictimaUseCase,
