@@ -3,7 +3,7 @@ import { ActualizarConexion, PermisoApp, VictimaRepositorioPort } from '@/victim
 import { VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
 
 @Injectable()
-export class RegistrarConexionUseCase {
+export class ActualizarPermisosUseCase {
   constructor(
     @Inject(VICTIMA_REPOSITORIO)
     private readonly victimaRepositorio: VictimaRepositorioPort,

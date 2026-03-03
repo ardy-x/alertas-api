@@ -5,11 +5,11 @@ import { LogDatosInterceptor } from '@/core/interceptores/log-datos.interceptor'
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { ActualizarDatosContactoUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-datos-contacto.use-case';
 import { ActualizarDatosCuentaUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-datos-cuenta.use-case';
+import { ActualizarPermisosUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-permisos.use-case';
 import { ActualizarUbicacionUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-ubicacion.use-case';
 import { CerrarSesionUseCase } from '@/victimas/aplicacion/casos-uso/cerrar-sesion.use-case';
 import { CrearVictimaUseCase } from '@/victimas/aplicacion/casos-uso/crear-victima.use-case';
 import { ObtenerVictimaUseCase } from '@/victimas/aplicacion/casos-uso/obtener-victima.use-case';
-import { RegistrarConexionUseCase } from '@/victimas/aplicacion/casos-uso/registrar-conexion.use-case';
 import { VerificarDenunciaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-denuncia.use-case';
 import { VerificarVictimaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-victima.use-case';
 
@@ -32,7 +32,7 @@ export class VictimasController {
     private readonly verificarVictimaUseCase: VerificarVictimaUseCase,
     private readonly verificarDenunciaUseCase: VerificarDenunciaUseCase,
     private readonly cerrarSesionUseCase: CerrarSesionUseCase,
-    private readonly registrarConexionUseCase: RegistrarConexionUseCase,
+    private readonly actualizarPermisosUseCase: ActualizarPermisosUseCase,
   ) {}
 
   @Post()
@@ -103,13 +103,13 @@ export class VictimasController {
     return RespuestaBuilder.exito(HttpStatus.OK, 'Sesión cerrada exitosamente');
   }
 
-  @Patch(':idVictima/conexion')
+  @Patch(':idVictima/permisos')
   @UseGuards(ClaveApiGuard)
-  @ApiOperation({ summary: 'Registrar conexión y verificar permisos de la app' })
+  @ApiOperation({ summary: 'Actualizar permisos de la aplicación' })
   @ApiSecurity('api-key')
   @ApiBody({ type: PermisosAppDto })
-  async registrarConexion(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() registrarConexionDto: PermisosAppDto): Promise<RespuestaBaseDto> {
-    await this.registrarConexionUseCase.ejecutar(idVictima, registrarConexionDto);
-    return RespuestaBuilder.exito(HttpStatus.OK, 'Conexión registrada exitosamente');
+  async actualizarPermisos(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() permisosDto: PermisosAppDto): Promise<RespuestaBaseDto> {
+    await this.actualizarPermisosUseCase.ejecutar(idVictima, permisosDto);
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Permisos actualizados exitosamente');
   }
 }

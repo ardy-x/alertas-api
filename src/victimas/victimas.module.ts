@@ -6,6 +6,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { ActualizarContactoEmergenciaUseCase } from './aplicacion/casos-uso/actualizar-contacto-emergencia.use-case';
 import { ActualizarDatosContactoUseCase } from './aplicacion/casos-uso/actualizar-datos-contacto.use-case';
 import { ActualizarDatosCuentaUseCase } from './aplicacion/casos-uso/actualizar-datos-cuenta.use-case';
+import { ActualizarPermisosUseCase } from './aplicacion/casos-uso/actualizar-permisos.use-case';
 import { ActualizarUbicacionUseCase } from './aplicacion/casos-uso/actualizar-ubicacion.use-case';
 import { AgregarContactoVictimaUseCase } from './aplicacion/casos-uso/agregar-contacto-victima.use-case';
 import { CerrarSesionUseCase } from './aplicacion/casos-uso/cerrar-sesion.use-case';
@@ -15,7 +16,6 @@ import { ListarVictimasUseCase } from './aplicacion/casos-uso/listar-victimas.us
 import { MarcarContactoPrincipalUseCase } from './aplicacion/casos-uso/marcar-contacto-principal.use-case';
 import { ObtenerHistorialAlertasVictimaUseCase } from './aplicacion/casos-uso/obtener-historial-alertas-victima.use-case';
 import { ObtenerVictimaUseCase } from './aplicacion/casos-uso/obtener-victima.use-case';
-import { RegistrarConexionUseCase } from './aplicacion/casos-uso/registrar-conexion.use-case';
 import { SuspenderCuentaUseCase } from './aplicacion/casos-uso/suspender-cuenta.use-case';
 import { SolicitarCodigoEmailUseCase } from './aplicacion/casos-uso/validacion/solicitar-codigo-email.use-case';
 import { SolicitarCodigoWhatsappUseCase } from './aplicacion/casos-uso/validacion/solicitar-codigo-whatsapp.use-case';
@@ -63,7 +63,7 @@ import { VictimasWebController } from './presentacion/controladores/victimas-web
     SuspenderCuentaUseCase,
     ObtenerHistorialAlertasVictimaUseCase,
     CerrarSesionUseCase,
-    RegistrarConexionUseCase,
+    ActualizarPermisosUseCase,
 
     // Casos de Uso - Contactos de Emergencia
     AgregarContactoVictimaUseCase,
