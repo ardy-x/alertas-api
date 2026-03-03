@@ -27,12 +27,12 @@ class RecursosHardwareDto {
   used_mem: string;
 }
 
-class SupervisoresPorDepartamentoDto {
+class OperadoresPorDepartamentoDto {
   @ApiProperty()
   departamento: string;
 
   @ApiProperty()
-  supervisores_conectados: number;
+  operadores_conectados: number;
 }
 
 class EstadoWebSocketDto {
@@ -40,10 +40,10 @@ class EstadoWebSocketDto {
   status: 'active' | 'inactive';
 
   @ApiProperty()
-  supervisores_conectados: number;
+  operadores_conectados: number;
 
-  @ApiProperty({ type: [SupervisoresPorDepartamentoDto] })
-  por_departamento: SupervisoresPorDepartamentoDto[];
+  @ApiProperty({ type: [OperadoresPorDepartamentoDto] })
+  por_departamento: OperadoresPorDepartamentoDto[];
 }
 
 class EstadoServicioExternoDto {

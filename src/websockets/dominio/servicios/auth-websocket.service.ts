@@ -3,9 +3,17 @@ import * as path from 'node:path';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 
+import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
+
 interface TokenPayload {
   userId: string;
   userSystemId: string;
+  nroDocumento: string;
+  sid: string;
+  role: string;
+  systems: string[];
+  iat: number;
+  exp: number;
 }
 
 @Injectable()
@@ -48,8 +56,8 @@ export class AuthWebSocketService {
       throw new UnauthorizedException('idDepartamento inválido');
     }
 
-    if (tipo !== 'SUPERVISOR') {
-      throw new UnauthorizedException('Solo supervisores permitidos');
+    if (tipo !== RolesPermitidos.OPERADOR) {
+      throw new UnauthorizedException('Solo operadores permitidos');
     }
 
     return { tipo, idDepartamento };

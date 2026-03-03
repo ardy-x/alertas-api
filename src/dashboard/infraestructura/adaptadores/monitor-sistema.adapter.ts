@@ -3,7 +3,7 @@ import { Injectable } from '@nestjs/common';
 import * as pm2 from 'pm2';
 
 import { SERVICIOS_CONFIG } from '@/config/servicios.config';
-import type { EstadoBaseDatos, EstadoProcesoPM2, EstadoServicioExterno, EstadoWebSocket, RecursosHardware, SupervisoresPorDepartamento } from '@/dashboard/dominio/entidades/estado-sistema.entity';
+import type { EstadoBaseDatos, EstadoProcesoPM2, EstadoServicioExterno, EstadoWebSocket, OperadoresPorDepartamento, RecursosHardware } from '@/dashboard/dominio/entidades/estado-sistema.entity';
 import type { MonitorSistemaPuerto } from '@/dashboard/dominio/puertos/monitor-sistema.puerto';
 import { ObtenerDepartamentosUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-departamentos.use-case';
 import { PrismaService } from '@/prisma/prisma.service';
@@ -116,13 +116,13 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
   }
 
   async obtenerEstadoConexionesWebSocket(): Promise<EstadoWebSocket> {
-    const porDepartamento = await this.obtenerSupervisoresPorDepartamento();
-    const supervisoresConectados = porDepartamento.reduce((total, dept) => total + dept.supervisores_conectados, 0);
+    const porDepartamento = await this.obtenerOperadoresPorDepartamento();
+    const operadoresConectados = porDepartamento.reduce((total, dept) => total + dept.operadores_conectados, 0);
     const servidorActivo = this.alertasGateway.servidor !== undefined && this.alertasGateway.servidor !== null;
 
     return {
       status: servidorActivo ? 'active' : 'inactive',
-      supervisores_conectados: supervisoresConectados,
+      operadores_conectados: operadoresConectados,
       por_departamento: porDepartamento,
     };
   }
@@ -132,7 +132,7 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
     return `${gb.toFixed(2)}GB`;
   }
 
-  private async obtenerSupervisoresPorDepartamento(): Promise<SupervisoresPorDepartamento[]> {
+  private async obtenerOperadoresPorDepartamento(): Promise<OperadoresPorDepartamento[]> {
     if (!this.alertasGateway.servidor) {
       return [];
     }
@@ -141,8 +141,8 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
     const rooms = this.alertasGateway.servidor.sockets.adapter.rooms;
 
     for (const [roomName] of rooms) {
-      if (roomName.startsWith('supervisores-')) {
-        const idDepartamento = parseInt(roomName.replace('supervisores-', ''), 10);
+      if (roomName.startsWith('operadores-')) {
+        const idDepartamento = parseInt(roomName.replace('operadores-', ''), 10);
         const sala = rooms.get(roomName);
         const cantidad = sala?.size ?? 0;
 
@@ -163,10 +163,10 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
         const dept = todosDepartamentos.find((d) => d.id === idDept);
         return {
           departamento: dept?.departamento ?? `Departamento ${idDept}`,
-          supervisores_conectados: cantidad,
+          operadores_conectados: cantidad,
         };
       })
-      .sort((a, b) => b.supervisores_conectados - a.supervisores_conectados);
+      .sort((a, b) => b.operadores_conectados - a.operadores_conectados);
   }
 
   async verificarServiciosExternos(): Promise<EstadoServicioExterno[]> {

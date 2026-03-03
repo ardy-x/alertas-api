@@ -28,7 +28,7 @@ export class AlertasGateway implements OnGatewayConnection, OnGatewayDisconnect,
   private readonly logger = new Logger(AlertasGateway.name);
 
   constructor(private alertasAuthService: AuthWebSocketService) {
-    this.logger.log('AlertasGateway inicializado - Solo para supervisores');
+    this.logger.log('AlertasGateway inicializado - Solo para operadores');
   }
 
   // --- MÉTODOS DEL CICLO DE VIDA ---
@@ -52,8 +52,8 @@ export class AlertasGateway implements OnGatewayConnection, OnGatewayDisconnect,
       clientData.idDepartamento = idDepartamento;
 
       // Unir a sala específica por departamento
-      void client.join(`supervisores-${idDepartamento}`);
-      this.logger.log(`SUPERVISOR conectado: usuario ${idUsuario}, departamento ${idDepartamento}`);
+      void client.join(`operadores-${idDepartamento}`);
+      this.logger.log(`OPERADOR conectado: usuario ${idUsuario}, departamento ${idDepartamento}`);
     } catch (error) {
       this.logger.warn(`Error de autenticación en WebSocket: ${error instanceof Error ? error.message : String(error)}`);
       client.disconnect();
@@ -75,7 +75,7 @@ export class AlertasGateway implements OnGatewayConnection, OnGatewayDisconnect,
    * Método helper para emitir eventos a la sala de supervisores de un departamento
    */
   private emitirASala(idDepartamento: number, evento: string, datos: unknown): void {
-    const salaDepartamento = `supervisores-${idDepartamento}`;
+    const salaDepartamento = `operadores-${idDepartamento}`;
     this.servidor.to(salaDepartamento).emit(evento, datos);
     this.logger.log(`Evento '${evento}' emitido a supervisores del departamento ${idDepartamento}`);
   }
