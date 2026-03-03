@@ -58,6 +58,8 @@ export class VictimasController {
   }
 
   @Get(':idVictima')
+  @UseGuards(ClaveApiGuard)
+  @ApiSecurity('api-key')
   @ApiOperation({ summary: 'Obtener víctima por ID' })
   async obtenerPorId(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto<{ victima: VictimaResponseDto }>> {
     const resultado = await this.obtenerVictimaUseCase.ejecutar(idVictima);
