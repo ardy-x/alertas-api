@@ -5,6 +5,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '@/prisma/prisma.service';
 import { EstadoCuenta } from '../../dominio/enums/victima-enums';
 import {
+  ActualizarConexion,
   ActualizarDatosContacto,
   ActualizarDatosCuenta,
   ActualizarUbicacion,
@@ -260,6 +261,16 @@ export class VictimaPrismaAdapter implements VictimaRepositorioPort {
       where: { id },
       data: {
         estadoCuenta: estado,
+      },
+    });
+  }
+
+  async actualizarConexion(id: string, datos: ActualizarConexion): Promise<void> {
+    await this.prisma.victima.update({
+      where: { id },
+      data: {
+        ultimaConexion: datos.ultimaConexion,
+        permisosApp: datos.permisosApp as unknown as Prisma.InputJsonValue,
       },
     });
   }

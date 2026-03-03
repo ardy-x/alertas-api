@@ -9,10 +9,12 @@ import { ActualizarUbicacionUseCase } from '@/victimas/aplicacion/casos-uso/actu
 import { CerrarSesionUseCase } from '@/victimas/aplicacion/casos-uso/cerrar-sesion.use-case';
 import { CrearVictimaUseCase } from '@/victimas/aplicacion/casos-uso/crear-victima.use-case';
 import { ObtenerVictimaUseCase } from '@/victimas/aplicacion/casos-uso/obtener-victima.use-case';
+import { RegistrarConexionUseCase } from '@/victimas/aplicacion/casos-uso/registrar-conexion.use-case';
 import { VerificarDenunciaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-denuncia.use-case';
 import { VerificarVictimaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-victima.use-case';
 
 import { ClaveApiGuard } from '../../infraestructura/guards/clave-api.guard';
+import { RegistrarConexionRequestDto } from '../dto/entrada/registrar-conexion.dto';
 import { VerificarDenunciaRequestDto } from '../dto/entrada/verificar-denuncia.dto';
 import { ActualizarDatosContactoRequestDto, ActualizarDatosCuentaRequestDto, ActualizarUbicacionRequestDto, CrearVictimaRequestDto, VerificarVictimaParamsDto } from '../dto/entrada/victima.dto';
 import { VictimaDto } from '../dto/salida/verificar-denuncia.dto';
@@ -29,6 +31,7 @@ export class VictimasController {
     private readonly verificarVictimaUseCase: VerificarVictimaUseCase,
     private readonly verificarDenunciaUseCase: VerificarDenunciaUseCase,
     private readonly cerrarSesionUseCase: CerrarSesionUseCase,
+    private readonly registrarConexionUseCase: RegistrarConexionUseCase,
   ) {}
 
   @Post()
@@ -93,5 +96,14 @@ export class VictimasController {
   async cerrarSesion(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto> {
     await this.cerrarSesionUseCase.ejecutar(idVictima);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Sesión cerrada exitosamente');
+  }
+
+  @Patch(':idVictima/conexion')
+  @UseGuards(ClaveApiGuard)
+  @ApiOperation({ summary: 'Registrar conexión y verificar permisos de la app' })
+  @ApiBody({ type: RegistrarConexionRequestDto })
+  async registrarConexion(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() { permisosApp }: RegistrarConexionRequestDto): Promise<RespuestaBaseDto> {
+    await this.registrarConexionUseCase.ejecutar(idVictima, permisosApp);
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Conexión registrada exitosamente');
   }
 }

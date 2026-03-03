@@ -229,6 +229,8 @@ model Victima {
   apiKey             String?      @unique @map("api_key") @db.VarChar(64)
   fcmToken           String?      @map("fcm_token") @db.VarChar(255)
   infoDispositivo    Json?        @map("info_dispositivo") @db.JsonB
+  ultimaConexion     DateTime?    @map("ultima_conexion") @db.Timestamptz()
+  permisosApp        Json?        @map("permisos_app") @db.JsonB
   creadoEn           DateTime     @default(now()) @map("creado_en") @db.Timestamptz()
   actualizadoEn      DateTime?    @updatedAt @map("actualizado_en") @db.Timestamptz()
 
