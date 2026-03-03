@@ -65,7 +65,7 @@ export class crearAlertaAttUseCase {
     // Registrar evento automático de creación de alerta desde ATT
     await this.eventoDominioService.registrarEventoAutomatico(nuevoId, TipoEvento.ALERTA_RECIBIDA);
 
-    // Notificar a supervisores vía WebSocket y push al mismo tiempo
+    // Notificar a operadores vía WebSocket y push al mismo tiempo
     const nombreCompletoPersona = `${datos.persona.nombres} ${datos.persona.apellidos}`;
     const idDepartamento = 1; // Por defecto La Paz para alertas ATT
 

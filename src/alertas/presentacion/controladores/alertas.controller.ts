@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { ActualizarAlertaUseCase } from '@/alertas/aplicacion/casos-uso/actualizar-alerta.use-case';
 import { CrearAlertaUseCase } from '@/alertas/aplicacion/casos-uso/crear-alerta.use-case';
@@ -16,6 +16,7 @@ import { CrearAlertaResponseDto } from '../dto/salida/alertas-salida.dto';
 @ApiTags('ALERTAS')
 @Controller('alertas')
 @UseGuards(ClaveApiGuard)
+@ApiSecurity('api-key')
 export class AlertasController {
   constructor(
     private readonly crearAlertaUseCase: CrearAlertaUseCase,
@@ -42,9 +43,9 @@ export class AlertasController {
 
   @Get(':idAlerta/estado')
   @ApiOperation({ summary: 'Obtener estado de una alerta' })
-  async obtenerEstadoAlerta(@Param('idAlerta', ParseUUIDPipe) idAlerta: string): Promise<RespuestaBaseDto<string>> {
+  async obtenerEstadoAlerta(@Param('idAlerta', ParseUUIDPipe) idAlerta: string): Promise<RespuestaBaseDto<{ estadoAlerta: string }>> {
     const resultado = await this.obtenerEstadoAlertaUseCase.ejecutar(idAlerta);
-    return RespuestaBuilder.exito(HttpStatus.OK, 'Estado de alerta obtenido exitosamente', resultado.estadoAlerta);
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Estado de alerta obtenido exitosamente', resultado);
   }
 
   @Post(':idAlerta/solicitudes-cancelacion')

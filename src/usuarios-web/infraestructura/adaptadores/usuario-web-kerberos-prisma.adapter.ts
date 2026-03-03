@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { Prisma } from '@prisma/client';
 
+import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
 import { PrismaService } from '@/prisma/prisma.service';
 import {
   CrearUsuarioWebKerberosDatos,
@@ -161,7 +162,7 @@ export class UsuarioWebKerberosPrismaAdapter implements UsuarioWebKerberosReposi
         idDepartamento: idDepartamento,
         autorizacion: {
           path: ['rol'],
-          equals: 'SUPERVISOR',
+          equals: RolesPermitidos.OPERADOR,
         },
       },
       select: {

@@ -23,12 +23,12 @@ interface DatosConexion {
 })
 export class AlertasGateway implements OnGatewayConnection, OnGatewayDisconnect, AlertasGatewayPort {
   @WebSocketServer()
-  servidor: Server;
+  servidor!: Server;
 
   private readonly logger = new Logger(AlertasGateway.name);
 
   constructor(private alertasAuthService: AuthWebSocketService) {
-    this.logger.log('AlertasGateway inicializado - Solo para supervisores');
+    this.logger.log('AlertasGateway inicializado - Solo para operadores');
   }
 
   // --- MÉTODOS DEL CICLO DE VIDA ---
@@ -52,8 +52,8 @@ export class AlertasGateway implements OnGatewayConnection, OnGatewayDisconnect,
       clientData.idDepartamento = idDepartamento;
 
       // Unir a sala específica por departamento
-      void client.join(`supervisores-${idDepartamento}`);
-      this.logger.log(`SUPERVISOR conectado: usuario ${idUsuario}, departamento ${idDepartamento}`);
+      void client.join(`operadores-${idDepartamento}`);
+      this.logger.log(`OPERADOR conectado: usuario ${idUsuario}, departamento ${idDepartamento}`);
     } catch (error) {
       this.logger.warn(`Error de autenticación en WebSocket: ${error instanceof Error ? error.message : String(error)}`);
       client.disconnect();
@@ -72,16 +72,16 @@ export class AlertasGateway implements OnGatewayConnection, OnGatewayDisconnect,
   }
 
   /**
-   * Método helper para emitir eventos a la sala de supervisores de un departamento
+   * Método helper para emitir eventos a la sala de operadores de un departamento
    */
   private emitirASala(idDepartamento: number, evento: string, datos: unknown): void {
-    const salaDepartamento = `supervisores-${idDepartamento}`;
+    const salaDepartamento = `operadores-${idDepartamento}`;
     this.servidor.to(salaDepartamento).emit(evento, datos);
-    this.logger.log(`Evento '${evento}' emitido a supervisores del departamento ${idDepartamento}`);
+    this.logger.log(`Evento '${evento}' emitido a operadores del departamento ${idDepartamento}`);
   }
 
   /**
-   * Notificar nueva alerta a supervisores
+   * Notificar nueva alerta a operadores
    */
   notificarAlertaCreada(datosAlerta: NotificarAlertaCreadaDatos): void {
     this.logger.log(`Nueva alerta - ID: ${datosAlerta.idAlerta}, Estado: ${datosAlerta.estado}, Departamento: ${datosAlerta.idDepartamento}`);
@@ -98,7 +98,7 @@ export class AlertasGateway implements OnGatewayConnection, OnGatewayDisconnect,
   }
 
   /**
-   * Notificar cancelación de solicitud a supervisores
+   * Notificar cancelación de solicitud a operadores
    */
   notificarCancelacionSolicitud(datosCancelacion: NotificarCancelacionSolicitudDatos): void {
     this.logger.log(`Cancelación de solicitud - ID: ${datosCancelacion.idSolicitud}, Alerta: ${datosCancelacion.idAlerta}`);

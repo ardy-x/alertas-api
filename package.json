@@ -11,6 +11,13 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
+    "pm2:dev": "pnpm build && pm2 start ecosystem.config.js --env development --update-env && pm2 logs alertas-api",
+    "pm2:prod": "pm2 start ecosystem.config.js --env production --update-env",
+    "pm2:stop": "pm2 stop ecosystem.config.js",
+    "pm2:restart": "pnpm build && pm2 restart ecosystem.config.js --update-env && pm2 logs alertas-api",
+    "pm2:delete": "pm2 delete ecosystem.config.js",
+    "pm2:logs": "pm2 logs",
+    "pm2:monit": "pm2 monit",
     "prepare": "husky",
     "format": "biome format --write src",
     "format:check": "biome format --check src",
@@ -18,12 +25,13 @@
     "lint:check": "biome check src"
   },
   "lint-staged": {
-    "*.{js,ts,json}": "biome check --write --unsafe"
+    "*.{ts,tsx,js,jsx}": [
+      "biome check --write --no-errors-on-unmatched --files-ignore-unknown=true"
+    ]
   },
   "dependencies": {
     "@nestjs/axios": "^4.0.1",
     "@nestjs/common": "^11.1.6",
-    "@nestjs/config": "^4.0.2",
     "@nestjs/core": "^11.1.6",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.6",
@@ -44,6 +52,7 @@
     "jsonwebtoken": "^9.0.2",
     "passport-jwt": "^4.0.1",
     "pg": "^8.16.3",
+    "pm2": "^6.0.14",
     "rxjs": "^7.8.1",
     "socket.io": "^4.8.1",
     "uuid": "^11.1.0",

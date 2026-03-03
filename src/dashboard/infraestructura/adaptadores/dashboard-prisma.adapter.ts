@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { AlertaPorMunicipio, AlertaRecienteBase, DatosMetricasGenerales, DatosMetricasTiempo } from '@/dashboard/dominio/entidades/dashboard.entity';
-import { DashboardRepositorioPort } from '@/dashboard/dominio/puertos/dashboard.port';
+import { AlertaConFechaHora, AlertaParaMapa, DashboardRepositorioPort, EstadoAlertaCount } from '@/dashboard/dominio/puertos/dashboard.port';
 import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
@@ -180,5 +180,51 @@ export class DashboardPrismaAdapter implements DashboardRepositorioPort {
       tiemposCierre,
       alertasConTiempoRegistro,
     };
+  }
+
+  async obtenerDistribucionEstados(): Promise<EstadoAlertaCount[]> {
+    const distribucion = await this.prisma.alerta.groupBy({
+      by: ['estadoAlerta'],
+      _count: {
+        id: true,
+      },
+    });
+
+    return distribucion.map((item) => ({
+      estado: item.estadoAlerta,
+      cantidad: item._count.id,
+    }));
+  }
+
+  async obtenerAlertasConFechaHora(): Promise<AlertaConFechaHora[]> {
+    return await this.prisma.alerta.findMany({
+      select: {
+        fechaHora: true,
+        idMunicipio: true,
+      },
+    });
+  }
+
+  async obtenerTodasLasAlertas(): Promise<AlertaParaMapa[]> {
+    const alertas = await this.prisma.alerta.findMany({
+      select: {
+        id: true,
+        estadoAlerta: true,
+        idMunicipio: true,
+        fechaHora: true,
+        origen: true,
+      },
+      orderBy: {
+        creadoEn: 'desc',
+      },
+    });
+
+    return alertas.map((alerta) => ({
+      id: alerta.id,
+      estado: alerta.estadoAlerta,
+      idMunicipio: alerta.idMunicipio,
+      fechaHora: alerta.fechaHora,
+      origen: alerta.origen,
+    }));
   }
 }

@@ -14,6 +14,7 @@ import { KERBEROS_PORT_TOKEN } from './dominio/tokens/autenticacion.tokens';
 import { KerberosAdapter } from './infraestructura/adaptadores/kerberos.adapter';
 import { KerberosJwtStrategy } from './infraestructura/estrategias/kerberos-jwt.strategy';
 import { KerberosJwtAuthGuard } from './infraestructura/guards/kerberos-jwt-auth.guard';
+import { RolesGuard } from './infraestructura/guards/roles.guard';
 import { AutenticacionController } from './presentacion/controladores/autenticacion.controller';
 
 @Module({
@@ -29,11 +30,12 @@ import { AutenticacionController } from './presentacion/controladores/autenticac
     CierreSesionSistemaUseCase,
     KerberosJwtStrategy,
     KerberosJwtAuthGuard,
+    RolesGuard,
     {
       provide: APP_FILTER,
       useClass: ExcepcionGlobalFilter,
     },
   ],
-  exports: [KerberosJwtStrategy, KerberosJwtAuthGuard],
+  exports: [KerberosJwtStrategy, KerberosJwtAuthGuard, RolesGuard],
 })
 export class AutenticacionModule {}

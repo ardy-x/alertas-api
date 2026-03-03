@@ -1,0 +1,222 @@
+import * as os from 'node:os';
+import { Injectable } from '@nestjs/common';
+import * as pm2 from 'pm2';
+
+import { SERVICIOS_CONFIG } from '@/config/servicios.config';
+import type { EstadoBaseDatos, EstadoProcesoPM2, EstadoServicioExterno, EstadoWebSocket, OperadoresPorDepartamento, RecursosHardware } from '@/dashboard/dominio/entidades/estado-sistema.entity';
+import type { MonitorSistemaPuerto } from '@/dashboard/dominio/puertos/monitor-sistema.puerto';
+import { ObtenerDepartamentosUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-departamentos.use-case';
+import { PrismaService } from '@/prisma/prisma.service';
+import { AlertasGateway } from '@/websockets/infraestructura/alertas.gateway';
+
+@Injectable()
+export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
+  constructor(
+    private readonly prismaService: PrismaService,
+    private readonly alertasGateway: AlertasGateway,
+    private readonly obtenerDepartamentosUseCase: ObtenerDepartamentosUseCase,
+  ) {}
+
+  async obtenerEstadoProcesosPM2(nombresProcesos: string[]): Promise<EstadoProcesoPM2[]> {
+    return new Promise((resolve) => {
+      pm2.connect((err) => {
+        if (err) {
+          resolve(
+            nombresProcesos.map((nombre) => ({
+              nombre,
+              status: 'unknown' as const,
+            })),
+          );
+          return;
+        }
+
+        pm2.list((err, lista) => {
+          pm2.disconnect();
+
+          if (err || !lista) {
+            resolve(
+              nombresProcesos.map((nombre) => ({
+                nombre,
+                status: 'unknown' as const,
+              })),
+            );
+            return;
+          }
+
+          const resultado = nombresProcesos.map((nombre) => {
+            const proceso = lista.find((p) => p.name === nombre);
+
+            if (!proceso) {
+              return {
+                nombre,
+                status: 'unknown' as const,
+              };
+            }
+
+            const status = proceso.pm2_env?.status;
+            let estadoFinal: 'online' | 'errored' | 'stopped' | 'unknown';
+
+            if (status === 'online') {
+              estadoFinal = 'online';
+            } else if (status === 'errored') {
+              estadoFinal = 'errored';
+            } else if (status === 'stopped' || status === 'stopping') {
+              estadoFinal = 'stopped';
+            } else {
+              estadoFinal = 'unknown';
+            }
+
+            return {
+              nombre,
+              status: estadoFinal,
+            };
+          });
+
+          resolve(resultado);
+        });
+      });
+    });
+  }
+
+  async verificarConexionBaseDatos(): Promise<EstadoBaseDatos> {
+    try {
+      await this.prismaService.$queryRaw`SELECT 1`;
+      return { db_status: 'connected' };
+    } catch {
+      return { db_status: 'error' };
+    }
+  }
+
+  async obtenerRecursosHardware(): Promise<RecursosHardware> {
+    const cpus = os.cpus();
+    let totalIdle = 0;
+    let totalTick = 0;
+
+    for (const cpu of cpus) {
+      for (const type in cpu.times) {
+        totalTick += cpu.times[type as keyof typeof cpu.times];
+      }
+      totalIdle += cpu.times.idle;
+    }
+
+    const idle = totalIdle / cpus.length;
+    const total = totalTick / cpus.length;
+    const usage = 100 - Math.floor((100 * idle) / total);
+
+    const totalMem = os.totalmem();
+    const freeMem = os.freemem();
+    const usedMem = totalMem - freeMem;
+
+    return {
+      cpu_load: `${usage}%`,
+      free_mem: this.formatearBytes(freeMem),
+      total_mem: this.formatearBytes(totalMem),
+      used_mem: this.formatearBytes(usedMem),
+    };
+  }
+
+  async obtenerEstadoConexionesWebSocket(): Promise<EstadoWebSocket> {
+    const porDepartamento = await this.obtenerOperadoresPorDepartamento();
+    const operadoresConectados = porDepartamento.reduce((total, dept) => total + dept.operadores_conectados, 0);
+    const servidorActivo = this.alertasGateway.servidor !== undefined && this.alertasGateway.servidor !== null;
+
+    return {
+      status: servidorActivo ? 'active' : 'inactive',
+      operadores_conectados: operadoresConectados,
+      por_departamento: porDepartamento,
+    };
+  }
+
+  private formatearBytes(bytes: number): string {
+    const gb = bytes / (1024 * 1024 * 1024);
+    return `${gb.toFixed(2)}GB`;
+  }
+
+  private async obtenerOperadoresPorDepartamento(): Promise<OperadoresPorDepartamento[]> {
+    if (!this.alertasGateway.servidor) {
+      return [];
+    }
+
+    const departamentosMap = new Map<number, number>();
+    const rooms = this.alertasGateway.servidor.sockets.adapter.rooms;
+
+    for (const [roomName] of rooms) {
+      if (roomName.startsWith('operadores-')) {
+        const idDepartamento = parseInt(roomName.replace('operadores-', ''), 10);
+        const sala = rooms.get(roomName);
+        const cantidad = sala?.size ?? 0;
+
+        if (cantidad > 0) {
+          departamentosMap.set(idDepartamento, cantidad);
+        }
+      }
+    }
+
+    if (departamentosMap.size === 0) {
+      return [];
+    }
+
+    const todosDepartamentos = await this.obtenerDepartamentosUseCase.ejecutar();
+
+    return Array.from(departamentosMap.entries())
+      .map(([idDept, cantidad]) => {
+        const dept = todosDepartamentos.find((d) => d.id === idDept);
+        return {
+          departamento: dept?.departamento ?? `Departamento ${idDept}`,
+          operadores_conectados: cantidad,
+        };
+      })
+      .sort((a, b) => b.operadores_conectados - a.operadores_conectados);
+  }
+
+  async verificarServiciosExternos(): Promise<EstadoServicioExterno[]> {
+    const servicios = [
+      { nombre: 'Catálogos API', url: SERVICIOS_CONFIG.catalogosApiBase },
+      { nombre: 'GeoServer', url: SERVICIOS_CONFIG.geoServerApiBase },
+      { nombre: 'Jupiter API', url: SERVICIOS_CONFIG.jupiterApiBase },
+      { nombre: 'Kerberos API', url: SERVICIOS_CONFIG.kerberosApiBase },
+      { nombre: 'WhatsApp API', url: SERVICIOS_CONFIG.whatsappApiBase },
+      { nombre: 'Email API', url: SERVICIOS_CONFIG.emailApiBase },
+      { nombre: 'Personal API', url: SERVICIOS_CONFIG.personalApiBase },
+    ];
+
+    const verificaciones = servicios.map(async (servicio) => {
+      if (!servicio.url) {
+        return {
+          nombre: servicio.nombre,
+          url: 'No configurado',
+          status: 'offline' as const,
+        };
+      }
+
+      const inicio = Date.now();
+      try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 5000);
+
+        await fetch(servicio.url, {
+          method: 'HEAD',
+          signal: controller.signal,
+        });
+
+        clearTimeout(timeout);
+        const tiempoRespuesta = Date.now() - inicio;
+
+        return {
+          nombre: servicio.nombre,
+          url: servicio.url,
+          status: 'online' as const,
+          tiempo_respuesta: tiempoRespuesta,
+        };
+      } catch {
+        return {
+          nombre: servicio.nombre,
+          url: servicio.url,
+          status: 'offline' as const,
+        };
+      }
+    });
+
+    return Promise.all(verificaciones);
+  }
+}

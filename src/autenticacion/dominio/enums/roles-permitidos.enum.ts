@@ -1,0 +1,5 @@
+export enum RolesPermitidos {
+  COORDINADOR = 'COORDINADOR',
+  SUPERVISOR = 'SUPERVISOR',
+  OPERADOR = 'OPERADOR',
+}

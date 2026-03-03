@@ -55,6 +55,16 @@ export interface ActualizarDatosCuenta {
   infoDispositivo?: InformacionDispositivo;
 }
 
+export interface PermisoApp {
+  ubicacion: boolean;
+  notificaciones: boolean;
+}
+
+export interface ActualizarConexion {
+  ultimaConexion: Date;
+  permisosApp: PermisoApp;
+}
+
 export interface FiltrosVictima extends PaginacionQuery {
   estadoCuenta?: EstadoCuenta[];
   municipiosIds?: number[];
