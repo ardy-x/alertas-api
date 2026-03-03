@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { LogDatosInterceptor } from '@/core/interceptores/log-datos.interceptor';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
@@ -67,6 +67,7 @@ export class VictimasController {
   @Patch(':idVictima/contacto')
   @UseGuards(ClaveApiGuard)
   @ApiOperation({ summary: 'Actualizar datos de contacto de la víctima' })
+  @ApiSecurity('api-key')
   @ApiBody({ type: ActualizarDatosContactoRequestDto })
   async actualizarContacto(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() actualizarDatosContactoDto: ActualizarDatosContactoRequestDto): Promise<RespuestaBaseDto> {
     await this.actualizarDatosContactoUseCase.ejecutar(idVictima, actualizarDatosContactoDto);
@@ -76,6 +77,7 @@ export class VictimasController {
   @Patch(':idVictima/ubicacion')
   @UseGuards(ClaveApiGuard)
   @ApiOperation({ summary: 'Actualizar ubicación de la víctima' })
+  @ApiSecurity('api-key')
   @ApiBody({ type: ActualizarUbicacionRequestDto })
   async actualizarUbicacion(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() actualizarUbicacionDto: ActualizarUbicacionRequestDto): Promise<RespuestaBaseDto> {
     await this.actualizarUbicacionUseCase.ejecutar(idVictima, actualizarUbicacionDto);
@@ -85,6 +87,7 @@ export class VictimasController {
   @Patch(':idVictima/cuenta')
   @UseGuards(ClaveApiGuard)
   @ApiOperation({ summary: 'Actualizar datos de cuenta de la víctima' })
+  @ApiSecurity('api-key')
   @ApiBody({ type: ActualizarDatosCuentaRequestDto })
   async actualizarCuenta(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() actualizarDatosCuentaDto: ActualizarDatosCuentaRequestDto) {
     await this.actualizarDatosCuentaUseCase.ejecutar(idVictima, actualizarDatosCuentaDto);
@@ -94,6 +97,7 @@ export class VictimasController {
   @Patch(':idVictima/cerrar-sesion')
   @UseGuards(ClaveApiGuard)
   @ApiOperation({ summary: 'Cerrar sesión de la víctima (cambiar estado a INACTIVA)' })
+  @ApiSecurity('api-key')
   async cerrarSesion(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto> {
     await this.cerrarSesionUseCase.ejecutar(idVictima);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Sesión cerrada exitosamente');
@@ -102,6 +106,7 @@ export class VictimasController {
   @Patch(':idVictima/conexion')
   @UseGuards(ClaveApiGuard)
   @ApiOperation({ summary: 'Registrar conexión y verificar permisos de la app' })
+  @ApiSecurity('api-key')
   @ApiBody({ type: RegistrarConexionRequestDto })
   async registrarConexion(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() registrarConexionDto: RegistrarConexionRequestDto): Promise<RespuestaBaseDto> {
     await this.registrarConexionUseCase.ejecutar(idVictima, registrarConexionDto.permisosApp);

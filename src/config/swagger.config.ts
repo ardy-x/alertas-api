@@ -15,7 +15,7 @@ export const SWAGGER_CONFIG = new DocumentBuilder()
   .setTitle(env.API_TITLE)
   .setDescription(env.API_DESCRIPTION)
   .setVersion(env.API_VERSION)
-  .addServer('api') // Agregar el prefijo global a la documentación
+  .addServer('api')
   .addBearerAuth(
     {
       type: 'http',
@@ -36,6 +36,4 @@ export const SWAGGER_CONFIG = new DocumentBuilder()
     },
     'api-key',
   )
-  .addSecurityRequirements('JWT-auth')
-  .addSecurityRequirements('api-key')
   .build();
