@@ -1,7 +1,7 @@
-import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
-
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
+import { LogDatosInterceptor } from '@/core/interceptores/log-datos.interceptor';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { ActualizarDatosContactoUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-datos-contacto.use-case';
 import { ActualizarDatosCuentaUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-datos-cuenta.use-case';
@@ -21,6 +21,7 @@ import { VictimaDto } from '../dto/salida/verificar-denuncia.dto';
 import { VerificarVictimaResponse, VictimaResponseDto } from '../dto/salida/victima.dto';
 @ApiTags('VÍCTIMAS')
 @Controller('victimas')
+@UseInterceptors(LogDatosInterceptor)
 export class VictimasController {
   constructor(
     private readonly crearVictimaUseCase: CrearVictimaUseCase,
