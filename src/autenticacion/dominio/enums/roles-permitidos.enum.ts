@@ -1,10 +1,5 @@
-/**
- * Roles válidos dentro del sistema.
- * Deben coincidir con los valores del campo `systemData.role` del token JWT.
- */
 export enum RolesPermitidos {
-  ADMIN = 'ADMIN',
+  COORDINADOR = 'COORDINADOR',
   SUPERVISOR = 'SUPERVISOR',
   OPERADOR = 'OPERADOR',
-  USUARIO = 'USUARIO',
 }
