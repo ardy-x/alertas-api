@@ -72,16 +72,16 @@ export class AlertasGateway implements OnGatewayConnection, OnGatewayDisconnect,
   }
 
   /**
-   * Método helper para emitir eventos a la sala de supervisores de un departamento
+   * Método helper para emitir eventos a la sala de operadores de un departamento
    */
   private emitirASala(idDepartamento: number, evento: string, datos: unknown): void {
     const salaDepartamento = `operadores-${idDepartamento}`;
     this.servidor.to(salaDepartamento).emit(evento, datos);
-    this.logger.log(`Evento '${evento}' emitido a supervisores del departamento ${idDepartamento}`);
+    this.logger.log(`Evento '${evento}' emitido a operadores del departamento ${idDepartamento}`);
   }
 
   /**
-   * Notificar nueva alerta a supervisores
+   * Notificar nueva alerta a operadores
    */
   notificarAlertaCreada(datosAlerta: NotificarAlertaCreadaDatos): void {
     this.logger.log(`Nueva alerta - ID: ${datosAlerta.idAlerta}, Estado: ${datosAlerta.estado}, Departamento: ${datosAlerta.idDepartamento}`);
@@ -98,7 +98,7 @@ export class AlertasGateway implements OnGatewayConnection, OnGatewayDisconnect,
   }
 
   /**
-   * Notificar cancelación de solicitud a supervisores
+   * Notificar cancelación de solicitud a operadores
    */
   notificarCancelacionSolicitud(datosCancelacion: NotificarCancelacionSolicitudDatos): void {
     this.logger.log(`Cancelación de solicitud - ID: ${datosCancelacion.idSolicitud}, Alerta: ${datosCancelacion.idAlerta}`);
