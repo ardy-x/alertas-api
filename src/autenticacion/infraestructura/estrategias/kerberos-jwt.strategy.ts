@@ -7,6 +7,10 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 interface KerberosJwtPayload {
   userId: string;
   userSystemId: string;
+  nroDocumento: string;
+  sid: string;
+  role: string;
+  systems: string[];
   iat: number;
   exp: number;
 }
