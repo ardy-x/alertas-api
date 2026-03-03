@@ -15,6 +15,7 @@ import { ListarVictimasUseCase } from './aplicacion/casos-uso/listar-victimas.us
 import { MarcarContactoPrincipalUseCase } from './aplicacion/casos-uso/marcar-contacto-principal.use-case';
 import { ObtenerHistorialAlertasVictimaUseCase } from './aplicacion/casos-uso/obtener-historial-alertas-victima.use-case';
 import { ObtenerVictimaUseCase } from './aplicacion/casos-uso/obtener-victima.use-case';
+import { RegistrarConexionUseCase } from './aplicacion/casos-uso/registrar-conexion.use-case';
 import { SuspenderCuentaUseCase } from './aplicacion/casos-uso/suspender-cuenta.use-case';
 import { SolicitarCodigoEmailUseCase } from './aplicacion/casos-uso/validacion/solicitar-codigo-email.use-case';
 import { SolicitarCodigoWhatsappUseCase } from './aplicacion/casos-uso/validacion/solicitar-codigo-whatsapp.use-case';
@@ -62,6 +63,7 @@ import { VictimasWebController } from './presentacion/controladores/victimas-web
     SuspenderCuentaUseCase,
     ObtenerHistorialAlertasVictimaUseCase,
     CerrarSesionUseCase,
+    RegistrarConexionUseCase,
 
     // Casos de Uso - Contactos de Emergencia
     AgregarContactoVictimaUseCase,
