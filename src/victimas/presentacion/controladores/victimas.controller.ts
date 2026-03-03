@@ -14,7 +14,7 @@ import { VerificarDenunciaUseCase } from '@/victimas/aplicacion/casos-uso/verifi
 import { VerificarVictimaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-victima.use-case';
 
 import { ClaveApiGuard } from '../../infraestructura/guards/clave-api.guard';
-import { RegistrarConexionRequestDto } from '../dto/entrada/registrar-conexion.dto';
+import { PermisosAppDto } from '../dto/entrada/permisos-app.dto';
 import { VerificarDenunciaRequestDto } from '../dto/entrada/verificar-denuncia.dto';
 import { ActualizarDatosContactoRequestDto, ActualizarDatosCuentaRequestDto, ActualizarUbicacionRequestDto, CrearVictimaRequestDto, VerificarVictimaParamsDto } from '../dto/entrada/victima.dto';
 import { VictimaDto } from '../dto/salida/verificar-denuncia.dto';
@@ -107,9 +107,9 @@ export class VictimasController {
   @UseGuards(ClaveApiGuard)
   @ApiOperation({ summary: 'Registrar conexión y verificar permisos de la app' })
   @ApiSecurity('api-key')
-  @ApiBody({ type: RegistrarConexionRequestDto })
-  async registrarConexion(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() registrarConexionDto: RegistrarConexionRequestDto): Promise<RespuestaBaseDto> {
-    await this.registrarConexionUseCase.ejecutar(idVictima, registrarConexionDto.permisosApp);
+  @ApiBody({ type: PermisosAppDto })
+  async registrarConexion(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() registrarConexionDto: PermisosAppDto): Promise<RespuestaBaseDto> {
+    await this.registrarConexionUseCase.ejecutar(idVictima, registrarConexionDto);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Conexión registrada exitosamente');
   }
 }

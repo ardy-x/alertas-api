@@ -57,7 +57,6 @@ export interface ActualizarDatosCuenta {
 
 export interface PermisoApp {
   ubicacion: boolean;
-  ubicacionSegundoPlano: boolean;
   notificaciones: boolean;
 }
 
