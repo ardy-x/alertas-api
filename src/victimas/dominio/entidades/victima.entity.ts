@@ -3,10 +3,10 @@ import { EstadoCuenta } from '../enums/victima-enums';
 import { ContactoEmergencia } from './contacto-emergencia.entity';
 
 export interface InformacionDispositivo {
-  marca: string;
-  modelo: string;
-  versionSO: string;
-  versionApp: string;
+  marca?: string;
+  modelo?: string;
+  versionSO?: string;
+  versionApp?: string;
 }
 
 export interface VictimaBase {

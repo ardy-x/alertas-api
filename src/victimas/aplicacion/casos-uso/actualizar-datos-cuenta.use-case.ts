@@ -14,6 +14,7 @@ export class ActualizarDatosCuentaUseCase {
 
   async ejecutar(idVictima: string, entrada: ActualizarDatosCuentaRequestDto): Promise<void> {
     const victimaExistente = await this.victimaRepositorio.obtenerVictimaConDispositivo(idVictima);
+
     if (!victimaExistente) {
       throw new NotFoundException('Víctima no encontrada');
     }
