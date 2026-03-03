@@ -23,7 +23,7 @@ interface DatosConexion {
 })
 export class AlertasGateway implements OnGatewayConnection, OnGatewayDisconnect, AlertasGatewayPort {
   @WebSocketServer()
-  servidor: Server;
+  servidor!: Server;
 
   private readonly logger = new Logger(AlertasGateway.name);
 
