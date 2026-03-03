@@ -127,6 +127,8 @@ export class AlertaVictimaPrismaAdapter implements AlertaVictimaRepositorioPort 
           correo: true,
           creadoEn: true,
           actualizadoEn: true,
+          ultimaConexion: true,
+          permisosApp: true,
         },
         orderBy: { [campoOrden]: direccionOrden },
         skip,
@@ -135,18 +137,32 @@ export class AlertaVictimaPrismaAdapter implements AlertaVictimaRepositorioPort 
       this.prisma.victima.count({ where }),
     ]);
 
-    const victimas: VictimaBase[] = rows.map((victima) => ({
-      id: victima.id,
-      cedulaIdentidad: victima.cedulaIdentidad,
-      nombreCompleto: victima.nombreCompleto,
-      celular: victima.celular,
-      estadoCuenta: victima.estadoCuenta as EstadoCuenta,
-      idMunicipio: victima.idMunicipio,
-      fechaNacimiento: victima.fechaNacimiento,
-      correo: victima.correo || undefined,
-      creadoEn: victima.creadoEn || undefined,
-      actualizadoEn: victima.actualizadoEn || undefined,
-    }));
+    const victimas: VictimaBase[] = rows.map((victima) => {
+      let permisosAppParsed: { ubicacion: boolean; notificaciones: boolean } | undefined;
+
+      if (victima.permisosApp) {
+        if (typeof victima.permisosApp === 'string') {
+          permisosAppParsed = JSON.parse(victima.permisosApp);
+        } else if (typeof victima.permisosApp === 'object') {
+          permisosAppParsed = victima.permisosApp as { ubicacion: boolean; notificaciones: boolean };
+        }
+      }
+
+      return {
+        id: victima.id,
+        cedulaIdentidad: victima.cedulaIdentidad,
+        nombreCompleto: victima.nombreCompleto,
+        celular: victima.celular,
+        estadoCuenta: victima.estadoCuenta as EstadoCuenta,
+        idMunicipio: victima.idMunicipio,
+        fechaNacimiento: victima.fechaNacimiento,
+        correo: victima.correo || undefined,
+        creadoEn: victima.creadoEn || undefined,
+        actualizadoEn: victima.actualizadoEn || undefined,
+        ultimaConexion: victima.ultimaConexion || undefined,
+        permisosApp: permisosAppParsed || undefined,
+      };
+    });
 
     return {
       victimas,

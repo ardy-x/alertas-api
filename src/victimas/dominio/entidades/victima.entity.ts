@@ -19,6 +19,8 @@ export interface VictimaBase {
   correo?: string;
   estadoCuenta: EstadoCuenta;
   creadoEn?: Date;
+  ultimaConexion?: Date;
+  permisosApp?: PermisoApp;
 }
 
 export interface VictimaConDispositivo extends VictimaBase {

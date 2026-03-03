@@ -50,6 +50,8 @@ export class ListarVictimasUseCase {
         correo: victima.correo || undefined,
         estadoCuenta: victima.estadoCuenta,
         creadoEn: victima.creadoEn || new Date(),
+        ultimaConexion: victima.ultimaConexion || undefined,
+        permisosApp: victima.permisosApp || undefined,
       }),
     );
 

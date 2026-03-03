@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-
 import { PaginacionDto } from '@/core/dto/paginacion-response.dto';
+import { PermisosAppDto } from '../entrada/permisos-app.dto';
 
 export class VictimaBaseResponseDto {
   @ApiProperty()
@@ -23,6 +23,12 @@ export class VictimaBaseResponseDto {
 
   @ApiProperty()
   creadoEn: Date;
+
+  @ApiPropertyOptional()
+  ultimaConexion?: Date;
+
+  @ApiPropertyOptional()
+  permisosApp?: PermisosAppDto;
 }
 
 export class ContactoEmergenciaResponseDto {
