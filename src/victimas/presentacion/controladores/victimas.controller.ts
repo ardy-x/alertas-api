@@ -102,8 +102,8 @@ export class VictimasController {
   @UseGuards(ClaveApiGuard)
   @ApiOperation({ summary: 'Registrar conexión y verificar permisos de la app' })
   @ApiBody({ type: RegistrarConexionRequestDto })
-  async registrarConexion(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() { permisosApp }: RegistrarConexionRequestDto): Promise<RespuestaBaseDto> {
-    await this.registrarConexionUseCase.ejecutar(idVictima, permisosApp);
+  async registrarConexion(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() registrarConexionDto: RegistrarConexionRequestDto): Promise<RespuestaBaseDto> {
+    await this.registrarConexionUseCase.ejecutar(idVictima, registrarConexionDto.permisosApp);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Conexión registrada exitosamente');
   }
 }
