@@ -6,6 +6,7 @@ import { AlertaRepositorioPort } from '@/alertas/dominio/puertos/alerta.port';
 import { AlertaEstadoDominioService } from '@/alertas/dominio/servicios/alerta-estado-dominio.service';
 import { EventoDominioService } from '@/alertas/dominio/servicios/evento-dominio.service';
 import { ALERTA_REPOSITORIO_TOKEN, EVENTO_DOMINIO_SERVICE_TOKEN } from '@/alertas/dominio/tokens/alerta.tokens';
+import { NotificarAtencionAlertaUseCase } from './atenciones/notificar-atencion-alerta.use-case';
 
 @Injectable()
 export class MarcarEnAtencionUseCase {
@@ -14,20 +15,32 @@ export class MarcarEnAtencionUseCase {
     private readonly alertaRepositorio: AlertaRepositorioPort,
     @Inject(EVENTO_DOMINIO_SERVICE_TOKEN)
     private readonly eventoDominioService: EventoDominioService,
+    private readonly notificarAtencionAlertaUseCase: NotificarAtencionAlertaUseCase,
   ) {}
 
   async ejecutar(idAlerta: string, idUsuarioWeb: string): Promise<void> {
-    const estadoActual = await this.alertaRepositorio.obtenerEstadoAlerta(idAlerta);
-    if (!estadoActual) {
+    const alerta = await this.alertaRepositorio.obtenerAlertaSimple(idAlerta);
+
+    if (!alerta) {
       throw new NotFoundException('Alerta no encontrada');
     }
 
-    const transicionValida = AlertaEstadoDominioService.validarCambioEstado(estadoActual, EstadoAlerta.EN_ATENCION);
+    const transicionValida = AlertaEstadoDominioService.validarCambioEstado(alerta.estadoAlerta, EstadoAlerta.EN_ATENCION);
+
     if (!transicionValida) {
-      throw new ConflictException(`No se puede cambiar la alerta a EN_ATENCION desde el estado actual: ${estadoActual}`);
+      throw new ConflictException(`No se puede cambiar la alerta a EN_ATENCION desde el estado actual: ${alerta.estadoAlerta}`);
     }
 
     await this.alertaRepositorio.actualizarEstado(idAlerta, EstadoAlerta.EN_ATENCION);
+
+    // Notificar a la víctima que el policía tomó contacto
+    if (alerta.idVictima) {
+      await this.notificarAtencionAlertaUseCase.ejecutar({
+        idAlerta,
+        idVictima: alerta.idVictima,
+        estadoFinal: EstadoAlerta.EN_ATENCION,
+      });
+    }
 
     await this.eventoDominioService.registrarEventoSemiautomatico(idAlerta, TipoEvento.ATENCION_VICTIMA, idUsuarioWeb);
   }

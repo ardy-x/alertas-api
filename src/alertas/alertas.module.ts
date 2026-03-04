@@ -8,6 +8,7 @@ import { VictimasModule } from '../victimas/victimas.module';
 import { ActualizarAlertaUseCase } from './aplicacion/casos-uso/actualizar-alerta.use-case';
 import { AgregarFuncionarioUseCase } from './aplicacion/casos-uso/atenciones/agregar-funcionario.use-case';
 import { CrearAtencionCompletaUseCase } from './aplicacion/casos-uso/atenciones/crear-atencion-completa.use-case';
+import { NotificarAtencionAlertaUseCase } from './aplicacion/casos-uso/atenciones/notificar-atencion-alerta.use-case';
 import { crearAlertaAttUseCase } from './aplicacion/casos-uso/att/crear-alerta-att.use-case';
 import { CerrarAlertaUseCase } from './aplicacion/casos-uso/cierre-alertas/cerrar-alerta.use-case';
 import { NotificarCierreAlertaUseCase } from './aplicacion/casos-uso/cierre-alertas/notificar-cierre-alerta.use-case';
@@ -75,6 +76,7 @@ import { SolicitudesCancelacionController } from './presentacion/controladores/s
     ObtenerAlertaPorIdUseCase,
     ObtenerEstadoAlertaUseCase,
     MarcarEnAtencionUseCase,
+    NotificarAtencionAlertaUseCase,
     crearAlertaAttUseCase,
     CrearPuntoRutaUseCase,
     NotificarCreacionAlertaUseCase,
