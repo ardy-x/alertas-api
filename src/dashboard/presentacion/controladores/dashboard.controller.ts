@@ -1,6 +1,6 @@
-import { Controller, Get, HttpStatus, Query } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-
+import { Controller, Get, HttpStatus, Query, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { ObtenerAlertasPorUbicacionUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-alertas-por-ubicacion.use-case';
 import { ObtenerAlertasRecientesUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-alertas-recientes.use-case';
@@ -10,7 +10,6 @@ import { ObtenerMapaCalorUseCase } from '@/dashboard/aplicacion/casos-uso/obtene
 import { ObtenerMetricasGeneralesUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-metricas-generales.use-case';
 import { ObtenerMetricasTiempoUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-metricas-tiempo.use-case';
 import { ObtenerPatronHorarioUseCase } from '@/dashboard/aplicacion/casos-uso/obtener-patron-horario.use-case';
-
 import { DistribucionEstadosDto } from '../dto/distribucion-estados.dto';
 import { EstadoSistemaDto } from '../dto/estado-sistema.dto';
 import { MapaCalorQueryDto } from '../dto/mapa-calor-query.dto';
@@ -18,6 +17,8 @@ import { PatronHorarioDto } from '../dto/patron-horario.dto';
 
 @ApiTags('DASHBOARD')
 @Controller('dashboard')
+@UseGuards(KerberosJwtAuthGuard)
+@ApiSecurity('jwt-auth')
 export class DashboardController {
   constructor(
     private readonly obtenerMetricasGeneralesUseCase: ObtenerMetricasGeneralesUseCase,

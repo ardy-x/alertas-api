@@ -1,5 +1,5 @@
 import { Controller, Get, HttpStatus, Param, ParseUUIDPipe, Query, Res, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiProduces, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiProduces, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { ReporteDetalleAlertaUseCase } from '@/reportes/aplicacion/casos-uso/reporte-detalle-alerta.use-case';
@@ -8,7 +8,7 @@ import { ReporteHistorialVictimaUseCase } from '@/reportes/aplicacion/casos-uso/
 import { ReporteHistorialAlertasQueryDto } from '@/reportes/presentacion/dto/reporte-historial-alertas-query.dto';
 @ApiTags('REPORTES')
 @Controller('reportes')
-@ApiBearerAuth('kerberos-jwt-auth')
+@ApiSecurity('jwt-auth')
 @UseGuards(KerberosJwtAuthGuard)
 export class ReportesController {
   constructor(

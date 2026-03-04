@@ -1,5 +1,5 @@
 import { Controller, Get, HttpStatus, Param, ParseUUIDPipe, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { PaginacionRespuestaBaseDto, RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
@@ -14,7 +14,7 @@ import { ListarVictimasData } from '../dto/salida/victima.dto';
 
 @ApiTags('VÍCTIMAS WEB')
 @Controller('victimas')
-@ApiBearerAuth('kerberos-jwt-auth')
+@ApiSecurity('jwt-auth')
 @UseGuards(KerberosJwtAuthGuard)
 export class VictimasWebController {
   constructor(

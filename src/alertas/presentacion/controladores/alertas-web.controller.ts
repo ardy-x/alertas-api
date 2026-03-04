@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { ListarAlertasActivasUseCase } from '@/alertas/aplicacion/casos-uso/listar-alertas-activas.use-case';
 import { ListarHistorialAlertasUseCase } from '@/alertas/aplicacion/casos-uso/listar-historial-alertas.use-case';
@@ -16,7 +16,7 @@ import { AlertaActivaDto, AlertaDetalleDto, ObtenerHistorialAlertasResponseDto }
 
 @ApiTags('ALERTAS WEB')
 @Controller('alertas')
-@ApiBearerAuth('kerberos-jwt-auth')
+@ApiSecurity('jwt-auth')
 @UseGuards(KerberosJwtAuthGuard)
 export class AlertasWebController {
   constructor(

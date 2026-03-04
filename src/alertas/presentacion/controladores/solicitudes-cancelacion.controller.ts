@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Put, Query, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { ListarSolicitudesUseCase } from '@/alertas/aplicacion/casos-uso/solicitudes-cancelacion/listar-solicitudes.use-case';
 import { ObtenerSolicitudDetalleUseCase } from '@/alertas/aplicacion/casos-uso/solicitudes-cancelacion/obtener-solicitud-detalle.use-case';
@@ -12,9 +12,10 @@ import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { ObtenerSolicitudesCancelacionRequestDto, ProcesarSolicitudCancelacionRequestDto } from '../dto/entrada/solicitudes-cancelacion-entrada.dto';
 import { ObtenerSolicitudDetalleResponseDto, ObtenerSolicitudesResponseDto } from '../dto/salida/solicitudes-cancelacion-salida.dto';
 
+@ApiTags('SOLICITUDES DE CANCELACIÓN')
 @Controller('solicitudes-cancelacion')
 @UseGuards(KerberosJwtAuthGuard)
-@ApiTags('SOLICITUDES DE CANCELACIÓN')
+@ApiSecurity('jwt-auth')
 export class SolicitudesCancelacionController {
   constructor(
     private readonly obtenerSolicitudesUseCase: ListarSolicitudesUseCase,

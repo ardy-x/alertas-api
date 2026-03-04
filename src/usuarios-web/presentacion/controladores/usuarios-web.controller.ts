@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Query } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { PaginacionRespuestaBaseDto, RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
@@ -13,6 +13,7 @@ import { ListarUsuariosWebResponseDto, UsuarioWebResponseDto } from '../dto/sali
 
 @ApiTags('USUARIOS WEB')
 @Controller('usuarios-web')
+@ApiSecurity('jwt-auth')
 export class UsuariosWebController {
   constructor(
     private readonly registrarTokenFCMUseCase: RegistrarTokenFCMUseCase,

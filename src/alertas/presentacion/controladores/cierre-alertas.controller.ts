@@ -1,5 +1,5 @@
 import { Body, Controller, HttpStatus, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiParam, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiParam, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { CerrarAlertaUseCase } from '@/alertas/aplicacion/casos-uso/cierre-alertas/cerrar-alerta.use-case';
 import { IdUsuarioActual } from '@/autenticacion/infraestructura/decoradores/id-usuario.decorator';
@@ -12,6 +12,7 @@ import { CerrarAlertaRequestDto } from '../dto/entrada/cierre-alertas-entrada.dt
 @ApiTags('CIERRE DE ALERTAS')
 @Controller('cierre-alertas')
 @UseGuards(KerberosJwtAuthGuard)
+@ApiSecurity('jwt-auth')
 export class CierreAlertasController {
   constructor(private readonly cerrarAlertaUseCase: CerrarAlertaUseCase) {}
   @Post(':idAlerta')

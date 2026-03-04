@@ -1,5 +1,5 @@
 import { Body, Controller, HttpStatus, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { AgregarFuncionarioUseCase } from '@/alertas/aplicacion/casos-uso/atenciones/agregar-funcionario.use-case';
 import { CrearAtencionCompletaUseCase } from '@/alertas/aplicacion/casos-uso/atenciones/crear-atencion-completa.use-case';
@@ -10,9 +10,10 @@ import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 
 import { CrearAtencionCompletaRequestDto, CrearFuncionarioAtencionRequestDto } from '../dto/entrada/atenciones-entrada.dto';
 
+@ApiTags('ATENCIONES')
 @Controller('atenciones')
 @UseGuards(KerberosJwtAuthGuard)
-@ApiTags('ATENCIONES')
+@ApiSecurity('jwt-auth')
 export class AtencionesController {
   constructor(
     private readonly crearAtencionCompletaUseCase: CrearAtencionCompletaUseCase,
