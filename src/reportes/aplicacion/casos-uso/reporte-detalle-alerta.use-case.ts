@@ -55,12 +55,21 @@ export class ReporteDetalleAlertaUseCase {
       if (alerta.atencion.atencionFuncionario?.length) {
         const colsFuncionarios: TablaColumna[] = [
           { header: 'NRO', width: 40, align: 'center' },
-          { header: 'NOMBRE COMPLETO', width: 240 },
-          { header: 'GRADO', width: 130 },
-          { header: 'ROL', width: 150 },
-          { header: 'UNIDAD', width: 132 },
+          { header: 'NOMBRE COMPLETO', width: 180 },
+          { header: 'GRADO', width: 90 },
+          { header: 'ROL', width: 90 },
+          { header: 'UNIDAD', width: 90 },
+          { header: 'FECHA LLEGADA', width: 160 },
         ];
-        const filasFuncionarios = alerta.atencion.atencionFuncionario.map((f: FuncionarioAsignadoDto, i) => [String(i + 1), f.nombreCompleto, f.grado, f.rolAtencion, f.unidad]);
+        const filasFuncionarios = alerta.atencion.atencionFuncionario.map((f: FuncionarioAsignadoDto, i) => [
+          String(i + 1),
+          f.nombreCompleto,
+          f.grado,
+          f.rolAtencion,
+          f.unidad,
+          f.fechaLlegada ? new Date(f.fechaLlegada).toLocaleString('es-BO', { timeZone: 'America/La_Paz' }) : 'NO',
+        ]);
+
         this.pdfGenerator.agregarTabla(doc, colsFuncionarios, filasFuncionarios);
       }
     }

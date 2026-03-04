@@ -7,6 +7,7 @@ import { UsuariosWebModule } from '../usuarios-web/usuarios-web.module';
 import { VictimasModule } from '../victimas/victimas.module';
 import { ActualizarAlertaUseCase } from './aplicacion/casos-uso/actualizar-alerta.use-case';
 import { AgregarFuncionarioUseCase } from './aplicacion/casos-uso/atenciones/agregar-funcionario.use-case';
+import { ConfirmarLlegadaFuncionarioUseCase } from './aplicacion/casos-uso/atenciones/confirmar-llegada-funcionario.use-case';
 import { CrearAtencionCompletaUseCase } from './aplicacion/casos-uso/atenciones/crear-atencion-completa.use-case';
 import { NotificarAtencionAlertaUseCase } from './aplicacion/casos-uso/atenciones/notificar-atencion-alerta.use-case';
 import { crearAlertaAttUseCase } from './aplicacion/casos-uso/att/crear-alerta-att.use-case';
@@ -87,6 +88,7 @@ import { SolicitudesCancelacionController } from './presentacion/controladores/s
     // Casos de uso - Atenciones
     CrearAtencionCompletaUseCase,
     AgregarFuncionarioUseCase,
+    ConfirmarLlegadaFuncionarioUseCase,
 
     // Servicios de dominio
     ValidarVictimaService,

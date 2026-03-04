@@ -110,16 +110,18 @@ model Atencion {
 }
 
 model AtencionFuncionario {
-  id            String      @id @default(uuid()) @db.Uuid
-  idAtencion    String      @map("id_atencion") @db.Uuid
-  ciFuncionario String?     @map("ci_funcionario") @db.VarChar(20)
-  rolAtencion   RolAtencion @default(ENCARGADO) @map("rol_atencion")
-  ubicacion     Json?       @db.JsonB
-  unidad        String      @map("unidad") @db.VarChar(255)
-  turnoInicio   DateTime    @map("turno_inicio") @db.Timestamptz()
-  turnoFin      DateTime    @map("turno_fin") @db.Timestamptz()
-  creadoEn      DateTime    @default(now()) @map("creado_en") @db.Timestamptz()
-  actualizadoEn DateTime?   @updatedAt @map("actualizado_en") @db.Timestamptz()
+  id                  String      @id @default(uuid()) @db.Uuid
+  idAtencion          String      @map("id_atencion") @db.Uuid
+  ciFuncionario       String?     @map("ci_funcionario") @db.VarChar(20)
+  rolAtencion         RolAtencion @default(ENCARGADO) @map("rol_atencion")
+  ubicacion           Json?       @db.JsonB
+  unidad              String      @map("unidad") @db.VarChar(255)
+  turnoInicio         DateTime    @map("turno_inicio") @db.Timestamptz()
+  turnoFin            DateTime    @map("turno_fin") @db.Timestamptz()
+  fechaLlegada        DateTime?   @map("fecha_llegada") @db.Timestamptz()
+  confirmacionVictima Boolean     @default(false) @map("confirmacion_victima")
+  creadoEn            DateTime    @default(now()) @map("creado_en") @db.Timestamptz()
+  actualizadoEn       DateTime?   @updatedAt @map("actualizado_en") @db.Timestamptz()
 
   atencion Atencion @relation(fields: [idAtencion], references: [id])
 

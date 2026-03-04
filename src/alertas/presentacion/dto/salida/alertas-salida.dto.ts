@@ -28,6 +28,11 @@ export class FuncionarioAsignadoDto {
 
   @ApiPropertyOptional()
   unidad?: string | null;
+
+  @ApiPropertyOptional({ description: 'Fecha y hora en que el funcionario llegó al lugar' })
+  fechaLlegada?: string | null;
+  @ApiPropertyOptional({ description: 'Confirmación de llegada por la víctima' })
+  confirmacionVictima?: boolean;
 }
 
 export class AtencionDto {

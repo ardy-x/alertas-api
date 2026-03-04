@@ -1,5 +1,5 @@
-import { Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Query, UseGuards } from '@nestjs/common';
-import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Query, UseGuards } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { ListarAlertasActivasUseCase } from '@/alertas/aplicacion/casos-uso/listar-alertas-activas.use-case';
 import { ListarHistorialAlertasUseCase } from '@/alertas/aplicacion/casos-uso/listar-historial-alertas.use-case';
@@ -11,6 +11,7 @@ import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 
 import { AlertasPaginacionQueryDto, FiltrosAlertasActivasRequestDto } from '../dto/entrada/alertas-entrada.dto';
+import { RegistrarLlegadaRequestDto } from '../dto/entrada/atenciones-entrada.dto';
 import { AlertaActivaDto, AlertaDetalleDto, ObtenerHistorialAlertasResponseDto } from '../dto/salida/alertas-salida.dto';
 
 @ApiTags('ALERTAS WEB')
@@ -48,8 +49,9 @@ export class AlertasWebController {
 
   @Patch(':idAlerta/en-atencion')
   @ApiOperation({ summary: 'Marcar alerta en atención' })
-  async marcarEnAtencion(@Param('idAlerta', ParseUUIDPipe) idAlerta: string, @IdUsuarioActual() idUsuarioWeb: string): Promise<RespuestaBaseDto> {
-    await this.marcarEnAtencionUseCase.ejecutar(idAlerta, idUsuarioWeb);
+  @ApiBody({ type: RegistrarLlegadaRequestDto })
+  async marcarEnAtencion(@Param('idAlerta', ParseUUIDPipe) idAlerta: string, @IdUsuarioActual() idUsuarioWeb: string, @Body() body: RegistrarLlegadaRequestDto): Promise<RespuestaBaseDto> {
+    await this.marcarEnAtencionUseCase.ejecutar(idAlerta, idUsuarioWeb, body.ciFuncionario, body.fechaLlegada);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Alerta marcada en atención exitosamente');
   }
 }

@@ -108,3 +108,23 @@ export class CrearFuncionarioAtencionRequestDto {
   @IsString()
   unidad: string;
 }
+
+export class RegistrarLlegadaRequestDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  declare ciFuncionario: string;
+
+  @ApiProperty({ description: 'Fecha/hora en que el funcionario llegó al lugar (ISO 8601)' })
+  @IsNotEmpty()
+  @IsString()
+  @Type(() => String)
+  declare fechaLlegada: string;
+}
+
+export class ConfirmacionVictimaRequestDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  declare ciFuncionario: string;
+}

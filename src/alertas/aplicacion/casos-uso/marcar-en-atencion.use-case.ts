@@ -3,9 +3,11 @@ import { ConflictException, Inject, Injectable, NotFoundException } from '@nestj
 import { EstadoAlerta } from '@/alertas/dominio/enums/alerta-enums';
 import { TipoEvento } from '@/alertas/dominio/enums/evento-enums';
 import { AlertaRepositorioPort } from '@/alertas/dominio/puertos/alerta.port';
+import { AtencionRepositorioPort } from '@/alertas/dominio/puertos/atencion.port';
+import { AtencionPersonalPort } from '@/alertas/dominio/puertos/atencion-funcionario.port';
 import { AlertaEstadoDominioService } from '@/alertas/dominio/servicios/alerta-estado-dominio.service';
 import { EventoDominioService } from '@/alertas/dominio/servicios/evento-dominio.service';
-import { ALERTA_REPOSITORIO_TOKEN, EVENTO_DOMINIO_SERVICE_TOKEN } from '@/alertas/dominio/tokens/alerta.tokens';
+import { ALERTA_REPOSITORIO_TOKEN, ATENCION_FUNCIONARIO_REPOSITORIO_TOKEN, ATENCION_REPOSITORIO_TOKEN, EVENTO_DOMINIO_SERVICE_TOKEN } from '@/alertas/dominio/tokens/alerta.tokens';
 import { NotificarAtencionAlertaUseCase } from './atenciones/notificar-atencion-alerta.use-case';
 
 @Injectable()
@@ -13,12 +15,16 @@ export class MarcarEnAtencionUseCase {
   constructor(
     @Inject(ALERTA_REPOSITORIO_TOKEN)
     private readonly alertaRepositorio: AlertaRepositorioPort,
+    @Inject(ATENCION_REPOSITORIO_TOKEN)
+    private readonly atencionRepositorio: AtencionRepositorioPort,
+    @Inject(ATENCION_FUNCIONARIO_REPOSITORIO_TOKEN)
+    private readonly atencionFuncionarioRepo: AtencionPersonalPort,
     @Inject(EVENTO_DOMINIO_SERVICE_TOKEN)
     private readonly eventoDominioService: EventoDominioService,
     private readonly notificarAtencionAlertaUseCase: NotificarAtencionAlertaUseCase,
   ) {}
 
-  async ejecutar(idAlerta: string, idUsuarioWeb: string): Promise<void> {
+  async ejecutar(idAlerta: string, idUsuarioWeb: string, ciFuncionario: string, fechaLlegada: string): Promise<void> {
     const alerta = await this.alertaRepositorio.obtenerAlertaSimple(idAlerta);
 
     if (!alerta) {
@@ -32,6 +38,18 @@ export class MarcarEnAtencionUseCase {
     }
 
     await this.alertaRepositorio.actualizarEstado(idAlerta, EstadoAlerta.EN_ATENCION);
+
+    const atencion = await this.atencionRepositorio.obtenerPorAlerta(idAlerta);
+    if (!atencion) {
+      throw new NotFoundException('Atención no encontrada');
+    }
+
+    const funcionarios = await this.atencionFuncionarioRepo.obtenerPorAtencion(atencion.id);
+    // marcar solo el especificado
+    const func = funcionarios.find((f) => f.ciFuncionario === ciFuncionario);
+    if (func && !func.fechaLlegada) {
+      await this.atencionFuncionarioRepo.marcarLlegada(atencion.id, ciFuncionario, fechaLlegada);
+    }
 
     // Notificar a la víctima que el policía tomó contacto
     if (alerta.idVictima) {
