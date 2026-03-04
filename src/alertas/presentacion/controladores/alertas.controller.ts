@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { ActualizarAlertaUseCase } from '@/alertas/aplicacion/casos-uso/actualizar-alerta.use-case';
@@ -8,9 +8,9 @@ import { ObtenerEstadoAlertaUseCase } from '@/alertas/aplicacion/casos-uso/obten
 import { ObtenerFuncionariosLlegadosUseCase } from '@/alertas/aplicacion/casos-uso/obtener-funcionarios-llegados.use-case';
 import { CrearSolicitudUseCase } from '@/alertas/aplicacion/casos-uso/solicitudes-cancelacion/crear-solicitud.use-case';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
+import { LogDatosInterceptor } from '@/core/interceptores/log-datos.interceptor';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { ClaveApiGuard } from '@/victimas/infraestructura/guards/clave-api.guard';
-
 import { ActualizarAlertaRequestDto, CrearAlertaRequestDto } from '../dto/entrada/alertas-entrada.dto';
 import { ConfirmacionVictimaRequestDto } from '../dto/entrada/atenciones-entrada.dto';
 import { CrearSolicitudCancelacionRequestDto } from '../dto/entrada/solicitudes-cancelacion-entrada.dto';
@@ -18,6 +18,7 @@ import { CrearAlertaResponseDto, FuncionarioLlegadoDto } from '../dto/salida/ale
 
 @ApiTags('ALERTAS')
 @Controller('alertas')
+@UseInterceptors(LogDatosInterceptor)
 @UseGuards(ClaveApiGuard)
 @ApiSecurity('api-key')
 export class AlertasController {
