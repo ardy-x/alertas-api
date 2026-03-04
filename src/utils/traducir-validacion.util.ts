@@ -23,6 +23,7 @@ export function traducirMensaje(mensaje: string): string {
     'must not be less than': 'no debe ser menor que',
     'each value in': 'cada valor en',
     'must be one of the following values': 'debe ser uno de los siguientes valores',
+    'conforming to the specified constraints': 'que cumpla con las restricciones especificadas',
     characters: 'caracteres',
   };
 

@@ -149,6 +149,7 @@ import { SolicitudesCancelacionController } from './presentacion/controladores/s
   ],
   exports: [
     ObtenerAlertaPorIdUseCase,
+    ListarHistorialAlertasUseCase,
     AlertaPrismaAdapter,
     CierreAlertaPrismaAdapter,
     RutaAlertaPrismaAdapter,

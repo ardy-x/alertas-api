@@ -139,6 +139,12 @@ export class VictimaResumenDto {
     example: '70123456',
   })
   celular: string;
+
+  @ApiProperty({
+    description: 'Correo electrónico',
+    required: false,
+  })
+  correo?: string;
 }
 
 export class HistorialAlertasVictimaDto {
