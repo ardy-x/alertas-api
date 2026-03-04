@@ -4,6 +4,7 @@ import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { PaginacionRespuestaBaseDto, RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
+import { ActivarCuentaUseCase } from '@/victimas/aplicacion/casos-uso/activar-cuenta.use-case';
 import { ListarVictimasUseCase } from '@/victimas/aplicacion/casos-uso/listar-victimas.use-case';
 import { ObtenerHistorialAlertasVictimaUseCase } from '@/victimas/aplicacion/casos-uso/obtener-historial-alertas-victima.use-case';
 import { SuspenderCuentaUseCase } from '@/victimas/aplicacion/casos-uso/suspender-cuenta.use-case';
@@ -20,6 +21,7 @@ export class VictimasWebController {
     private readonly listarVictimasUseCase: ListarVictimasUseCase,
     private readonly obtenerHistorialAlertasVictimaUseCase: ObtenerHistorialAlertasVictimaUseCase,
     private readonly suspenderCuentaUseCase: SuspenderCuentaUseCase,
+    private readonly activarCuentaUseCase: ActivarCuentaUseCase,
   ) {}
 
   @Get()
@@ -44,8 +46,15 @@ export class VictimasWebController {
   }
   @Post(':idVictima/suspender-cuenta')
   @ApiOperation({ summary: 'Suspender cuenta de víctima' })
-  async suspenderCuenta(@Param('idVictima', ParseUUIDPipe) idVictima: string) {
+  async suspenderCuenta(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto> {
     await this.suspenderCuentaUseCase.ejecutar(idVictima);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Cuenta suspendida exitosamente');
+  }
+
+  @Post(':idVictima/activar-cuenta')
+  @ApiOperation({ summary: 'Activar cuenta de víctima' })
+  async activarCuenta(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto> {
+    await this.activarCuentaUseCase.ejecutar(idVictima);
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Cuenta activada exitosamente');
   }
 }

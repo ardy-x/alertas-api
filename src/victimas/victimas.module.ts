@@ -3,6 +3,7 @@ import { Module } from '@nestjs/common';
 import { CoreModule } from '../core/core.module';
 import { IntegracionesModule } from '../integraciones/integraciones.module';
 import { PrismaModule } from '../prisma/prisma.module';
+import { ActivarCuentaUseCase } from './aplicacion/casos-uso/activar-cuenta.use-case';
 import { ActualizarContactoEmergenciaUseCase } from './aplicacion/casos-uso/actualizar-contacto-emergencia.use-case';
 import { ActualizarDatosContactoUseCase } from './aplicacion/casos-uso/actualizar-datos-contacto.use-case';
 import { ActualizarDatosCuentaUseCase } from './aplicacion/casos-uso/actualizar-datos-cuenta.use-case';
@@ -61,6 +62,7 @@ import { VictimasWebController } from './presentacion/controladores/victimas-web
     ActualizarDatosCuentaUseCase,
     VerificarVictimaUseCase,
     SuspenderCuentaUseCase,
+    ActivarCuentaUseCase,
     ObtenerHistorialAlertasVictimaUseCase,
     CerrarSesionUseCase,
     ActualizarPermisosUseCase,
