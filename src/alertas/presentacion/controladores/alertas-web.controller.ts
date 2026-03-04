@@ -1,9 +1,11 @@
-import { Controller, Get, HttpStatus, Param, ParseUUIDPipe, Query, UseGuards } from '@nestjs/common';
+import { Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { ListarAlertasActivasUseCase } from '@/alertas/aplicacion/casos-uso/listar-alertas-activas.use-case';
 import { ListarHistorialAlertasUseCase } from '@/alertas/aplicacion/casos-uso/listar-historial-alertas.use-case';
+import { MarcarEnAtencionUseCase } from '@/alertas/aplicacion/casos-uso/marcar-en-atencion.use-case';
 import { ObtenerAlertaPorIdUseCase } from '@/alertas/aplicacion/casos-uso/obtener-detalle-alerta.use-case';
+import { IdUsuarioActual } from '@/autenticacion/infraestructura/decoradores/id-usuario.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
@@ -20,6 +22,7 @@ export class AlertasWebController {
     private readonly obtenerAlertasActivasUseCase: ListarAlertasActivasUseCase,
     private readonly obtenerHistorialAlertasUseCase: ListarHistorialAlertasUseCase,
     private readonly obtenerAlertaPorIdUseCase: ObtenerAlertaPorIdUseCase,
+    private readonly marcarEnAtencionUseCase: MarcarEnAtencionUseCase,
   ) {}
 
   @Get('alertas-activas')
@@ -41,5 +44,12 @@ export class AlertasWebController {
   async obtenerAlertaPorId(@Param('idAlerta', ParseUUIDPipe) idAlerta: string): Promise<RespuestaBaseDto<AlertaDetalleDto>> {
     const resultado = await this.obtenerAlertaPorIdUseCase.ejecutar(idAlerta);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Alerta obtenida exitosamente', resultado.alerta);
+  }
+
+  @Patch(':idAlerta/en-atencion')
+  @ApiOperation({ summary: 'Marcar alerta en atención' })
+  async marcarEnAtencion(@Param('idAlerta', ParseUUIDPipe) idAlerta: string, @IdUsuarioActual() idUsuarioWeb: string): Promise<RespuestaBaseDto> {
+    await this.marcarEnAtencionUseCase.ejecutar(idAlerta, idUsuarioWeb);
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Alerta marcada en atención exitosamente');
   }
 }

@@ -15,6 +15,7 @@ import { CrearAlertaUseCase } from './aplicacion/casos-uso/crear-alerta.use-case
 import { CrearPuntoRutaUseCase } from './aplicacion/casos-uso/crear-punto-ruta.use-case';
 import { ListarAlertasActivasUseCase } from './aplicacion/casos-uso/listar-alertas-activas.use-case';
 import { ListarHistorialAlertasUseCase } from './aplicacion/casos-uso/listar-historial-alertas.use-case';
+import { MarcarEnAtencionUseCase } from './aplicacion/casos-uso/marcar-en-atencion.use-case';
 import { NotificarCreacionAlertaUseCase } from './aplicacion/casos-uso/notificar-creacion-alerta.use-case';
 import { ObtenerAlertaPorIdUseCase } from './aplicacion/casos-uso/obtener-detalle-alerta.use-case';
 import { ObtenerEstadoAlertaUseCase } from './aplicacion/casos-uso/obtener-estado-alerta.use-case';
@@ -73,6 +74,7 @@ import { SolicitudesCancelacionController } from './presentacion/controladores/s
     ListarHistorialAlertasUseCase,
     ObtenerAlertaPorIdUseCase,
     ObtenerEstadoAlertaUseCase,
+    MarcarEnAtencionUseCase,
     crearAlertaAttUseCase,
     CrearPuntoRutaUseCase,
     NotificarCreacionAlertaUseCase,
