@@ -236,6 +236,31 @@ export class AlertaHistorialDto {
   victima?: Partial<VictimaBaseResponseDto>;
 }
 
+export class FuncionarioLlegadoDto {
+  @ApiProperty()
+  declare ciFuncionario: string;
+
+  @ApiPropertyOptional()
+  grado?: string | null;
+
+  @ApiPropertyOptional()
+  nombreCompleto?: string | null;
+
+  @ApiProperty()
+  declare rolAtencion: string;
+
+  @ApiProperty()
+  declare fechaLlegada: string;
+}
+
+export class EstadoAlertaDto {
+  @ApiProperty()
+  declare estadoAlerta: string;
+
+  @ApiPropertyOptional({ type: [FuncionarioLlegadoDto] })
+  funcionariosLlegados?: FuncionarioLlegadoDto[];
+}
+
 export class CrearAlertaResponseDto {
   @ApiProperty()
   alerta: {

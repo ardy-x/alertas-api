@@ -13,7 +13,7 @@ import { ClaveApiGuard } from '@/victimas/infraestructura/guards/clave-api.guard
 import { ActualizarAlertaRequestDto, CrearAlertaRequestDto } from '../dto/entrada/alertas-entrada.dto';
 import { ConfirmacionVictimaRequestDto } from '../dto/entrada/atenciones-entrada.dto';
 import { CrearSolicitudCancelacionRequestDto } from '../dto/entrada/solicitudes-cancelacion-entrada.dto';
-import { CrearAlertaResponseDto } from '../dto/salida/alertas-salida.dto';
+import { CrearAlertaResponseDto, EstadoAlertaDto } from '../dto/salida/alertas-salida.dto';
 
 @ApiTags('ALERTAS')
 @Controller('alertas')
@@ -45,8 +45,8 @@ export class AlertasController {
   }
 
   @Get(':idAlerta/estado')
-  @ApiOperation({ summary: 'Obtener estado de una alerta' })
-  async obtenerEstadoAlerta(@Param('idAlerta', ParseUUIDPipe) idAlerta: string): Promise<RespuestaBaseDto<{ estadoAlerta: string }>> {
+  @ApiOperation({ summary: 'Obtener estado de una alerta (incluye funcionarios llegados si está en atención)' })
+  async obtenerEstadoAlerta(@Param('idAlerta', ParseUUIDPipe) idAlerta: string): Promise<RespuestaBaseDto<EstadoAlertaDto>> {
     const resultado = await this.obtenerEstadoAlertaUseCase.ejecutar(idAlerta);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Estado de alerta obtenido exitosamente', resultado);
   }

@@ -1,5 +1,5 @@
+import * as path from 'node:path';
 import { Injectable } from '@nestjs/common';
-import * as path from 'path';
 
 import PDFDocument = require('pdfkit');
 
