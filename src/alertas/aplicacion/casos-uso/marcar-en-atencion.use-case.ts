@@ -24,7 +24,7 @@ export class MarcarEnAtencionUseCase {
     private readonly notificarAtencionAlertaUseCase: NotificarAtencionAlertaUseCase,
   ) {}
 
-  async ejecutar(idAlerta: string, idUsuarioWeb: string, ciFuncionario: string, fechaLlegada: string): Promise<void> {
+  async ejecutar(idAlerta: string, idUsuarioWeb: string, ciFuncionario: string): Promise<void> {
     const alerta = await this.alertaRepositorio.obtenerAlertaSimple(idAlerta);
 
     if (!alerta) {
@@ -48,7 +48,7 @@ export class MarcarEnAtencionUseCase {
     // marcar solo el especificado
     const func = funcionarios.find((f) => f.ciFuncionario === ciFuncionario);
     if (func && !func.fechaLlegada) {
-      await this.atencionFuncionarioRepo.marcarLlegada(atencion.id, ciFuncionario, fechaLlegada);
+      await this.atencionFuncionarioRepo.marcarLlegada(atencion.id, ciFuncionario);
     }
 
     // Notificar a la víctima que el policía tomó contacto

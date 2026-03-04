@@ -51,7 +51,7 @@ export class AlertasWebController {
   @ApiOperation({ summary: 'Marcar alerta en atención' })
   @ApiBody({ type: RegistrarLlegadaRequestDto })
   async marcarEnAtencion(@Param('idAlerta', ParseUUIDPipe) idAlerta: string, @IdUsuarioActual() idUsuarioWeb: string, @Body() body: RegistrarLlegadaRequestDto): Promise<RespuestaBaseDto> {
-    await this.marcarEnAtencionUseCase.ejecutar(idAlerta, idUsuarioWeb, body.ciFuncionario, body.fechaLlegada);
+    await this.marcarEnAtencionUseCase.ejecutar(idAlerta, idUsuarioWeb, body.ciFuncionario);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Alerta marcada en atención exitosamente');
   }
 }

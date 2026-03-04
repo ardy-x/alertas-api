@@ -13,8 +13,8 @@ import { AgregarFuncionarioDatos, AtencionPersonalPort } from '../../dominio/pue
 export class AtencionFuncionarioPrismaAdapter implements AtencionPersonalPort {
   constructor(private readonly prisma: PrismaService) {}
 
-  async marcarLlegada(idAtencion: string, ciFuncionario: string, fechaLlegada: Date | string): Promise<void> {
-    const fecha = fechaLlegada ? new Date(fechaLlegada) : new Date();
+  async marcarLlegada(idAtencion: string, ciFuncionario: string): Promise<void> {
+    const fecha = new Date();
     await this.prisma.atencionFuncionario.updateMany({
       where: { idAtencion, ciFuncionario, fechaLlegada: null },
       data: { fechaLlegada: fecha },

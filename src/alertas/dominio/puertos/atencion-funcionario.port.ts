@@ -5,6 +5,6 @@ export { CrearAtencionFuncionarioDatos, AgregarFuncionarioDatos };
 export interface AtencionPersonalPort {
   agregarFuncionario(datos: AgregarFuncionarioDatos): Promise<void>;
   obtenerPorAtencion(idAtencion: string): Promise<AtencionFuncionarioEntity[]>;
-  marcarLlegada(idAtencion: string, ciFuncionario: string, fechaLlegada?: Date | string): Promise<void>;
+  marcarLlegada(idAtencion: string, ciFuncionario: string): Promise<void>;
   confirmarLlegadaVictima(idAtencion: string, ciFuncionario: string): Promise<void>;
 }
