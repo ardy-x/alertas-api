@@ -21,6 +21,7 @@ import { MarcarEnAtencionUseCase } from './aplicacion/casos-uso/marcar-en-atenci
 import { NotificarCreacionAlertaUseCase } from './aplicacion/casos-uso/notificar-creacion-alerta.use-case';
 import { ObtenerAlertaPorIdUseCase } from './aplicacion/casos-uso/obtener-detalle-alerta.use-case';
 import { ObtenerEstadoAlertaUseCase } from './aplicacion/casos-uso/obtener-estado-alerta.use-case';
+import { ObtenerFuncionariosLlegadosUseCase } from './aplicacion/casos-uso/obtener-funcionarios-llegados.use-case';
 import { CrearSolicitudUseCase } from './aplicacion/casos-uso/solicitudes-cancelacion/crear-solicitud.use-case';
 import { ListarSolicitudesUseCase } from './aplicacion/casos-uso/solicitudes-cancelacion/listar-solicitudes.use-case';
 import { NotificarCancelacionAlertaUseCase } from './aplicacion/casos-uso/solicitudes-cancelacion/notificar-cancelacion-alerta.use-case';
@@ -89,6 +90,7 @@ import { SolicitudesCancelacionController } from './presentacion/controladores/s
     CrearAtencionCompletaUseCase,
     AgregarFuncionarioUseCase,
     ConfirmarLlegadaFuncionarioUseCase,
+    ObtenerFuncionariosLlegadosUseCase,
 
     // Servicios de dominio
     ValidarVictimaService,

@@ -253,14 +253,6 @@ export class FuncionarioLlegadoDto {
   declare fechaLlegada: string;
 }
 
-export class EstadoAlertaDto {
-  @ApiProperty()
-  declare estadoAlerta: string;
-
-  @ApiPropertyOptional({ type: [FuncionarioLlegadoDto] })
-  funcionariosLlegados?: FuncionarioLlegadoDto[];
-}
-
 export class CrearAlertaResponseDto {
   @ApiProperty()
   alerta: {
