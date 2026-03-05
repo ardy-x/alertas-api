@@ -4,6 +4,7 @@ import { ListarHistorialAlertasUseCase } from '@/alertas/aplicacion/casos-uso/li
 import { AlertaHistorialDto } from '@/alertas/presentacion/dto/salida/alertas-salida.dto';
 import { MetadatoPar, PdfGeneratorService, TablaColumna } from '@/reportes/infraestructura/generadores/pdf-generator.service';
 import { ReporteHistorialAlertasQueryDto } from '@/reportes/presentacion/dto/reporte-historial-alertas-query.dto';
+import { convertirFechaBoliviaFinalDelDiaAUTC, convertirFechaBoliviaInicioDelDiaAUTC, formatearFechaSimple, obtenerRangoMesesLiteral } from '@/utils/fecha.utils';
 
 @Injectable()
 export class ReporteHistorialAlertasUseCase {
@@ -13,10 +14,14 @@ export class ReporteHistorialAlertasUseCase {
   ) {}
 
   async ejecutar(filtros: ReporteHistorialAlertasQueryDto): Promise<Buffer> {
+    // Convertir fechas de hora local Bolivia a UTC para consulta en BD
+    const fechaDesdeUTC = convertirFechaBoliviaInicioDelDiaAUTC(filtros.fechaDesde);
+    const fechaHastaUTC = convertirFechaBoliviaFinalDelDiaAUTC(filtros.fechaHasta);
+
     const datos = await this.listarHistorialAlertasUseCase.ejecutar({
       idDepartamento: filtros.idDepartamento,
-      fechaDesde: filtros.fechaDesde,
-      fechaHasta: filtros.fechaHasta,
+      fechaDesde: fechaDesdeUTC.toISOString(),
+      fechaHasta: fechaHastaUTC.toISOString(),
       estadoAlerta: [filtros.estadoAlerta],
       pagina: 1,
       elementosPorPagina: filtros.elementosPorPagina,
@@ -26,16 +31,13 @@ export class ReporteHistorialAlertasUseCase {
     const total = datos.paginacion?.totalElementos ?? datos.historial.length;
     const nombreDepartamento = datos.historial[0]?.departamento ?? (filtros.idDepartamento ? `ID ${filtros.idDepartamento}` : 'TODOS');
 
-    const fechaDesde = new Date(filtros.fechaDesde);
-    const fechaHasta = new Date(filtros.fechaHasta);
-    const fechaDesdeFormateada = fechaDesde.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' });
-    const fechaHastaFormateada = fechaHasta.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric' });
+    // Formatear fechas para mostrar en el reporte (usar las fechas originales del filtro)
+    const fechaDesdeFormateada = formatearFechaSimple(filtros.fechaDesde);
+    const fechaHastaFormateada = formatearFechaSimple(filtros.fechaHasta);
     const rangoFechas = `Del: ${fechaDesdeFormateada} Al: ${fechaHastaFormateada}`;
 
     // Calcular mes literal basado en el rango de fechas
-    const mesDesde = fechaDesde.toLocaleDateString('es-BO', { month: 'long', year: 'numeric' }).toUpperCase();
-    const mesHasta = fechaHasta.toLocaleDateString('es-BO', { month: 'long', year: 'numeric' }).toUpperCase();
-    const mesLiteral = mesDesde === mesHasta ? mesDesde : `${mesDesde} - ${mesHasta}`;
+    const mesLiteral = obtenerRangoMesesLiteral(filtros.fechaDesde, filtros.fechaHasta);
 
     this.pdfGenerator.agregarEncabezado(doc, 'Historial de Alertas', 'Sistema de Alertas Adela Zamudio', rangoFechas);
 

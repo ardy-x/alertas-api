@@ -8,11 +8,11 @@ export class ReporteHistorialAlertasQueryDto {
   @IsNumber()
   declare idDepartamento: number;
 
-  @ApiProperty({ description: 'Fecha inicio (ISO 8601)', example: '2026-01-01' })
+  @ApiProperty({ description: 'Fecha inicio (ISO 8601)', example: '2026-03-01' })
   @IsDateString()
   declare fechaDesde: string;
 
-  @ApiProperty({ description: 'Fecha fin (ISO 8601)', example: '2026-01-31' })
+  @ApiProperty({ description: 'Fecha fin (ISO 8601)', example: '2026-03-31' })
   @IsDateString()
   declare fechaHasta: string;
 

@@ -7,7 +7,7 @@ import { ObtenerMunicipiosPorFiltroGeograficoUseCase } from '@/integraciones/apl
 import { ObtenerProvinciaDepartamentoUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-provincia-departamento.use-case';
 
 import { AlertaHistorial, FiltrosAlerta } from '../../dominio/entidades/alerta.entity';
-import { OrigenAlerta } from '../../dominio/enums/alerta-enums';
+import { EstadoAlerta, OrigenAlerta } from '../../dominio/enums/alerta-enums';
 import { AlertasPaginacionQueryDto } from '../../presentacion/dto/entrada/alertas-entrada.dto';
 import { ObtenerHistorialAlertasResponseDto } from '../../presentacion/dto/salida/alertas-salida.dto';
 
@@ -37,6 +37,7 @@ export class ListarHistorialAlertasUseCase {
 
     // Agregar filtros adicionales si están presentes
     if (entrada.origen) filtrosAdaptador.origen = entrada.origen as OrigenAlerta[];
+    if (entrada.estadoAlerta) filtrosAdaptador.estadoAlerta = entrada.estadoAlerta as EstadoAlerta[];
     if (entrada.fechaDesde) filtrosAdaptador.fechaDesde = new Date(entrada.fechaDesde);
     if (entrada.fechaHasta) filtrosAdaptador.fechaHasta = new Date(entrada.fechaHasta);
 
