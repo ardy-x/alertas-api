@@ -5,7 +5,9 @@ import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/ker
 import { ReporteDetalleAlertaUseCase } from '@/reportes/aplicacion/casos-uso/reporte-detalle-alerta.use-case';
 import { ReporteHistorialAlertasUseCase } from '@/reportes/aplicacion/casos-uso/reporte-historial-alertas.use-case';
 import { ReporteHistorialVictimaUseCase } from '@/reportes/aplicacion/casos-uso/reporte-historial-victima.use-case';
+import { ReporteSolicitudesCancelacionUseCase } from '@/reportes/aplicacion/casos-uso/reporte-solicitudes-cancelacion.use-case';
 import { ReporteHistorialAlertasQueryDto } from '@/reportes/presentacion/dto/reporte-historial-alertas-query.dto';
+import { ReporteSolicitudesCancelacionQueryDto } from '@/reportes/presentacion/dto/reporte-solicitudes-cancelacion-query.dto';
 @ApiTags('REPORTES')
 @Controller('reportes')
 @ApiSecurity('jwt-auth')
@@ -15,6 +17,7 @@ export class ReportesController {
     private readonly reporteHistorialAlertasUseCase: ReporteHistorialAlertasUseCase,
     private readonly reporteDetalleAlertaUseCase: ReporteDetalleAlertaUseCase,
     private readonly reporteHistorialVictimaUseCase: ReporteHistorialVictimaUseCase,
+    private readonly reporteSolicitudesCancelacionUseCase: ReporteSolicitudesCancelacionUseCase,
   ) {}
 
   @Get('historial-alertas')
@@ -39,6 +42,14 @@ export class ReportesController {
   async reporteHistorialVictima(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Res() res: Response): Promise<void> {
     const buffer = await this.reporteHistorialVictimaUseCase.ejecutar({ idVictima });
     this.enviarPdf(res, buffer, 'reporte-historial-victima.pdf');
+  }
+
+  @Get('solicitudes-cancelacion')
+  @ApiOperation({ summary: 'Generar reporte PDF de solicitudes de cancelación' })
+  @ApiProduces('application/pdf')
+  async reporteSolicitudesCancelacion(@Query() filtros: ReporteSolicitudesCancelacionQueryDto, @Res() res: Response): Promise<void> {
+    const buffer = await this.reporteSolicitudesCancelacionUseCase.ejecutar(filtros);
+    this.enviarPdf(res, buffer, 'reporte-solicitudes-cancelacion.pdf');
   }
 
   private enviarPdf(res: Response, buffer: Buffer, nombreArchivo: string): void {

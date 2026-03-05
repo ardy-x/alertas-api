@@ -5,12 +5,13 @@ import { VictimasModule } from '@/victimas/victimas.module';
 import { ReporteDetalleAlertaUseCase } from './aplicacion/casos-uso/reporte-detalle-alerta.use-case';
 import { ReporteHistorialAlertasUseCase } from './aplicacion/casos-uso/reporte-historial-alertas.use-case';
 import { ReporteHistorialVictimaUseCase } from './aplicacion/casos-uso/reporte-historial-victima.use-case';
+import { ReporteSolicitudesCancelacionUseCase } from './aplicacion/casos-uso/reporte-solicitudes-cancelacion.use-case';
 import { PdfGeneratorService } from './infraestructura/generadores/pdf-generator.service';
 import { ReportesController } from './presentacion/controladores/reportes.controller';
 
 @Module({
   imports: [AlertasModule, VictimasModule],
   controllers: [ReportesController],
-  providers: [PdfGeneratorService, ReporteHistorialAlertasUseCase, ReporteDetalleAlertaUseCase, ReporteHistorialVictimaUseCase],
+  providers: [PdfGeneratorService, ReporteHistorialAlertasUseCase, ReporteDetalleAlertaUseCase, ReporteHistorialVictimaUseCase, ReporteSolicitudesCancelacionUseCase],
 })
 export class ReportesModule {}

@@ -45,6 +45,18 @@ export class SolicitudCancelacionListadoDto {
 
   @ApiProperty({ type: VictimaDto })
   victima: VictimaDto;
+
+  @ApiProperty({ required: false })
+  idMunicipio?: number | null;
+
+  @ApiProperty({ required: false })
+  municipio?: string;
+
+  @ApiProperty({ required: false })
+  provincia?: string;
+
+  @ApiProperty({ required: false })
+  departamento?: string;
 }
 
 export class SolicitudCancelacionDto {

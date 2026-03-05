@@ -178,6 +178,7 @@ export class SolicitudCancelacionPrismaAdapter implements SolicitudCancelacionRe
         idAlerta: solicitud.idAlerta,
         fechaSolicitud: solicitud.fechaSolicitud,
         estadoSolicitud: solicitud.estadoSolicitud as EstadoSolicitudCancelacion,
+        idMunicipio: solicitud.alerta?.idMunicipio ?? null,
         victima: victima
           ? {
               id: victima.id,
