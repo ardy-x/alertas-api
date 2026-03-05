@@ -93,7 +93,7 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
       atencion: alerta.atencion,
       eventos: alerta.eventos,
       rutaAlerta: alerta.rutaAlerta,
-      solicitudesCancelacion: alerta.solicitudesCancelacion,
+      solicitudesCancelacion: alerta.solicitudesCancelacion?.[0],
     });
   }
 

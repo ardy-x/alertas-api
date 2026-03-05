@@ -6,8 +6,6 @@ import { ALERTA_WEB_REPOSITORIO_TOKEN, DATOS_EXTERNOS_ATT_REPOSITORIO_TOKEN } fr
 import { ObtenerProvinciaDepartamentoUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-provincia-departamento.use-case';
 import { PersonalPort } from '@/integraciones/dominio/puertos/personal.port';
 import { PERSONAL_TOKEN } from '@/integraciones/dominio/tokens/integracion.tokens';
-import { UsuarioWebKerberosRepositorioPort } from '@/usuarios-web/dominio/puertos/usuario-web-repositorio.port';
-import { USUARIO_WEB_KERBEROS_REPOSITORIO_TOKEN } from '@/usuarios-web/dominio/tokens/usuario-web.tokens';
 
 import { AlertaExtendida } from '../../dominio/entidades/alerta.entity';
 import { OrigenAlerta } from '../../dominio/enums/alerta-enums';
@@ -20,8 +18,6 @@ export class ObtenerAlertaPorIdUseCase {
     private readonly alertaRepositorio: AlertaWebRepositorioPort,
     @Inject(DATOS_EXTERNOS_ATT_REPOSITORIO_TOKEN)
     private readonly datosExternosAttRepo: DatosExternosAttRepositorioPort,
-    @Inject(USUARIO_WEB_KERBEROS_REPOSITORIO_TOKEN)
-    private readonly usuarioWebPort: UsuarioWebKerberosRepositorioPort,
     @Inject(PERSONAL_TOKEN)
     private readonly PersonalPort: PersonalPort,
     private readonly obtenerProvinciaDepartamentoUseCase: ObtenerProvinciaDepartamentoUseCase,

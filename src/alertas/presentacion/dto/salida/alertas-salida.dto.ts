@@ -182,8 +182,8 @@ export class AlertaDetalleDto {
   @ApiPropertyOptional()
   rutaAlerta?: RutaAlertaDto;
 
-  @ApiPropertyOptional({ type: [SolicitudCancelacionDto] })
-  solicitudesCancelacion?: SolicitudCancelacionDto[];
+  @ApiPropertyOptional()
+  solicitudesCancelacion?: SolicitudCancelacionDto;
 }
 
 export class AlertaBaseDto {

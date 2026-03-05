@@ -73,7 +73,7 @@ export interface AlertaExtendida {
   provincia?: string;
   departamento?: string;
   rutaAlerta?: RutaAlertaEntity;
-  solicitudesCancelacion?: SolicitudCancelacionEntity[];
+  solicitudesCancelacion?: SolicitudCancelacionEntity;
 }
 
 export interface NuevaAlerta {
