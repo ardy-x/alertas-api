@@ -21,9 +21,13 @@ export class ListarVictimasUseCase {
     const filtros: FiltrosVictima = {
       pagina: entrada.pagina,
       elementosPorPagina: entrada.elementosPorPagina,
-      busqueda: entrada?.busqueda,
-      estadoCuenta: entrada?.estadoCuenta,
     };
+
+    // Agregar filtros opcionales si están presentes
+    if (entrada.busqueda) filtros.busqueda = entrada.busqueda;
+    if (entrada.estadoCuenta) filtros.estadoCuenta = entrada.estadoCuenta;
+    if (entrada.ordenarPor) filtros.ordenarPor = entrada.ordenarPor;
+    if (entrada.orden) filtros.orden = entrada.orden.toLowerCase() as 'asc' | 'desc';
 
     // Manejar filtros geográficos
     if (entrada.idDepartamento || entrada.idProvincia || entrada.idMunicipio) {

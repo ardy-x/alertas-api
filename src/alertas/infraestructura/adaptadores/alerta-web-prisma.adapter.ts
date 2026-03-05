@@ -183,6 +183,7 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
         include: {
           victima: {
             select: {
+              id: true,
               cedulaIdentidad: true,
               nombreCompleto: true,
               celular: true,
@@ -209,6 +210,7 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
         codigoRegistro: alerta.codigoRegistro,
         victima: alerta.victima
           ? {
+              id: alerta.victima.id,
               cedulaIdentidad: alerta.victima.cedulaIdentidad,
               nombreCompleto: alerta.victima.nombreCompleto,
               celular: alerta.victima.celular,

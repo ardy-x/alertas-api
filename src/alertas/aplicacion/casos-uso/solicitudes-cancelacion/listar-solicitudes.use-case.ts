@@ -7,6 +7,7 @@ import { ObtenerSolicitudesCancelacionRequestDto } from '@/alertas/presentacion/
 import { ObtenerSolicitudesResponseDto } from '@/alertas/presentacion/dto/salida/solicitudes-cancelacion-salida.dto';
 import { ObtenerMunicipiosPorFiltroGeograficoUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-municipios-por-filtro-geografico.use-case';
 import { ObtenerProvinciaDepartamentoUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-provincia-departamento.use-case';
+import { convertirFechaBoliviaFinalDelDiaAUTC, convertirFechaBoliviaInicioDelDiaAUTC } from '@/utils/fecha.utils';
 
 @Injectable()
 export class ListarSolicitudesUseCase {
@@ -22,9 +23,13 @@ export class ListarSolicitudesUseCase {
     const filtrosRepositorio: FiltrosSolicitudCancelacion = {
       pagina: filtros.pagina,
       elementosPorPagina: filtros.elementosPorPagina,
-      estado: filtros.estado,
-      busqueda: filtros.busqueda,
     };
+
+    // Agregar filtros opcionales si están presentes
+    if (filtros.estado) filtrosRepositorio.estado = filtros.estado;
+    if (filtros.busqueda) filtrosRepositorio.busqueda = filtros.busqueda;
+    if (filtros.ordenarPor) filtrosRepositorio.ordenarPor = filtros.ordenarPor;
+    if (filtros.orden) filtrosRepositorio.orden = filtros.orden.toLowerCase() as 'asc' | 'desc';
 
     // Manejar filtros geográficos
     if (filtros.idDepartamento || filtros.idProvincia || filtros.idMunicipio) {
@@ -42,10 +47,10 @@ export class ListarSolicitudesUseCase {
 
     // Manejar filtros de fechas si vienen
     if (filtros.fechaDesde) {
-      filtrosRepositorio.fechaDesde = new Date(filtros.fechaDesde);
+      filtrosRepositorio.fechaDesde = convertirFechaBoliviaInicioDelDiaAUTC(filtros.fechaDesde);
     }
     if (filtros.fechaHasta) {
-      filtrosRepositorio.fechaHasta = new Date(filtros.fechaHasta);
+      filtrosRepositorio.fechaHasta = convertirFechaBoliviaFinalDelDiaAUTC(filtros.fechaHasta);
     }
 
     const listado = await this.solicitudCancelacionRepositorio.listarSolicitudes(filtrosRepositorio);
