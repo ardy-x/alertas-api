@@ -186,6 +186,7 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
               cedulaIdentidad: true,
               nombreCompleto: true,
               celular: true,
+              correo: true,
             },
           },
         },
@@ -211,6 +212,7 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
               cedulaIdentidad: alerta.victima.cedulaIdentidad,
               nombreCompleto: alerta.victima.nombreCompleto,
               celular: alerta.victima.celular,
+              correo: alerta.victima.correo || undefined,
             }
           : undefined,
       })),

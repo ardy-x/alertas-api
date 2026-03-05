@@ -1,4 +1,4 @@
-import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { ListarSolicitudesUseCase } from '@/alertas/aplicacion/casos-uso/solicitudes-cancelacion/listar-solicitudes.use-case';
@@ -37,7 +37,7 @@ export class SolicitudesCancelacionController {
     return RespuestaBuilder.exito(HttpStatus.OK, 'Detalle de solicitud obtenido exitosamente', resultado);
   }
 
-  @Put(':idSolicitud/aprobar')
+  @Patch(':idSolicitud/aprobar')
   @ApiOperation({ summary: 'Aprobar solicitud de cancelación' })
   @ApiBody({ type: ProcesarSolicitudCancelacionRequestDto })
   async aprobar(

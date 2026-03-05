@@ -70,6 +70,7 @@ export class ListarHistorialAlertasUseCase {
                 cedulaIdentidad: datosExternos.persona?.cedulaIdentidad || '',
                 nombreCompleto: `${datosExternos.persona?.nombres || 'Sin nombre'} ${datosExternos.persona?.apellidos || ''}`.trim(),
                 celular: datosExternos.contacto?.celular || '',
+                correo: datosExternos.contacto?.correo || undefined,
               };
             }
           } catch (error) {
