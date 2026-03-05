@@ -145,6 +145,19 @@ export class SolicitudCancelacionPrismaAdapter implements SolicitudCancelacionRe
     const campoOrden = filtros.ordenarPor || 'fechaSolicitud';
     const direccionOrden = filtros.orden?.toLowerCase() || 'desc';
 
+    // Manejar ordenamiento por campos de relaciones
+    let orderBy: Prisma.SolicitudCancelacionOrderByWithRelationInput;
+    if (campoOrden === 'nombreCompleto' || campoOrden === 'cedulaIdentidad') {
+      // Ordenar por campos de la víctima (a través de alerta)
+      orderBy = { alerta: { victima: { [campoOrden]: direccionOrden } } };
+    } else if (campoOrden === 'fechaHora' || campoOrden === 'estadoAlerta') {
+      // Ordenar por campos de la alerta
+      orderBy = { alerta: { [campoOrden]: direccionOrden } };
+    } else {
+      // Ordenar por campos directos de solicitudCancelacion
+      orderBy = { [campoOrden]: direccionOrden };
+    }
+
     const [solicitudes, total] = await Promise.all([
       this.prisma.solicitudCancelacion.findMany({
         where,
@@ -163,7 +176,7 @@ export class SolicitudCancelacionPrismaAdapter implements SolicitudCancelacionRe
             },
           },
         },
-        orderBy: { [campoOrden]: direccionOrden },
+        orderBy,
         skip,
         take: limite,
       }),
