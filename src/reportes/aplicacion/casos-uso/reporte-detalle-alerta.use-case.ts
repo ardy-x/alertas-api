@@ -48,7 +48,7 @@ export class ReporteDetalleAlertaUseCase {
       this.pdfGenerator.agregarSeccion(doc, 'Atención y Funcionarios Asignados');
       const metAtencion: MetadatoPar[] = [
         ['VEHÍCULO', alerta.atencion.siglaVehiculo, 'RADIO', alerta.atencion.siglaRadio],
-        ['RESPONSABLE', alerta.atencion.nombreCompletoUsuarioWeb ?? '—', 'GRADO', alerta.atencion.gradoUsuarioWeb ?? '—'],
+        ['RESPONSABLE', alerta.atencion.usuarioWeb?.nombreCompleto ?? '—', 'GRADO', alerta.atencion.usuarioWeb?.grado ?? '—'],
       ];
       this.pdfGenerator.agregarMetadatos(doc, metAtencion);
 

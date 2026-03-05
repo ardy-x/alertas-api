@@ -48,14 +48,6 @@ export class ObtenerAlertaPorIdUseCase {
       }
     }
 
-    if (alerta.atencion?.idUsuarioWeb) {
-      const usuarioWeb = await this.usuarioWebPort.obtenerUsuarioWeb(alerta.atencion.idUsuarioWeb);
-      if (usuarioWeb) {
-        alerta.atencion.gradoUsuarioWeb = usuarioWeb.grado;
-        alerta.atencion.nombreCompletoUsuarioWeb = usuarioWeb.nombreCompleto;
-      }
-    }
-
     // Si no hay víctima pero es de origen ATT, obtener datos desde el repositorio de ATT
     if (!alerta.victima && String(alerta.origen) === String(OrigenAlerta.ATT)) {
       const datosExternos = await this.datosExternosAttRepo.obtenerAlertaATT(idAlerta);

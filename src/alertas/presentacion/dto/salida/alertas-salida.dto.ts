@@ -46,10 +46,11 @@ export class AtencionDto {
   siglaRadio: string;
 
   @ApiPropertyOptional()
-  gradoUsuarioWeb?: string | null;
-
-  @ApiPropertyOptional()
-  nombreCompletoUsuarioWeb?: string | null;
+  usuarioWeb?: {
+    id: string;
+    nombreCompleto: string;
+    grado: string;
+  } | null;
 
   @ApiPropertyOptional({ type: [FuncionarioAsignadoDto] })
   atencionFuncionario?: FuncionarioAsignadoDto[];
@@ -108,6 +109,27 @@ export class RutaAlertaDto {
   ruta: RutaLineString;
 }
 
+export class SolicitudCancelacionDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  fechaSolicitud: Date;
+
+  @ApiProperty()
+  estadoSolicitud: string;
+
+  @ApiPropertyOptional()
+  motivoCancelacion?: string | null;
+
+  @ApiPropertyOptional()
+  usuarioWeb?: {
+    id: string;
+    nombreCompleto: string;
+    grado: string;
+  } | null;
+}
+
 export class AlertaDetalleDto {
   @ApiProperty()
   id: string;
@@ -159,6 +181,9 @@ export class AlertaDetalleDto {
 
   @ApiPropertyOptional()
   rutaAlerta?: RutaAlertaDto;
+
+  @ApiPropertyOptional({ type: [SolicitudCancelacionDto] })
+  solicitudesCancelacion?: SolicitudCancelacionDto[];
 }
 
 export class AlertaBaseDto {

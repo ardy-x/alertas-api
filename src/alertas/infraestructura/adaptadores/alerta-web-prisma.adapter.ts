@@ -44,6 +44,13 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
         atencion: {
           include: {
             atencionFuncionario: true,
+            usuarioWeb: {
+              select: {
+                id: true,
+                grado: true,
+                nombreCompleto: true,
+              },
+            },
           },
         },
         eventos: {
@@ -52,6 +59,17 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
           },
         },
         rutaAlerta: true,
+        solicitudesCancelacion: {
+          include: {
+            usuarioWeb: {
+              select: {
+                id: true,
+                grado: true,
+                nombreCompleto: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -75,6 +93,7 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
       atencion: alerta.atencion,
       eventos: alerta.eventos,
       rutaAlerta: alerta.rutaAlerta,
+      solicitudesCancelacion: alerta.solicitudesCancelacion,
     });
   }
 
