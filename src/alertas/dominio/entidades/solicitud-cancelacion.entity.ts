@@ -48,6 +48,7 @@ export interface SolicitudCancelacionBasica {
     nombreCompleto: string;
     cedulaIdentidad: string;
     celular: string;
+    correo?: string;
   };
 }
 

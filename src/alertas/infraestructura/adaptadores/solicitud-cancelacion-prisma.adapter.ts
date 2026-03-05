@@ -157,6 +157,7 @@ export class SolicitudCancelacionPrismaAdapter implements SolicitudCancelacionRe
                   nombreCompleto: true,
                   celular: true,
                   cedulaIdentidad: true,
+                  correo: true,
                 },
               },
             },
@@ -183,6 +184,7 @@ export class SolicitudCancelacionPrismaAdapter implements SolicitudCancelacionRe
               nombreCompleto: victima.nombreCompleto,
               cedulaIdentidad: victima.cedulaIdentidad,
               celular: victima.celular,
+              correo: victima.correo || undefined,
             }
           : undefined,
       };

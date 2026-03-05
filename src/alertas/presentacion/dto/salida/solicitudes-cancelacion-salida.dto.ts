@@ -20,6 +20,10 @@ export class VictimaDto {
   @ApiProperty()
   @IsString()
   celular: string;
+
+  @ApiProperty()
+  @IsString()
+  correo?: string;
 }
 
 export class SolicitudCancelacionListadoDto {
