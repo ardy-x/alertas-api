@@ -25,7 +25,7 @@ export class ObtenerFuncionariosLlegadosUseCase {
     }
 
     const funcionarios = await this.atencionFuncionarioRepo.obtenerPorAtencion(atencion.id);
-    const llegados = funcionarios.filter((f) => f.fechaLlegada);
+    const llegados = funcionarios.filter((f) => f.fechaLlegada && !f.confirmacionVictima);
 
     // enrich personal data
     for (const func of llegados) {
