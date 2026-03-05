@@ -206,4 +206,16 @@ export class SolicitudCancelacionPrismaAdapter implements SolicitudCancelacionRe
     });
     return !!solicitud;
   }
+
+  async rechazarSolicitudPendientePorAlerta(idAlerta: string): Promise<void> {
+    await this.prisma.solicitudCancelacion.updateMany({
+      where: {
+        idAlerta,
+        estadoSolicitud: EstadoSolicitudCancelacion.PENDIENTE,
+      },
+      data: {
+        estadoSolicitud: EstadoSolicitudCancelacion.RECHAZADA,
+      },
+    });
+  }
 }

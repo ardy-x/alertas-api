@@ -12,4 +12,5 @@ export interface SolicitudCancelacionRepositorioPort {
   procesarSolicitud(id: string, datos: ProcesarSolicitudCancelacionDatos): Promise<void>;
   listarSolicitudes(filtros: FiltrosSolicitudCancelacion): Promise<ResultadoBusquedaSolicitudCancelacionBasica>;
   verificarSolicitudPendiente(idAlerta: string): Promise<boolean>;
+  rechazarSolicitudPendientePorAlerta(idAlerta: string): Promise<void>;
 }

@@ -24,12 +24,7 @@ export class CrearSolicitudCancelacionRequestDto {
 }
 
 export class ProcesarSolicitudCancelacionRequestDto {
-  @ApiProperty({ enum: EstadoSolicitudCancelacion })
-  @IsEnum(EstadoSolicitudCancelacion)
-  @IsNotEmpty()
-  estadoSolicitud: EstadoSolicitudCancelacion;
-
-  @ApiProperty()
+  @ApiProperty({ description: 'Motivo de aprobación de la solicitud' })
   @IsString()
   @IsNotEmpty()
   motivoCancelacion: string;

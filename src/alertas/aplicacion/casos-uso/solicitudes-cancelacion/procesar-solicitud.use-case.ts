@@ -37,33 +37,31 @@ export class ProcesarSolicitudUseCase {
     }
     AlertaValidacionDominioService.validarAlertaNoCerrada(alerta);
 
-    // 3. Procesar la solicitud
+    // 3. Aprobar la solicitud (este endpoint es solo para aprobar)
     const datosActualizacion = {
-      estado: entrada.estadoSolicitud,
+      estado: EstadoSolicitudCancelacion.APROBADA,
       idUsuarioWeb: idUsuarioWeb,
       motivoCancelacion: entrada.motivoCancelacion,
     };
     await this.solicitudCancelacionRepositorio.procesarSolicitud(idSolicitud, datosActualizacion);
 
-    // 4. Si fue aprobada, actualizar estado de alerta y notificar
-    if (String(entrada.estadoSolicitud) === String(EstadoSolicitudCancelacion.APROBADA)) {
-      await this.alertaRepositorio.actualizarEstado(solicitudExistente.idAlerta, EstadoAlerta.CANCELADA);
+    // 4. Actualizar estado de alerta a CANCELADA y notificar
+    await this.alertaRepositorio.actualizarEstado(solicitudExistente.idAlerta, EstadoAlerta.CANCELADA);
 
-      if (alerta.idVictima) {
-        await this.notificarCancelacionAlertaUseCase.ejecutar({
-          idVictima: alerta.idVictima,
-          estadoFinal: EstadoAlerta.CANCELADA,
-          idAlerta: solicitudExistente.idAlerta,
-        });
-      }
-
-      // Registrar evento automático de cancelación
-      await this.eventoDominioService.registrarEventoSemiautomatico(
-        solicitudExistente.idAlerta,
-        TipoEvento.ALERTA_CANCELADA,
-        idUsuarioWeb,
-        null, // Sin ubicación específica
-      );
+    if (alerta.idVictima) {
+      await this.notificarCancelacionAlertaUseCase.ejecutar({
+        idVictima: alerta.idVictima,
+        estadoFinal: EstadoAlerta.CANCELADA,
+        idAlerta: solicitudExistente.idAlerta,
+      });
     }
+
+    // 5. Registrar evento automático de cancelación
+    await this.eventoDominioService.registrarEventoSemiautomatico(
+      solicitudExistente.idAlerta,
+      TipoEvento.ALERTA_CANCELADA,
+      idUsuarioWeb,
+      null, // Sin ubicación específica
+    );
   }
 }

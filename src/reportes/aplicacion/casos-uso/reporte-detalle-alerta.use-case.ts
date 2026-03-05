@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { ObtenerAlertaPorIdUseCase } from '@/alertas/aplicacion/casos-uso/obtener-detalle-alerta.use-case';
+import { EstadoSolicitudCancelacion } from '@/alertas/dominio/enums/alerta-enums';
 import { EventoDto, FuncionarioAsignadoDto } from '@/alertas/presentacion/dto/salida/alertas-salida.dto';
 import { MetadatoPar, PdfGeneratorService, TablaColumna } from '@/reportes/infraestructura/generadores/pdf-generator.service';
 
@@ -72,6 +73,31 @@ export class ReporteDetalleAlertaUseCase {
 
         this.pdfGenerator.agregarTabla(doc, colsFuncionarios, filasFuncionarios);
       }
+    }
+
+    // — Solicitud de Cancelación —
+    if (alerta.solicitudesCancelacion) {
+      this.pdfGenerator.agregarSeccion(doc, 'Solicitud de Cancelación');
+      const solicitud = alerta.solicitudesCancelacion;
+
+      const metSolicitud: MetadatoPar[] = [['ESTADO SOLICITUD', solicitud.estadoSolicitud, 'FECHA SOLICITUD', this.formatearFecha(solicitud.fechaSolicitud)]];
+
+      // Si fue APROBADA, mostrar usuario que aprobó
+      if (solicitud.estadoSolicitud === EstadoSolicitudCancelacion.APROBADA && solicitud.usuarioWeb) {
+        const usuarioAprobador = `${solicitud.usuarioWeb.grado} ${solicitud.usuarioWeb.nombreCompleto}`;
+        metSolicitud.push(['USUARIO QUE APROBÓ', usuarioAprobador, '', '']);
+
+        if (solicitud.motivoCancelacion) {
+          metSolicitud.push(['MOTIVO', solicitud.motivoCancelacion, '', '']);
+        }
+      }
+
+      // Si fue RECHAZADA, fue el sistema quien rechazó automáticamente
+      if (solicitud.estadoSolicitud === EstadoSolicitudCancelacion.RECHAZADA) {
+        metSolicitud.push(['RECHAZADO POR', 'Sistema (Rechazo automático)', '', '']);
+      }
+
+      this.pdfGenerator.agregarMetadatos(doc, metSolicitud);
     }
 
     // — Cierre —

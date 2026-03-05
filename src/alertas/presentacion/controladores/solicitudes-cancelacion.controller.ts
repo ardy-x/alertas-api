@@ -37,15 +37,15 @@ export class SolicitudesCancelacionController {
     return RespuestaBuilder.exito(HttpStatus.OK, 'Detalle de solicitud obtenido exitosamente', resultado);
   }
 
-  @Put(':idSolicitud')
-  @ApiOperation({ summary: 'Procesar solicitud de cancelación' })
+  @Put(':idSolicitud/aprobar')
+  @ApiOperation({ summary: 'Aprobar solicitud de cancelación' })
   @ApiBody({ type: ProcesarSolicitudCancelacionRequestDto })
-  async procesar(
+  async aprobar(
     @Param('idSolicitud', ParseUUIDPipe) idSolicitud: string,
     @IdUsuarioActual() idUsuarioWeb: string,
     @Body() entrada: ProcesarSolicitudCancelacionRequestDto,
   ): Promise<RespuestaBaseDto<null>> {
     await this.procesarSolicitudUseCase.ejecutar(idSolicitud, idUsuarioWeb, entrada);
-    return RespuestaBuilder.exito(HttpStatus.OK, 'Solicitud de cancelación procesada exitosamente');
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Solicitud de cancelación aprobada exitosamente');
   }
 }
