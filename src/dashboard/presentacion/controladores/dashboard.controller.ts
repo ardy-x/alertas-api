@@ -87,7 +87,7 @@ export class DashboardController {
   @Get('mapa-calor')
   @ApiOperation({ summary: 'Obtener alertas en formato GeoJSON para mapa con clustering' })
   async obtenerMapaCalor(@Query() query: MapaCalorQueryDto) {
-    // Retornar GeoJSON directo (sin wrapper) para consumo del mapa
-    return await this.obtenerMapaCalorUseCase.ejecutar(query.idDepartamento, query.idProvincia, query.idMunicipio);
+    const mapaCalor = await this.obtenerMapaCalorUseCase.ejecutar(query.idDepartamento, query.idProvincia, query.idMunicipio);
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Mapa de calor obtenido exitosamente', mapaCalor);
   }
 }

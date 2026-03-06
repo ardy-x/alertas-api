@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { AlertaPorMunicipio, AlertaRecienteBase, DatosMetricasGenerales, DatosMetricasTiempo } from '@/dashboard/dominio/entidades/dashboard.entity';
 import { AlertaConFechaHora, AlertaParaMapa, DashboardRepositorioPort, EstadoAlertaCount } from '@/dashboard/dominio/puertos/dashboard.port';
+import { UbicacionPoint } from '@/integraciones/dominio/entidades/ubicacion.types';
 import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
@@ -213,6 +214,7 @@ export class DashboardPrismaAdapter implements DashboardRepositorioPort {
         idMunicipio: true,
         fechaHora: true,
         origen: true,
+        ubicacion: true,
       },
       orderBy: {
         creadoEn: 'desc',
@@ -225,6 +227,7 @@ export class DashboardPrismaAdapter implements DashboardRepositorioPort {
       idMunicipio: alerta.idMunicipio,
       fechaHora: alerta.fechaHora,
       origen: alerta.origen,
+      ubicacion: alerta.ubicacion as UbicacionPoint | null,
     }));
   }
 }

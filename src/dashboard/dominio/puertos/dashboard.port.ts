@@ -1,3 +1,4 @@
+import { UbicacionPoint } from '@/integraciones/dominio/entidades/ubicacion.types';
 import {
   AlertaPorMunicipio,
   AlertaReciente,
@@ -27,6 +28,7 @@ export interface AlertaParaMapa {
   idMunicipio: number | null;
   fechaHora: Date;
   origen: string;
+  ubicacion: UbicacionPoint | null;
 }
 
 export interface DashboardRepositorioPort {
