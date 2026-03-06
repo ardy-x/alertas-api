@@ -6,7 +6,7 @@ import { REDIS_CONFIG } from '../config/redis.config';
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
-  private client: Redis;
+  private declare client: Redis;
   private isConnected = false;
   private logger = new Logger(RedisService.name);
   private connectionErrorLogged = false;
@@ -83,6 +83,21 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     } catch (error) {
       this.logger.error('Error al eliminar de Redis:', error instanceof Error ? error.message : String(error));
       return false;
+    }
+  }
+
+  getConnectionStatus(): boolean {
+    return this.isConnected;
+  }
+
+  async getServerInfo(section?: string): Promise<string | null> {
+    if (!this.isConnected) return null;
+
+    try {
+      return section ? await this.client.info(section) : await this.client.info();
+    } catch (error) {
+      this.logger.error('Error al obtener info de Redis:', error instanceof Error ? error.message : String(error));
+      return null;
     }
   }
 }
