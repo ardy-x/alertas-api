@@ -137,6 +137,6 @@ import { VictimasWebController } from './presentacion/controladores/victimas-web
       useClass: CodigoValidacionRedisAdapter,
     },
   ],
-  exports: [VICTIMA_REPOSITORIO, VerificarVictimaUseCase, ObtenerVictimaUseCase, ObtenerHistorialAlertasVictimaUseCase, ClaveApiGuard, CLAVES_API_PORT_TOKEN],
+  exports: [VICTIMA_REPOSITORIO, VerificarVictimaUseCase, ObtenerVictimaUseCase, ObtenerHistorialAlertasVictimaUseCase, ObtenerInvestigadorActivoUseCase, ClaveApiGuard, CLAVES_API_PORT_TOKEN],
 })
 export class VictimasModule {}

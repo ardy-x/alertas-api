@@ -239,6 +239,14 @@ export class PdfGeneratorService {
     doc.fillColor(COLOR_TEXTO_OSCURO);
   }
 
+  agregarTextoDescriptivo(doc: PDFKit.PDFDocument, texto: string): void {
+    doc.moveDown(0.5);
+    const contentWidth = doc.page.width - MARGIN * 2;
+    doc.fontSize(8.5).fillColor('#333333').font('Helvetica').text(texto, MARGIN, doc.y, { width: contentWidth, align: 'justify', lineGap: 2 });
+    doc.moveDown(1);
+    doc.fillColor(COLOR_TEXTO_OSCURO);
+  }
+
   agregarSeparador(doc: PDFKit.PDFDocument): void {
     doc.moveDown(0.3);
     doc
