@@ -15,6 +15,9 @@ import { CerrarAlertaUseCase } from './aplicacion/casos-uso/cierre-alertas/cerra
 import { NotificarCierreAlertaUseCase } from './aplicacion/casos-uso/cierre-alertas/notificar-cierre-alerta.use-case';
 import { CrearAlertaUseCase } from './aplicacion/casos-uso/crear-alerta.use-case';
 import { CrearPuntoRutaUseCase } from './aplicacion/casos-uso/crear-punto-ruta.use-case';
+import { EliminarEvidenciaUseCase } from './aplicacion/casos-uso/evidencias/eliminar-evidencia.use-case';
+import { ListarEvidenciasUseCase } from './aplicacion/casos-uso/evidencias/listar-evidencias.use-case';
+import { SubirEvidenciaUseCase } from './aplicacion/casos-uso/evidencias/subir-evidencia.use-case';
 import { ListarAlertasActivasUseCase } from './aplicacion/casos-uso/listar-alertas-activas.use-case';
 import { ListarHistorialAlertasUseCase } from './aplicacion/casos-uso/listar-historial-alertas.use-case';
 import { MarcarEnAtencionUseCase } from './aplicacion/casos-uso/marcar-en-atencion.use-case';
@@ -28,6 +31,7 @@ import { NotificarCancelacionAlertaUseCase } from './aplicacion/casos-uso/solici
 import { NotificarCreacionSolicitudUseCase } from './aplicacion/casos-uso/solicitudes-cancelacion/notificar-creacion-solicitud.use-case';
 import { ObtenerSolicitudDetalleUseCase } from './aplicacion/casos-uso/solicitudes-cancelacion/obtener-solicitud-detalle.use-case';
 import { ProcesarSolicitudUseCase } from './aplicacion/casos-uso/solicitudes-cancelacion/procesar-solicitud.use-case';
+import { ComprimirImagenService } from './aplicacion/servicios/comprimir-imagen.service';
 import { EventoDominioService } from './dominio/servicios/evento-dominio.service';
 import { ValidarVictimaService } from './dominio/servicios/validar-victima.service';
 import {
@@ -58,12 +62,22 @@ import { AlertasWebController } from './presentacion/controladores/alertas-web.c
 import { AtencionesController } from './presentacion/controladores/atenciones.controller';
 import { AlertasAttController } from './presentacion/controladores/att/alertas-att.controller';
 import { CierreAlertasController } from './presentacion/controladores/cierre-alertas.controller';
+import { EvidenciasController } from './presentacion/controladores/evidencias.controller';
 import { RutaAlertaController } from './presentacion/controladores/ruta-alerta.controller';
 import { SolicitudesCancelacionController } from './presentacion/controladores/solicitudes-cancelacion.controller';
 
 @Module({
   imports: [IntegracionesModule, PrismaModule, VictimasModule, NotificacionesModule, UsuariosWebModule],
-  controllers: [AlertasController, AlertasWebController, RutaAlertaController, SolicitudesCancelacionController, CierreAlertasController, AlertasAttController, AtencionesController],
+  controllers: [
+    AlertasController,
+    AlertasWebController,
+    RutaAlertaController,
+    SolicitudesCancelacionController,
+    CierreAlertasController,
+    AlertasAttController,
+    AtencionesController,
+    EvidenciasController,
+  ],
   providers: [
     // Casos de uso - Alertas
     CrearAlertaUseCase,
@@ -91,6 +105,14 @@ import { SolicitudesCancelacionController } from './presentacion/controladores/s
     AgregarFuncionarioUseCase,
     ConfirmarLlegadaFuncionarioUseCase,
     ObtenerFuncionariosLlegadosUseCase,
+
+    // Casos de uso - Evidencias
+    SubirEvidenciaUseCase,
+    ListarEvidenciasUseCase,
+    EliminarEvidenciaUseCase,
+
+    // Servicios de aplicación
+    ComprimirImagenService,
 
     // Servicios de dominio
     ValidarVictimaService,

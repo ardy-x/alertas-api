@@ -88,6 +88,7 @@ model Alerta {
   cierre                 CierreAlerta?
   rutaAlerta             RutaAlerta?
   eventos                Evento[]
+  evidencias             Evidencia[]
   solicitudesCancelacion SolicitudCancelacion[]
 
   @@map("alertas")
@@ -161,12 +162,12 @@ model CierreAlertaAgresor {
 
 model Evidencia {
   id            String        @id @default(uuid()) @db.Uuid
-  idEvento      String        @map("id_evento") @db.Uuid
+  idAlerta      String        @map("id_alerta") @db.Uuid
   tipoEvidencia TipoEvidencia @default(FOTO) @map("tipo_evidencia")
   rutaArchivo   String        @map("ruta_archivo") @db.VarChar(500)
   creadoEn      DateTime      @default(now()) @map("creado_en") @db.Timestamptz()
 
-  evento Evento @relation(fields: [idEvento], references: [id])
+  alerta Alerta @relation(fields: [idAlerta], references: [id])
 
   @@map("evidencias")
 }
@@ -183,7 +184,6 @@ model Evento {
 
   alerta     Alerta              @relation(fields: [idAlerta], references: [id])
   usuarioWeb UsuarioWebKerberos? @relation(fields: [idUsuarioWeb], references: [id])
-  evidencias Evidencia[]
 
   @@map("eventos")
 }

@@ -25,7 +25,6 @@ export class EventoPrismaAdapter implements EventoRepositorioPort {
             victima: true,
           },
         },
-        evidencias: true,
       },
     });
   }

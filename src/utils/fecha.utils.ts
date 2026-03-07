@@ -107,7 +107,7 @@ export function formatearFechaSimple(fechaString: string): string {
  */
 export function obtenerMesLiteral(fechaString: string): string {
   const [year, month] = fechaString.split('T')[0].split('-');
-  const fecha = new Date(parseInt(year), parseInt(month) - 1, 1);
+  const fecha = new Date(parseInt(year, 10), parseInt(month, 10) - 1, 1);
   const mes = fecha.toLocaleString('es-BO', { month: 'long' }).toUpperCase();
   return `${mes} DE ${year}`;
 }

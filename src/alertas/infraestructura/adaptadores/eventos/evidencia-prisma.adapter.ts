@@ -13,27 +13,33 @@ export class EvidenciaPrismaAdapter implements EvidenciaRepositorioPort {
     await this.prisma.evidencia.create({
       data: {
         id: datos.id,
-        idEvento: datos.idEvento,
+        idAlerta: datos.idAlerta,
         tipoEvidencia: datos.tipoEvidencia,
         rutaArchivo: datos.rutaArchivo,
       },
     });
   }
 
-  async obtenerPorEvento(idEvento: string): Promise<EvidenciaEntity[]> {
+  async obtenerPorAlerta(idAlerta: string): Promise<EvidenciaEntity[]> {
     const evidencias = await this.prisma.evidencia.findMany({
       where: {
-        idEvento: idEvento,
+        idAlerta: idAlerta,
       },
       orderBy: { creadoEn: 'desc' },
     });
 
     return evidencias.map((evidencia) => ({
       id: evidencia.id,
-      idEvento: evidencia.idEvento,
+      idAlerta: evidencia.idAlerta,
       tipoEvidencia: evidencia.tipoEvidencia as TipoEvidencia,
-      urlArchivo: evidencia.rutaArchivo,
+      rutaArchivo: evidencia.rutaArchivo,
       creadoEn: evidencia.creadoEn,
     }));
+  }
+
+  async eliminarEvidencia(id: string): Promise<void> {
+    await this.prisma.evidencia.delete({
+      where: { id },
+    });
   }
 }
