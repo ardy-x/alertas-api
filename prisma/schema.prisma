@@ -205,7 +205,7 @@ model SolicitudCancelacion {
   idAlerta          String                     @unique @map("id_alerta") @db.Uuid
   fechaSolicitud    DateTime                   @map("fecha_solicitud") @db.Timestamptz()
   estadoSolicitud   EstadoSolicitudCancelacion @default(PENDIENTE) @map("estado_solicitud")
-  idUsuarioWeb      String?                    @map("id_usuario_panel") @db.Uuid
+  idUsuarioWeb      String?                    @map("id_usuario_web") @db.Uuid
   motivoCancelacion String?                    @map("motivo_cancelacion") @db.Text
   creadoEn          DateTime                   @default(now()) @map("creado_en") @db.Timestamptz()
   actualizadoEn     DateTime                   @updatedAt @map("actualizado_en") @db.Timestamptz()
@@ -236,8 +236,9 @@ model Victima {
   creadoEn           DateTime     @default(now()) @map("creado_en") @db.Timestamptz()
   actualizadoEn      DateTime?    @updatedAt @map("actualizado_en") @db.Timestamptz()
 
-  contactosEmergencia ContactoEmergencia[]
-  alertas             Alerta[]
+  contactosEmergencia     ContactoEmergencia[]
+  alertas                 Alerta[]
+  investigadoresAsignados InvestigadorVictima[]
 
   @@map("victimas")
 }
@@ -255,6 +256,21 @@ model ContactoEmergencia {
   victima Victima @relation(fields: [idVictima], references: [id])
 
   @@map("contactos_emergencia")
+}
+
+model InvestigadorVictima {
+  id              String    @id @default(uuid()) @db.Uuid
+  idVictima       String    @map("id_victima") @db.Uuid
+  ciInvestigador  String    @map("ci_investigador") @db.VarChar(20)
+  fechaAsignacion DateTime  @map("fecha_asignacion") @db.Timestamptz()
+  activo          Boolean   @default(true)
+  observaciones   String?   @db.Text
+  creadoEn        DateTime  @default(now()) @map("creado_en") @db.Timestamptz()
+  actualizadoEn   DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz()
+
+  victima Victima @relation(fields: [idVictima], references: [id])
+
+  @@map("investigador_victima")
 }
 
 model UsuarioWebKerberos {
