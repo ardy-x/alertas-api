@@ -13,6 +13,10 @@ import { AgregarContactoVictimaUseCase } from './aplicacion/casos-uso/agregar-co
 import { CerrarSesionUseCase } from './aplicacion/casos-uso/cerrar-sesion.use-case';
 import { CrearVictimaUseCase } from './aplicacion/casos-uso/crear-victima.use-case';
 import { EliminarContactoEmergenciaUseCase } from './aplicacion/casos-uso/eliminar-contacto-emergencia.use-case';
+import { AsignarInvestigadorUseCase } from './aplicacion/casos-uso/investigadores/asignar-investigador.use-case';
+import { DesasignarInvestigadorUseCase } from './aplicacion/casos-uso/investigadores/desasignar-investigador.use-case';
+import { ListarHistorialInvestigadoresUseCase } from './aplicacion/casos-uso/investigadores/listar-historial-investigadores.use-case';
+import { ObtenerInvestigadorActivoUseCase } from './aplicacion/casos-uso/investigadores/obtener-investigador-activo.use-case';
 import { ListarVictimasUseCase } from './aplicacion/casos-uso/listar-victimas.use-case';
 import { MarcarContactoPrincipalUseCase } from './aplicacion/casos-uso/marcar-contacto-principal.use-case';
 import { ObtenerHistorialAlertasVictimaUseCase } from './aplicacion/casos-uso/obtener-historial-alertas-victima.use-case';
@@ -31,6 +35,7 @@ import {
   CLAVES_API_PORT_TOKEN,
   CODIGO_VALIDACION_REPOSITORIO_TOKEN,
   CONTACTO_EMERGENCIA_REPOSITORIO,
+  INVESTIGADOR_VICTIMA_REPOSITORIO,
   MENSAJE_PORT_TOKEN,
   VERIFICAR_DENUNCIA_PORT_TOKEN,
   VICTIMA_REPOSITORIO,
@@ -40,18 +45,20 @@ import { AlertaVictimaPrismaAdapter } from './infraestructura/adaptadores/alerta
 import { ClavesApiPrismaAdapter } from './infraestructura/adaptadores/claves-api-prisma.adapter';
 import { CodigoValidacionRedisAdapter } from './infraestructura/adaptadores/codigo-validacion-redis.adapter';
 import { ContactoEmergenciaPrismaAdapter } from './infraestructura/adaptadores/contacto-emergencia-prisma.adapter';
+import { InvestigadorVictimaPrismaAdapter } from './infraestructura/adaptadores/investigador-victima-prisma.adapter';
 import { MensajeAdapter } from './infraestructura/adaptadores/mensaje.adapter';
 import { VerificarDenunciaAdapter } from './infraestructura/adaptadores/verificar-denuncia.adapter';
 import { VictimaPrismaAdapter } from './infraestructura/adaptadores/victima-prisma.adapter';
 import { ClaveApiGuard } from './infraestructura/guards/clave-api.guard';
 import { ContactosEmergenciaController } from './presentacion/controladores/contactos-emergencia.controller';
+import { InvestigadoresController } from './presentacion/controladores/investigadores.controller';
 import { ValidacionController } from './presentacion/controladores/validacion.controller';
 import { VictimasController } from './presentacion/controladores/victimas.controller';
 import { VictimasWebController } from './presentacion/controladores/victimas-web.controller';
 
 @Module({
   imports: [CoreModule, PrismaModule, IntegracionesModule],
-  controllers: [VictimasController, VictimasWebController, ContactosEmergenciaController, ValidacionController],
+  controllers: [VictimasController, VictimasWebController, ContactosEmergenciaController, ValidacionController, InvestigadoresController],
   providers: [
     // Casos de Uso - Víctimas
     CrearVictimaUseCase,
@@ -73,6 +80,12 @@ import { VictimasWebController } from './presentacion/controladores/victimas-web
     EliminarContactoEmergenciaUseCase,
     MarcarContactoPrincipalUseCase,
     VerificarDenunciaUseCase,
+
+    // Casos de Uso - Investigadores
+    AsignarInvestigadorUseCase,
+    DesasignarInvestigadorUseCase,
+    ObtenerInvestigadorActivoUseCase,
+    ListarHistorialInvestigadoresUseCase,
 
     // Casos de Uso - Validación
     SolicitarCodigoEmailUseCase,
@@ -102,6 +115,10 @@ import { VictimasWebController } from './presentacion/controladores/victimas-web
     {
       provide: CONTACTO_EMERGENCIA_REPOSITORIO,
       useClass: ContactoEmergenciaPrismaAdapter,
+    },
+    {
+      provide: INVESTIGADOR_VICTIMA_REPOSITORIO,
+      useClass: InvestigadorVictimaPrismaAdapter,
     },
     {
       provide: MENSAJE_PORT_TOKEN,
