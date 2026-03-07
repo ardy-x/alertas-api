@@ -1,11 +1,17 @@
+export interface TiempoConDescripcion {
+  tiempo: string; // Formato HH:MM:SS
+  descripcion: string;
+}
+
 // Datos procesados (con cálculos)
 export interface MetricasGenerales {
   alertasActivas: number;
   alertasPendientes: number;
   alertasResueltas: number;
-  tiempoPromedioAsignacion: string; // Formato HH:MM:SS
-  tiempoPromedioAtencionTotal: string;
-  tiempoPromedioRegistro: string;
+  promedioAsignacion: TiempoConDescripcion;
+  promedioAtencionTotal: TiempoConDescripcion;
+  promedioRegistro: TiempoConDescripcion;
+  promedioLlegada: TiempoConDescripcion;
 }
 
 // Datos crudos que devuelve el adaptador para métricas generales
@@ -16,12 +22,14 @@ export interface DatosMetricasGenerales {
   tiemposAsignacion: Array<{ creadoEn: Date; alerta: { creadoEn: Date } }>;
   tiemposCierre: Array<{ creadoEn: Date; alerta: { creadoEn: Date } }>;
   alertasConTiempoRegistro: Array<{ fechaHora: Date; creadoEn: Date }>;
+  tiemposLlegada: Array<{ fechaLlegada: Date; atencion: { alerta: { creadoEn: Date } } }>;
 }
 
 export interface AlertaPorMunicipio {
   idMunicipio: number;
   totalAlertas: number;
   alertasActivas: number;
+  alertasCerradas: number;
 }
 
 export interface AlertaReciente {

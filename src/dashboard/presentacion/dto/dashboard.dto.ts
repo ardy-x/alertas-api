@@ -1,5 +1,13 @@
 import { ApiProperty } from '@nestjs/swagger';
 
+export class TiempoConDescripcionDto {
+  @ApiProperty()
+  tiempo: string;
+
+  @ApiProperty()
+  descripcion: string;
+}
+
 export class MetricasGeneralesDto {
   @ApiProperty()
   alertasActivas: number;
@@ -10,20 +18,20 @@ export class MetricasGeneralesDto {
   @ApiProperty()
   alertasResueltas: number;
 
-  @ApiProperty()
-  tiempoPromedioAsignacion: string;
+  @ApiProperty({ type: TiempoConDescripcionDto })
+  promedioAsignacion: TiempoConDescripcionDto;
 
-  @ApiProperty()
-  tiempoPromedioAtencionTotal: string;
+  @ApiProperty({ type: TiempoConDescripcionDto })
+  promedioAtencionTotal: TiempoConDescripcionDto;
 
-  @ApiProperty()
-  tiempoPromedioRegistro: string;
+  @ApiProperty({ type: TiempoConDescripcionDto })
+  promedioRegistro: TiempoConDescripcionDto;
+
+  @ApiProperty({ type: TiempoConDescripcionDto })
+  promedioLlegada: TiempoConDescripcionDto;
 }
 
 export class AlertaPorDepartamentoDto {
-  @ApiProperty()
-  idDepartamento: number;
-
   @ApiProperty()
   nombreDepartamento: string;
 
@@ -34,10 +42,7 @@ export class AlertaPorDepartamentoDto {
   alertasActivas: number;
 
   @ApiProperty()
-  alertasPendientes: number;
-
-  @ApiProperty()
-  alertasResueltas: number;
+  alertasCerradas: number;
 }
 
 export class AlertaPorProvinciaDto {
@@ -82,70 +87,4 @@ export class AlertasGeograficasDto {
     type: [AlertaPorDepartamentoDto],
   })
   departamentos: AlertaPorDepartamentoDto[];
-
-  @ApiProperty({
-    type: [AlertaPorProvinciaDto],
-  })
-  provincias: AlertaPorProvinciaDto[];
-
-  @ApiProperty({
-    type: [AlertaPorMunicipioDto],
-  })
-  municipios: AlertaPorMunicipioDto[];
-}
-
-export class AlertaRecienteDto {
-  @ApiProperty()
-  idAlerta: string;
-
-  @ApiProperty()
-  idMunicipio?: number;
-
-  @ApiProperty()
-  nombreCompletoVictima: string;
-
-  @ApiProperty()
-  nombreMunicipio: string;
-
-  @ApiProperty()
-  estadoAlerta: string;
-
-  @ApiProperty()
-  origen: string;
-
-  @ApiProperty()
-  fechaCreacion: Date;
-
-  @ApiProperty()
-  tiempoTranscurrido: string;
-}
-
-export class MetricasPorOrigenDto {
-  @ApiProperty()
-  origen: string;
-
-  @ApiProperty()
-  tiempoPromedioAsignacion: string;
-
-  @ApiProperty()
-  tiempoPromedioAtencionTotal: string;
-
-  @ApiProperty()
-  cantidadAlertas: number;
-}
-
-export class MetricasTiempoDto {
-  @ApiProperty()
-  tiempoPromedioAsignacion: string;
-
-  @ApiProperty()
-  tiempoPromedioAtencionTotal: string;
-
-  @ApiProperty()
-  tiempoPromedioRegistro: string;
-
-  @ApiProperty({
-    type: [MetricasPorOrigenDto],
-  })
-  metricasPorOrigen: MetricasPorOrigenDto[];
 }

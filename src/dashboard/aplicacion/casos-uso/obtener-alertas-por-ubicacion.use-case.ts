@@ -4,7 +4,6 @@ import { AlertaPorMunicipio, DashboardRepositorioPort } from '@/dashboard/domini
 import { DASHBOARD_REPOSITORIO_TOKEN } from '@/dashboard/dominio/tokens/dashboard.tokens';
 import { ObtenerDepartamentosUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-departamentos.use-case';
 import { ObtenerProvinciaDepartamentoUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-provincia-departamento.use-case';
-import { ObtenerProvinciasPorDepartamentoUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-provincias-por-departamento.use-case';
 
 @Injectable()
 export class ObtenerAlertasPorUbicacionUseCase {
@@ -12,79 +11,48 @@ export class ObtenerAlertasPorUbicacionUseCase {
     @Inject(DASHBOARD_REPOSITORIO_TOKEN)
     private readonly dashboardRepositorio: DashboardRepositorioPort,
     readonly _obtenerDepartamentosUseCase: ObtenerDepartamentosUseCase,
-    readonly _obtenerProvinciasPorDepartamentoUseCase: ObtenerProvinciasPorDepartamentoUseCase,
     private readonly obtenerProvinciaDepartamentoUseCase: ObtenerProvinciaDepartamentoUseCase,
   ) {}
 
   async ejecutar() {
-    // Obtener alertas agrupadas por municipio
-    const alertasPorMunicipio = await this.dashboardRepositorio.obtenerAlertasPorMunicipio();
+    // Obtener todos los departamentos y alertas en paralelo
+    const [todosDepartamentos, alertasPorMunicipio] = await Promise.all([this._obtenerDepartamentosUseCase.ejecutar(), this.dashboardRepositorio.obtenerAlertasPorMunicipio()]);
 
-    // Enriquecer con datos geográficos del módulo compartido
-    const municipiosEnriquecidos = await Promise.all(
+    // Enriquecer alertas con nombre de departamento
+    const alertasConDepartamento = await Promise.all(
       alertasPorMunicipio.map(async (alerta: AlertaPorMunicipio) => {
         const datosGeograficos = await this.obtenerProvinciaDepartamentoUseCase.ejecutar(alerta.idMunicipio);
-
-        if (datosGeograficos) {
-          return {
-            idMunicipio: alerta.idMunicipio,
-            nombreMunicipio: datosGeograficos.municipio.municipio,
-            nombreProvincia: datosGeograficos.provincia.provincia,
-            nombreDepartamento: datosGeograficos.departamento.departamento,
-            totalAlertas: alerta.totalAlertas,
-            alertasActivas: alerta.alertasActivas,
-          };
-        } else {
-          // Si no se encuentra el municipio, devolver con nombre genérico
-          return {
-            ...alerta,
-            nombreMunicipio: `Municipio ${alerta.idMunicipio}`,
-            nombreProvincia: 'Desconocida',
-            nombreDepartamento: 'Desconocido',
-          };
-        }
+        return {
+          nombreDepartamento: datosGeograficos?.departamento.departamento ?? 'Desconocido',
+          totalAlertas: alerta.totalAlertas,
+          alertasActivas: alerta.alertasActivas,
+          alertasCerradas: alerta.alertasCerradas,
+        };
       }),
     );
 
     // Agrupar por departamento
-    const departamentosMap = new Map<string, { nombreDepartamento: string; totalAlertas: number; alertasActivas: number; alertasPendientes: number; alertasResueltas: number }>();
-    municipiosEnriquecidos.forEach((municipio) => {
-      const key = municipio.nombreDepartamento;
-      if (!departamentosMap.has(key)) {
-        departamentosMap.set(key, {
-          nombreDepartamento: municipio.nombreDepartamento,
-          totalAlertas: 0,
-          alertasActivas: 0,
-          alertasPendientes: 0,
-          alertasResueltas: 0,
-        });
+    const alertasMap = new Map<string, { totalAlertas: number; alertasActivas: number; alertasCerradas: number }>();
+    alertasConDepartamento.forEach((item) => {
+      const key = item.nombreDepartamento;
+      if (!alertasMap.has(key)) {
+        alertasMap.set(key, { totalAlertas: 0, alertasActivas: 0, alertasCerradas: 0 });
       }
-      const dept = departamentosMap.get(key)!;
-      dept.totalAlertas += municipio.totalAlertas;
-      dept.alertasActivas += municipio.alertasActivas;
+      const stats = alertasMap.get(key)!;
+      stats.totalAlertas += item.totalAlertas;
+      stats.alertasActivas += item.alertasActivas;
+      stats.alertasCerradas += item.alertasCerradas;
     });
 
-    // Agrupar por provincia
-    const provinciasMap = new Map<string, { nombreProvincia: string; nombreDepartamento: string; totalAlertas: number; alertasActivas: number }>();
-    municipiosEnriquecidos.forEach((municipio) => {
-      const key = `${municipio.nombreProvincia}-${municipio.nombreDepartamento}`;
-      if (!provinciasMap.has(key)) {
-        provinciasMap.set(key, {
-          nombreProvincia: municipio.nombreProvincia,
-          nombreDepartamento: municipio.nombreDepartamento,
-          totalAlertas: 0,
-          alertasActivas: 0,
-        });
-      }
-      const prov = provinciasMap.get(key)!;
-      prov.totalAlertas += municipio.totalAlertas;
-      prov.alertasActivas += municipio.alertasActivas;
+    // Devolver TODOS los departamentos, con 0 si no tienen alertas
+    return todosDepartamentos.map((dept) => {
+      const stats = alertasMap.get(dept.departamento) ?? { totalAlertas: 0, alertasActivas: 0, alertasCerradas: 0 };
+      return {
+        nombreDepartamento: dept.departamento,
+        totalAlertas: stats.totalAlertas,
+        alertasActivas: stats.alertasActivas,
+        alertasCerradas: stats.alertasCerradas,
+      };
     });
-
-    return {
-      departamentos: Array.from(departamentosMap.values()),
-      provincias: Array.from(provinciasMap.values()),
-      municipios: municipiosEnriquecidos,
-    };
   }
 }
