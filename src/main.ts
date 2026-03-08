@@ -19,6 +19,10 @@ async function bootstrap() {
   const logger = new Logger(swaggerEnv.API_TITLE);
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  // Aumentar límites para JSON y URL encoded (no afecta multipart/form-data)
+  app.use(express.json({ limit: '100mb' }));
+  app.use(express.urlencoded({ limit: '100mb', extended: true }));
+
   // Servir archivos estáticos con express.static directamente
   const archivosPath = join(process.cwd(), 'archivos');
   logger.log(`Sirviendo archivos estáticos desde: ${archivosPath}`);
