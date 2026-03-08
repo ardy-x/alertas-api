@@ -1,7 +1,12 @@
 import { Controller, Get, HttpStatus, Param, ParseUUIDPipe, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
+import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
+import { CiUsuarioActual } from '@/autenticacion/infraestructura/decoradores/ci-usuario.decorator';
+import { RolUsuarioActual } from '@/autenticacion/infraestructura/decoradores/rol-usuario.decorator';
+import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
+import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
 import { PaginacionRespuestaBaseDto, RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { ActivarCuentaUseCase } from '@/victimas/aplicacion/casos-uso/activar-cuenta.use-case';
@@ -15,7 +20,7 @@ import { ListarVictimasData } from '../dto/salida/victima.dto';
 @ApiTags('VÍCTIMAS WEB')
 @Controller('victimas')
 @ApiSecurity('jwt-auth')
-@UseGuards(KerberosJwtAuthGuard)
+@UseGuards(KerberosJwtAuthGuard, RolesGuard)
 export class VictimasWebController {
   constructor(
     private readonly listarVictimasUseCase: ListarVictimasUseCase,
@@ -25,34 +30,38 @@ export class VictimasWebController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Listar víctimas con filtros y paginación' })
-  async listarTodas(@Query() query: ListarVictimasRequestDto): Promise<PaginacionRespuestaBaseDto<ListarVictimasData>> {
-    const resultado = await this.listarVictimasUseCase.ejecutar(query);
+  @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.INVESTIGADOR)
+  @ApiOperation({ summary: 'Listar víctimas con filtros y paginación', description: 'Roles permitidos: ADMINISTRADOR, INVESTIGADOR' })
+  async listarTodas(@Query() query: ListarVictimasRequestDto, @CiUsuarioActual() ciUsuario: string, @RolUsuarioActual() rolUsuario: string): Promise<PaginacionRespuestaBaseDto<ListarVictimasData>> {
+    const resultado = await this.listarVictimasUseCase.ejecutar(query, ciUsuario, rolUsuario);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Víctimas listadas exitosamente', resultado);
   }
 
   @Get('historial-alertas')
-  @ApiOperation({ summary: 'Obtener historial de alertas de una víctima por CI' })
+  @ApiOperation({ summary: 'Obtener historial de alertas de una víctima por CI', description: 'Consulta para el sistema JUPITER' })
   async obtenerHistorialAlertas(@Query() query: ObtenerHistorialAlertasParamsDto): Promise<RespuestaBaseDto> {
     const historial = await this.obtenerHistorialAlertasVictimaUseCase.ejecutar(query);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Historial de alertas obtenido exitosamente', historial) as RespuestaBaseDto;
   }
 
   @Get(':idVictima/historial-alertas')
-  @ApiOperation({ summary: 'Obtener historial de alertas de una víctima por ID' })
+  @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.INVESTIGADOR)
+  @ApiOperation({ summary: 'Obtener historial de alertas de una víctima por ID', description: 'Roles permitidos: ADMINISTRADOR, INVESTIGADOR' })
   async obtenerHistorialAlertasPorId(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto> {
     const historial = await this.obtenerHistorialAlertasVictimaUseCase.ejecutar({ idVictima });
     return RespuestaBuilder.exito(HttpStatus.OK, 'Historial de alertas obtenido exitosamente', historial) as RespuestaBaseDto;
   }
   @Post(':idVictima/suspender-cuenta')
-  @ApiOperation({ summary: 'Suspender cuenta de víctima' })
+  @Roles(RolesPermitidos.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Suspender cuenta de víctima', description: 'Rol permitido: ADMINISTRADOR' })
   async suspenderCuenta(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto> {
     await this.suspenderCuentaUseCase.ejecutar(idVictima);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Cuenta suspendida exitosamente');
   }
 
   @Post(':idVictima/activar-cuenta')
-  @ApiOperation({ summary: 'Activar cuenta de víctima' })
+  @Roles(RolesPermitidos.ADMINISTRADOR)
+  @ApiOperation({ summary: 'Activar cuenta de víctima', description: 'Rol permitido: ADMINISTRADOR' })
   async activarCuenta(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto> {
     await this.activarCuentaUseCase.ejecutar(idVictima);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Cuenta activada exitosamente');
