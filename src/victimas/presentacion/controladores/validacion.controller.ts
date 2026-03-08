@@ -1,6 +1,7 @@
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { SolicitarCodigoEmailUseCase } from '@/victimas/aplicacion/casos-uso/validacion/solicitar-codigo-email.use-case';
 import { SolicitarCodigoWhatsappUseCase } from '@/victimas/aplicacion/casos-uso/validacion/solicitar-codigo-whatsapp.use-case';
@@ -11,6 +12,7 @@ import { VerificarCodigoCelularRequestDto } from '../dto/entrada/validacion/codi
 import { VerificarCodigoEmailRequestDto } from '../dto/entrada/validacion/codigo-verificacion-email-request.dto';
 import { SolicitarCodigoEmailRequestDto } from '../dto/entrada/validacion/solicitar-codigo-email-request.dto';
 import { SolicitarCodigoWhatsappRequestDto } from '../dto/entrada/validacion/solicitar-codigo-whatsapp-request.dto';
+import { VerificarCodigoResponseDto } from '../dto/salida/verificar-codigo-response.dto';
 
 @ApiTags('CÓDIGOS DE VERIFICACIÓN')
 @Controller('codigos')
@@ -25,6 +27,7 @@ export class ValidacionController {
   @Post('solicitar-codigo-whatsapp')
   @ApiOperation({ summary: 'Solicitar código de verificación por WhatsApp' })
   @ApiBody({ type: SolicitarCodigoWhatsappRequestDto })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Código enviado exitosamente por WhatsApp' })
   async solicitarCodigoWhatsapp(@Body() solicitarCodigoDto: SolicitarCodigoWhatsappRequestDto) {
     await this.solicitarCodigoWhatsappUseCase.ejecutar(solicitarCodigoDto);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Código enviado exitosamente por WhatsApp');
@@ -33,6 +36,7 @@ export class ValidacionController {
   @Post('solicitar-codigo-email')
   @ApiOperation({ summary: 'Solicitar código de verificación por email' })
   @ApiBody({ type: SolicitarCodigoEmailRequestDto })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Código enviado exitosamente por email' })
   async solicitarCodigoEmail(@Body() solicitarCodigoDto: SolicitarCodigoEmailRequestDto) {
     await this.solicitarCodigoEmailUseCase.ejecutar(solicitarCodigoDto);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Código enviado exitosamente por email');
@@ -41,7 +45,8 @@ export class ValidacionController {
   @Post('verificar-codigo-celular')
   @ApiOperation({ summary: 'Verificar código por celular y obtener API key' })
   @ApiBody({ type: VerificarCodigoCelularRequestDto })
-  async verificarCodigoCelular(@Body() verificarCodigoDto: VerificarCodigoCelularRequestDto) {
+  @ApiResponse({ status: HttpStatus.OK, description: 'Código verificado exitosamente', type: VerificarCodigoResponseDto })
+  async verificarCodigoCelular(@Body() verificarCodigoDto: VerificarCodigoCelularRequestDto): Promise<RespuestaBaseDto<VerificarCodigoResponseDto>> {
     const resultado = await this.verificarCodigoCelularUseCase.ejecutar(verificarCodigoDto);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Código verificado exitosamente', resultado);
   }
@@ -49,7 +54,8 @@ export class ValidacionController {
   @Post('verificar-codigo-email')
   @ApiOperation({ summary: 'Verificar código por email y obtener API key' })
   @ApiBody({ type: VerificarCodigoEmailRequestDto })
-  async verificarCodigoEmail(@Body() verificarCodigoDto: VerificarCodigoEmailRequestDto) {
+  @ApiResponse({ status: HttpStatus.OK, description: 'Código verificado exitosamente', type: VerificarCodigoResponseDto })
+  async verificarCodigoEmail(@Body() verificarCodigoDto: VerificarCodigoEmailRequestDto): Promise<RespuestaBaseDto<VerificarCodigoResponseDto>> {
     const resultado = await this.verificarCodigoEmailUseCase.ejecutar(verificarCodigoDto);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Código verificado exitosamente', resultado);
   }

@@ -1,5 +1,5 @@
 import { Controller, Get, HttpStatus, Param, ParseUUIDPipe, Post, Query, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
 import { CiUsuarioActual } from '@/autenticacion/infraestructura/decoradores/ci-usuario.decorator';
@@ -9,12 +9,13 @@ import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/ker
 import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
 import { PaginacionRespuestaBaseDto, RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
-import { ActivarCuentaUseCase } from '@/victimas/aplicacion/casos-uso/activar-cuenta.use-case';
-import { ListarVictimasUseCase } from '@/victimas/aplicacion/casos-uso/listar-victimas.use-case';
-import { ObtenerHistorialAlertasVictimaUseCase } from '@/victimas/aplicacion/casos-uso/obtener-historial-alertas-victima.use-case';
-import { SuspenderCuentaUseCase } from '@/victimas/aplicacion/casos-uso/suspender-cuenta.use-case';
+import { ActivarCuentaUseCase } from '@/victimas/aplicacion/casos-uso/web/activar-cuenta.use-case';
+import { ListarVictimasUseCase } from '@/victimas/aplicacion/casos-uso/web/listar-victimas.use-case';
+import { ObtenerHistorialAlertasVictimaUseCase } from '@/victimas/aplicacion/casos-uso/web/obtener-historial-alertas-victima.use-case';
+import { SuspenderCuentaUseCase } from '@/victimas/aplicacion/casos-uso/web/suspender-cuenta.use-case';
 
 import { ListarVictimasRequestDto, ObtenerHistorialAlertasParamsDto } from '../dto/entrada/victima.dto';
+import { HistorialAlertasVictimaDto } from '../dto/salida/historial-alertas-victima.dto';
 import { ListarVictimasData } from '../dto/salida/victima.dto';
 
 @ApiTags('VÍCTIMAS WEB')
@@ -32,6 +33,7 @@ export class VictimasWebController {
   @Get()
   @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.INVESTIGADOR)
   @ApiOperation({ summary: 'Listar víctimas con filtros y paginación', description: 'Roles permitidos: ADMINISTRADOR, INVESTIGADOR' })
+  @ApiResponse({ status: HttpStatus.OK, type: ListarVictimasData })
   async listarTodas(@Query() query: ListarVictimasRequestDto, @CiUsuarioActual() ciUsuario: string, @RolUsuarioActual() rolUsuario: string): Promise<PaginacionRespuestaBaseDto<ListarVictimasData>> {
     const resultado = await this.listarVictimasUseCase.ejecutar(query, ciUsuario, rolUsuario);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Víctimas listadas exitosamente', resultado);
@@ -39,6 +41,7 @@ export class VictimasWebController {
 
   @Get('historial-alertas')
   @ApiOperation({ summary: 'Obtener historial de alertas de una víctima por CI', description: 'Consulta para el sistema JUPITER' })
+  @ApiResponse({ status: HttpStatus.OK, type: HistorialAlertasVictimaDto })
   async obtenerHistorialAlertas(@Query() query: ObtenerHistorialAlertasParamsDto): Promise<RespuestaBaseDto> {
     const historial = await this.obtenerHistorialAlertasVictimaUseCase.ejecutar(query);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Historial de alertas obtenido exitosamente', historial) as RespuestaBaseDto;
@@ -47,9 +50,10 @@ export class VictimasWebController {
   @Get(':idVictima/historial-alertas')
   @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.INVESTIGADOR)
   @ApiOperation({ summary: 'Obtener historial de alertas de una víctima por ID', description: 'Roles permitidos: ADMINISTRADOR, INVESTIGADOR' })
-  async obtenerHistorialAlertasPorId(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto> {
+  @ApiResponse({ status: HttpStatus.OK, type: HistorialAlertasVictimaDto })
+  async obtenerHistorialAlertasPorId(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto<HistorialAlertasVictimaDto>> {
     const historial = await this.obtenerHistorialAlertasVictimaUseCase.ejecutar({ idVictima });
-    return RespuestaBuilder.exito(HttpStatus.OK, 'Historial de alertas obtenido exitosamente', historial) as RespuestaBaseDto;
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Historial de alertas obtenido exitosamente', historial);
   }
   @Post(':idVictima/suspender-cuenta')
   @Roles(RolesPermitidos.ADMINISTRADOR)

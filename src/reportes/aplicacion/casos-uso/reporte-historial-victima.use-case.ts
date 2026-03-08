@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 
 import { MetadatoPar, PdfGeneratorService, TablaColumna } from '@/reportes/infraestructura/generadores/pdf-generator.service';
 import { ObtenerInvestigadorActivoUseCase } from '@/victimas/aplicacion/casos-uso/investigadores/obtener-investigador-activo.use-case';
-import { ObtenerHistorialAlertasVictimaUseCase } from '@/victimas/aplicacion/casos-uso/obtener-historial-alertas-victima.use-case';
+import { ObtenerHistorialAlertasVictimaUseCase } from '@/victimas/aplicacion/casos-uso/web/obtener-historial-alertas-victima.use-case';
 import { ObtenerHistorialAlertasParamsDto } from '@/victimas/presentacion/dto/entrada/victima.dto';
 import { AlertaVictimaDto } from '@/victimas/presentacion/dto/salida/historial-alertas-victima.dto';
 

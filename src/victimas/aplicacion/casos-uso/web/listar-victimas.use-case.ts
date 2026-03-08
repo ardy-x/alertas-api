@@ -5,8 +5,8 @@ import { AlertaVictimaRepositorioPort } from '@/victimas/dominio/puertos/alerta-
 import { InvestigadorVictimaRepositorioPort } from '@/victimas/dominio/puertos/investigador-victima.port';
 import { FiltrosVictima } from '@/victimas/dominio/puertos/victima.port';
 import { ALERTA_VICTIMA_REPOSITORIO, INVESTIGADOR_VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
-import { ListarVictimasRequestDto } from '../../presentacion/dto/entrada/victima.dto';
-import { ListarVictimasData, VictimaBaseResponseDto } from '../../presentacion/dto/salida/victima.dto';
+import { ListarVictimasRequestDto } from '../../../presentacion/dto/entrada/victima.dto';
+import { ListarVictimasData, VictimaBaseResponseDto } from '../../../presentacion/dto/salida/victima.dto';
 
 @Injectable()
 export class ListarVictimasUseCase {

@@ -1,5 +1,4 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { InvestigadorActivoConDatos } from '@/victimas/aplicacion/casos-uso/investigadores/obtener-investigador-activo.use-case';
 
 export class AlertaVictimaDto {
   @ApiProperty({
@@ -153,6 +152,29 @@ export class VictimaResumenDto {
   })
   estadoCuenta: string;
 }
+export class InvestigadorActivoDto {
+  @ApiProperty()
+  declare id: string;
+  @ApiProperty()
+  declare idVictima: string;
+  @ApiProperty()
+  declare ciInvestigador: string;
+  @ApiProperty()
+  declare fechaAsignacion: Date;
+  @ApiProperty()
+  declare observaciones: string | null;
+  // Datos del funcionario desde Personal
+  @ApiProperty()
+  declare nombreCompleto: string;
+  @ApiProperty()
+  declare grado: string;
+  @ApiProperty()
+  declare unidad: string;
+  @ApiProperty()
+  declare cargo: string;
+  @ApiProperty()
+  declare nroEscalafon: string;
+}
 
 export class HistorialAlertasVictimaDto {
   @ApiProperty({
@@ -175,6 +197,8 @@ export class HistorialAlertasVictimaDto {
 
   @ApiPropertyOptional({
     description: 'Investigador activo asignado a la víctima',
+    type: InvestigadorActivoDto,
+    nullable: true,
   })
-  investigadorActivo?: InvestigadorActivoConDatos | null;
+  investigadorActivo?: InvestigadorActivoDto | null;
 }

@@ -8,7 +8,7 @@ import { EstadisticasAlertasService } from '@/victimas/dominio/servicios/estadis
 import { ALERTA_VICTIMA_REPOSITORIO, VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
 import { HistorialAlertasVictimaDto } from '@/victimas/presentacion/dto/salida/historial-alertas-victima.dto';
 
-import { ObtenerHistorialAlertasParamsDto } from '../../presentacion/dto/entrada/victima.dto';
+import { ObtenerHistorialAlertasParamsDto } from '../../../presentacion/dto/entrada/victima.dto';
 
 @Injectable()
 export class ObtenerHistorialAlertasVictimaUseCase {

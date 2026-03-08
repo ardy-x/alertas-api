@@ -1,5 +1,7 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
+import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
@@ -14,6 +16,7 @@ import { InvestigadorActivoDto, ListarHistorialInvestigadoresResponseDto } from 
 @Controller('victimas')
 @UseGuards(KerberosJwtAuthGuard)
 @ApiSecurity('jwt-auth')
+@Roles(RolesPermitidos.ADMINISTRADOR)
 export class InvestigadoresController {
   constructor(
     private readonly asignarInvestigadorUseCase: AsignarInvestigadorUseCase,
@@ -23,14 +26,16 @@ export class InvestigadoresController {
   ) {}
 
   @Post(':idVictima/investigador')
-  @ApiOperation({ summary: 'Asignar investigador a una víctima' })
+  @ApiOperation({ summary: 'Asignar investigador a una víctima', description: 'Rol permitido: ADMINISTRADOR.' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Investigador asignado exitosamente' })
   async asignarInvestigador(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() dto: AsignarInvestigadorDto): Promise<RespuestaBaseDto> {
     await this.asignarInvestigadorUseCase.ejecutar(idVictima, dto.ciInvestigador, dto.observaciones);
     return RespuestaBuilder.exito(HttpStatus.CREATED, 'Investigador asignado exitosamente');
   }
 
   @Delete(':idVictima/investigador')
-  @ApiOperation({ summary: 'Desasignar investigador de una víctima' })
+  @ApiOperation({ summary: 'Desasignar investigador de una víctima', description: 'Rol permitido: ADMINISTRADOR.' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Investigador desasignado exitosamente' })
   async desasignarInvestigador(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto> {
     await this.desasignarInvestigadorUseCase.ejecutar(idVictima);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Investigador desasignado exitosamente');
@@ -38,6 +43,7 @@ export class InvestigadoresController {
 
   @Get(':idVictima/investigador')
   @ApiOperation({ summary: 'Obtener investigador activo de una víctima' })
+  @ApiResponse({ status: HttpStatus.OK, type: InvestigadorActivoDto, description: 'Investigador activo obtenido exitosamente' })
   async obtenerInvestigadorActivo(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto<InvestigadorActivoDto | null>> {
     const investigador = await this.obtenerInvestigadorActivoUseCase.ejecutar(idVictima);
 
@@ -49,7 +55,8 @@ export class InvestigadoresController {
   }
 
   @Get(':idVictima/investigadores/historial')
-  @ApiOperation({ summary: 'Listar historial de investigadores de una víctima' })
+  @ApiOperation({ summary: 'Listar historial de investigadores de una víctima', description: 'Rol permitido: ADMINISTRADOR.' })
+  @ApiResponse({ status: HttpStatus.OK, type: ListarHistorialInvestigadoresResponseDto, description: 'Historial de investigadores obtenido exitosamente' })
   async listarHistorialInvestigadores(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto<ListarHistorialInvestigadoresResponseDto>> {
     const investigadores = await this.listarHistorialInvestigadoresUseCase.ejecutar(idVictima);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Historial de investigadores obtenido exitosamente', { investigadores });

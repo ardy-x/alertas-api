@@ -5,6 +5,7 @@ import { CodigoValidacionRepositorioPort } from '@/victimas/dominio/puertos/codi
 import { VictimaRepositorioPort } from '@/victimas/dominio/puertos/victima.port';
 import { CODIGO_VALIDACION_REPOSITORIO_TOKEN, VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
 import { VerificarCodigoEmailRequestDto } from '@/victimas/presentacion/dto/entrada/validacion/codigo-verificacion-email-request.dto';
+import { VerificarCodigoResponseDto } from '@/victimas/presentacion/dto/salida/verificar-codigo-response.dto';
 
 @Injectable()
 export class VerificarCodigoEmailUseCase {
@@ -15,7 +16,7 @@ export class VerificarCodigoEmailUseCase {
     private readonly codigoValidacionRepositorio: CodigoValidacionRepositorioPort,
   ) {}
 
-  async ejecutar(request: VerificarCodigoEmailRequestDto): Promise<{ victima: { id: string; apiKey: string } }> {
+  async ejecutar(request: VerificarCodigoEmailRequestDto): Promise<VerificarCodigoResponseDto> {
     // Validar código en Redis
     const codigoValido = await this.codigoValidacionRepositorio.validarCodigoPorEmail(request.email.trim(), request.codigo.trim());
 
