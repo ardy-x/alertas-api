@@ -1,5 +1,5 @@
 import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post, UseGuards, UseInterceptors } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { ActualizarAlertaUseCase } from '@/alertas/aplicacion/casos-uso/actualizar-alerta.use-case';
 import { ConfirmarLlegadaFuncionarioUseCase } from '@/alertas/aplicacion/casos-uso/atenciones/confirmar-llegada-funcionario.use-case';
@@ -17,10 +17,10 @@ import { CrearSolicitudCancelacionRequestDto } from '../dto/entrada/solicitudes-
 import { CrearAlertaResponseDto, FuncionarioLlegadoDto } from '../dto/salida/alertas-salida.dto';
 
 @ApiTags('ALERTAS')
-@Controller('alertas')
-@UseInterceptors(LogDatosInterceptor)
-@UseGuards(ClaveApiGuard)
 @ApiSecurity('api-key')
+@Controller('alertas')
+@UseGuards(ClaveApiGuard)
+@UseInterceptors(LogDatosInterceptor)
 export class AlertasController {
   constructor(
     private readonly crearAlertaUseCase: CrearAlertaUseCase,
@@ -34,6 +34,7 @@ export class AlertasController {
   @Post()
   @ApiOperation({ summary: 'Crear una nueva alerta' })
   @ApiBody({ type: CrearAlertaRequestDto })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Alerta creada exitosamente', type: CrearAlertaResponseDto })
   async crearAlerta(@Body() dto: CrearAlertaRequestDto): Promise<RespuestaBaseDto<CrearAlertaResponseDto>> {
     const datos = await this.crearAlertaUseCase.ejecutar(dto);
     return RespuestaBuilder.exito(HttpStatus.CREATED, 'Alerta creada exitosamente', datos);
@@ -42,6 +43,7 @@ export class AlertasController {
   @Patch(':idAlerta')
   @ApiOperation({ summary: 'Actualizar ubicación de una alerta' })
   @ApiBody({ type: ActualizarAlertaRequestDto })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Ubicación de alerta actualizada exitosamente' })
   async actualizarAlerta(@Param('idAlerta', ParseUUIDPipe) idAlerta: string, @Body() actualizarAlertaDto: ActualizarAlertaRequestDto): Promise<RespuestaBaseDto> {
     await this.actualizarAlertaUseCase.ejecutar(idAlerta, actualizarAlertaDto);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Ubicación de alerta actualizada exitosamente');
@@ -57,6 +59,7 @@ export class AlertasController {
   @Post(':idAlerta/solicitudes-cancelacion')
   @ApiOperation({ summary: 'Crear solicitud de cancelación para una alerta' })
   @ApiBody({ type: CrearSolicitudCancelacionRequestDto })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Solicitud de cancelación creada exitosamente' })
   async crearSolicitudCancelacion(@Param('idAlerta', ParseUUIDPipe) idAlerta: string, @Body() dto: CrearSolicitudCancelacionRequestDto): Promise<RespuestaBaseDto> {
     await this.crearSolicitudCancelacionUseCase.ejecutar(idAlerta, dto);
     return RespuestaBuilder.exito(HttpStatus.CREATED, 'Solicitud de cancelación creada exitosamente');
@@ -64,6 +67,7 @@ export class AlertasController {
 
   @Patch(':idAlerta/confirmar-llegada')
   @ApiOperation({ summary: 'Confirmar llegada del personal policial al lugar' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Llegada confirmada exitosamente' })
   async confirmarLlegada(@Param('idAlerta', ParseUUIDPipe) idAlerta: string, @Body() body: ConfirmacionVictimaRequestDto): Promise<RespuestaBaseDto> {
     await this.confirmarLlegadaFuncionarioUseCase.ejecutar(idAlerta, body.ciFuncionario);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Llegada confirmada exitosamente');
@@ -71,6 +75,7 @@ export class AlertasController {
 
   @Get(':idAlerta/funcionarios-llegados')
   @ApiOperation({ summary: 'Obtener funcionarios que llegaron para la alerta' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Funcionarios obtenidos exitosamente', type: [FuncionarioLlegadoDto] })
   async obtenerFuncionariosLlegados(@Param('idAlerta', ParseUUIDPipe) idAlerta: string): Promise<RespuestaBaseDto<FuncionarioLlegadoDto[]>> {
     const funcionarios = await this.obtenerFuncionariosLlegadosUseCase.ejecutar(idAlerta);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Funcionarios obtenidos', funcionarios);

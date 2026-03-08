@@ -3,6 +3,7 @@ import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger
 import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
 import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
+import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { AsignarInvestigadorUseCase } from '@/victimas/aplicacion/casos-uso/investigadores/asignar-investigador.use-case';
@@ -14,7 +15,7 @@ import { InvestigadorActivoDto, ListarHistorialInvestigadoresResponseDto } from 
 
 @ApiTags('VÍCTIMAS WEB')
 @Controller('victimas')
-@UseGuards(KerberosJwtAuthGuard)
+@UseGuards(KerberosJwtAuthGuard, RolesGuard)
 @ApiSecurity('jwt-auth')
 @Roles(RolesPermitidos.ADMINISTRADOR)
 export class InvestigadoresController {
