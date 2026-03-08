@@ -1,6 +1,7 @@
 import { Body, Controller, Delete, Get, HttpStatus, Param, ParseUUIDPipe, Post, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
+import { IdUsuarioActual } from '@/autenticacion/infraestructura/decoradores/id-usuario.decorator';
 import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
@@ -31,8 +32,8 @@ export class InvestigadoresController {
   @Post(':idVictima/investigador')
   @ApiOperation({ summary: 'Asignar investigador a una víctima', description: 'Rol permitido: ADMINISTRADOR.' })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Investigador asignado exitosamente' })
-  async asignarInvestigador(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() dto: AsignarInvestigadorDto): Promise<RespuestaBaseDto> {
-    await this.asignarInvestigadorUseCase.ejecutar(idVictima, dto.ciInvestigador, dto.observaciones);
+  async asignarInvestigador(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() dto: AsignarInvestigadorDto, @IdUsuarioActual() idUsuarioAsignador: string): Promise<RespuestaBaseDto> {
+    await this.asignarInvestigadorUseCase.ejecutar(idVictima, dto.ciInvestigador, idUsuarioAsignador, dto.observaciones);
     return RespuestaBuilder.exito(HttpStatus.CREATED, 'Investigador asignado exitosamente');
   }
 

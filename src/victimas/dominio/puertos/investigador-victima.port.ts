@@ -3,6 +3,7 @@ import { InvestigadorVictimaEntity } from '../entidades/investigador-victima.ent
 export interface AsignarInvestigadorDatos {
   idVictima: string;
   ciInvestigador: string;
+  idUsuarioAsignador: string;
   fechaAsignacion: Date;
   observaciones?: string;
 }

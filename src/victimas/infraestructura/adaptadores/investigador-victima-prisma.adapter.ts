@@ -24,6 +24,7 @@ export class InvestigadorVictimaPrismaAdapter implements InvestigadorVictimaRepo
       data: {
         idVictima: datos.idVictima,
         ciInvestigador: datos.ciInvestigador,
+        idUsuarioAsignador: datos.idUsuarioAsignador,
         fechaAsignacion: datos.fechaAsignacion,
         observaciones: datos.observaciones || null,
         activo: true,
@@ -62,6 +63,7 @@ export class InvestigadorVictimaPrismaAdapter implements InvestigadorVictimaRepo
       investigador.id,
       investigador.idVictima,
       investigador.ciInvestigador,
+      investigador.idUsuarioAsignador,
       investigador.fechaAsignacion,
       investigador.activo,
       investigador.observaciones,
@@ -80,7 +82,9 @@ export class InvestigadorVictimaPrismaAdapter implements InvestigadorVictimaRepo
       },
     });
 
-    return investigadores.map((inv) => new InvestigadorVictimaEntity(inv.id, inv.idVictima, inv.ciInvestigador, inv.fechaAsignacion, inv.activo, inv.observaciones, inv.creadoEn, inv.actualizadoEn));
+    return investigadores.map(
+      (inv) => new InvestigadorVictimaEntity(inv.id, inv.idVictima, inv.ciInvestigador, inv.idUsuarioAsignador, inv.fechaAsignacion, inv.activo, inv.observaciones, inv.creadoEn, inv.actualizadoEn),
+    );
   }
 
   async obtenerVictimasIdsPorInvestigador(ciInvestigador: string): Promise<string[]> {

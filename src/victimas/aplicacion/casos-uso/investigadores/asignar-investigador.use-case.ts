@@ -16,7 +16,7 @@ export class AsignarInvestigadorUseCase {
     private readonly personalPort: PersonalPort,
   ) {}
 
-  async ejecutar(idVictima: string, ciInvestigador: string, observaciones?: string): Promise<void> {
+  async ejecutar(idVictima: string, ciInvestigador: string, idUsuarioAsignador: string, observaciones?: string): Promise<void> {
     // Verificar que la víctima existe
     const victima = await this.victimaRepositorio.obtenerVictimaSimple(idVictima);
     if (!victima) {
@@ -39,6 +39,7 @@ export class AsignarInvestigadorUseCase {
     await this.investigadorRepositorio.asignar({
       idVictima,
       ciInvestigador,
+      idUsuarioAsignador,
       fechaAsignacion: new Date(),
       observaciones,
     });

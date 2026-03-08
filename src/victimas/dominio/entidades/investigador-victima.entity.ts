@@ -3,6 +3,7 @@ export class InvestigadorVictimaEntity {
     public readonly id: string,
     public readonly idVictima: string,
     public readonly ciInvestigador: string,
+    public readonly idUsuarioAsignador: string,
     public readonly fechaAsignacion: Date,
     public readonly activo: boolean,
     public readonly observaciones: string | null,
