@@ -145,6 +145,12 @@ export class VictimaResumenDto {
     required: false,
   })
   correo?: string;
+
+  @ApiProperty({
+    description: 'Estado de la cuenta',
+    example: 'ACTIVA',
+  })
+  estadoCuenta: string;
 }
 
 export class HistorialAlertasVictimaDto {

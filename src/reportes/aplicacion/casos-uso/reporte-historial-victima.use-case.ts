@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { MetadatoPar, PdfGeneratorService, TablaColumna } from '@/reportes/infraestructura/generadores/pdf-generator.service';
+import { ObtenerInvestigadorActivoUseCase } from '@/victimas/aplicacion/casos-uso/investigadores/obtener-investigador-activo.use-case';
 import { ObtenerHistorialAlertasVictimaUseCase } from '@/victimas/aplicacion/casos-uso/obtener-historial-alertas-victima.use-case';
 import { ObtenerHistorialAlertasParamsDto } from '@/victimas/presentacion/dto/entrada/victima.dto';
 import { AlertaVictimaDto } from '@/victimas/presentacion/dto/salida/historial-alertas-victima.dto';
@@ -9,16 +10,29 @@ import { AlertaVictimaDto } from '@/victimas/presentacion/dto/salida/historial-a
 export class ReporteHistorialVictimaUseCase {
   constructor(
     private readonly obtenerHistorialAlertasVictimaUseCase: ObtenerHistorialAlertasVictimaUseCase,
+    private readonly obtenerInvestigadorActivoUseCase: ObtenerInvestigadorActivoUseCase,
     private readonly pdfGenerator: PdfGeneratorService,
   ) {}
 
   async ejecutar(params: ObtenerHistorialAlertasParamsDto): Promise<Buffer> {
     const datos = await this.obtenerHistorialAlertasVictimaUseCase.ejecutar(params);
 
+    // Obtener investigador activo
+    let investigadorTexto = 'Sin asignar';
+    try {
+      const investigador = await this.obtenerInvestigadorActivoUseCase.ejecutar(datos.victima.id);
+      if (investigador) {
+        investigadorTexto = `${investigador.grado} ${investigador.nombreCompleto}`;
+      }
+    } catch {
+      investigadorTexto = 'Sin asignar';
+    }
+
     const doc = this.pdfGenerator.crearDocumento();
 
     const fechaNacimiento = datos.victima.fechaNacimiento ? this.formatearFechaSolo(datos.victima.fechaNacimiento) : '—';
     const edad = datos.victima.fechaNacimiento ? this.calcularEdad(datos.victima.fechaNacimiento) : '—';
+    const estadoCuentaDescripcion = this.obtenerDescripcionEstadoCuenta(datos.victima.estadoCuenta);
 
     this.pdfGenerator.agregarEncabezado(doc, 'Historial de Alertas por Víctima', 'Sistema de Alertas Adela Zamudio');
 
@@ -28,8 +42,12 @@ export class ReporteHistorialVictimaUseCase {
       ['CELULAR', datos.victima.celular ?? '—', 'ALERTAS FINALIZADAS', String(datos.estadisticas.alertasFinalizadas)],
       ['CORREO', datos.victima.correo ?? '—', 'T. PROM. ASIGNACIÓN', datos.estadisticas.tiempoPromedioAsignacion ?? '—'],
       ['FECHA NACIMIENTO', `${fechaNacimiento} (${edad} años)`, 'T. PROM. CIERRE', datos.estadisticas.tiempoPromedioCierre ?? '—'],
+      ['INVESTIGADOR ASIGNADO', investigadorTexto, 'ESTADO CUENTA', datos.victima.estadoCuenta],
     ];
     this.pdfGenerator.agregarMetadatos(doc, metadatos);
+
+    // Agregar descripción del estado de cuenta
+    this.pdfGenerator.agregarTextoDescriptivo(doc, estadoCuentaDescripcion);
 
     const columnas: TablaColumna[] = [
       { header: 'NRO', width: 40, align: 'center' },
@@ -88,5 +106,18 @@ export class ReporteHistorialVictimaUseCase {
       edad--;
     }
     return String(edad);
+  }
+
+  private obtenerDescripcionEstadoCuenta(estado: string): string {
+    const descripciones: Record<string, string> = {
+      ACTIVA: 'La víctima cuenta con la aplicación del Botón de Pánico instalada y operativa para el envío de alertas de auxilio inmediato hacia la FELCV en caso de emergencia.',
+
+      INACTIVA: 'La víctima no tiene la aplicación activa o la sesión fue cerrada en el dispositivo móvil, por lo que el Botón de Pánico no se encuentra funcionando actualmente.',
+
+      SUSPENDIDA: 'La cuenta ha sido bloqueada y la aplicación se encuentra deshabilitada, por lo tanto, el Botón de Pánico no enviará ninguna alerta de auxilio a la policía.',
+
+      PENDIENTE_VERIFICACION: 'La cuenta está en etapa de revisión de datos personales y las funciones del Botón de Pánico se habilitarán una vez concluida la validación oficial de la identidad.',
+    };
+    return descripciones[estado] || 'Estado de cuenta no especificado.';
   }
 }
