@@ -7,6 +7,7 @@ import { CrearAlertaUseCase } from '@/alertas/aplicacion/casos-uso/crear-alerta.
 import { ObtenerEstadoAlertaUseCase } from '@/alertas/aplicacion/casos-uso/obtener-estado-alerta.use-case';
 import { ObtenerFuncionariosLlegadosUseCase } from '@/alertas/aplicacion/casos-uso/obtener-funcionarios-llegados.use-case';
 import { CrearSolicitudUseCase } from '@/alertas/aplicacion/casos-uso/solicitudes-cancelacion/crear-solicitud.use-case';
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { LogDatosInterceptor } from '@/core/interceptores/log-datos.interceptor';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
@@ -18,6 +19,7 @@ import { CrearAlertaResponseDto, FuncionarioLlegadoDto } from '../dto/salida/ale
 
 @ApiTags('ALERTAS')
 @ApiSecurity('api-key')
+@ApiRespuestasComunes()
 @Controller('alertas')
 @UseGuards(ClaveApiGuard)
 @UseInterceptors(LogDatosInterceptor)

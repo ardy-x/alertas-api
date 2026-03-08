@@ -7,12 +7,14 @@ import { IdUsuarioActual } from '@/autenticacion/infraestructura/decoradores/id-
 import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { CerrarAlertaRequestDto } from '../dto/entrada/cierre-alertas-entrada.dto';
 
 @ApiTags('CIERRE DE ALERTAS')
 @ApiSecurity('jwt-auth')
+@ApiRespuestasComunes()
 @Controller('cierre-alertas')
 @UseGuards(KerberosJwtAuthGuard, RolesGuard)
 @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.OPERADOR)

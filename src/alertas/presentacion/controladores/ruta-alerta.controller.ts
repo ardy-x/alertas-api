@@ -1,6 +1,6 @@
 import { Body, Controller, HttpStatus, Post, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
-
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { LogDatosInterceptor } from '@/core/interceptores/log-datos.interceptor';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
@@ -9,7 +9,7 @@ import { CrearPuntoRutaUseCase } from '../../aplicacion/casos-uso/crear-punto-ru
 import { CrearPuntoRutaRequestDto } from '../dto/entrada/ruta-alerta-entrada.dto';
 @ApiTags('RUTA ALERTA')
 @Controller('ruta-alerta')
-
+@ApiRespuestasComunes()
 @ApiSecurity('api-key')
 @UseGuards(ClaveApiGuard)
 @UseInterceptors(LogDatosInterceptor)

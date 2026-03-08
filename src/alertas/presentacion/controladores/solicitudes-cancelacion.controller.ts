@@ -9,6 +9,7 @@ import { IdUsuarioActual } from '@/autenticacion/infraestructura/decoradores/id-
 import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { ObtenerSolicitudesCancelacionRequestDto, ProcesarSolicitudCancelacionRequestDto } from '../dto/entrada/solicitudes-cancelacion-entrada.dto';
@@ -16,6 +17,7 @@ import { ObtenerSolicitudDetalleResponseDto, ObtenerSolicitudesResponseDto } fro
 
 @ApiTags('SOLICITUDES DE CANCELACIÓN')
 @ApiSecurity('jwt-auth')
+@ApiRespuestasComunes()
 @Controller('solicitudes-cancelacion')
 @UseGuards(KerberosJwtAuthGuard, RolesGuard)
 @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.OPERADOR)

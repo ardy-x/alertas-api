@@ -12,6 +12,7 @@ import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.
 import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { ListarEvidenciasResponseDto } from '../dto/salida/evidencias-salida.dto';
@@ -30,6 +31,7 @@ interface MulterFile {
 
 @ApiTags('ALERTAS WEB')
 @ApiSecurity('jwt-auth')
+@ApiRespuestasComunes()
 @Controller('alertas-web')
 @UseGuards(KerberosJwtAuthGuard, RolesGuard)
 @Roles(RolesPermitidos.ADMINISTRADOR)
