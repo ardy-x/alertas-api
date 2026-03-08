@@ -1,7 +1,11 @@
 import { Controller, Get, HttpStatus, Param, ParseUUIDPipe, Query, Res, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiProduces, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { Response } from 'express';
+import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
+import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
+import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { ReporteDetalleAlertaUseCase } from '@/reportes/aplicacion/casos-uso/reporte-detalle-alerta.use-case';
 import { ReporteHistorialAlertasUseCase } from '@/reportes/aplicacion/casos-uso/reporte-historial-alertas.use-case';
 import { ReporteHistorialVictimaUseCase } from '@/reportes/aplicacion/casos-uso/reporte-historial-victima.use-case';
@@ -9,9 +13,11 @@ import { ReporteSolicitudesCancelacionUseCase } from '@/reportes/aplicacion/caso
 import { ReporteHistorialAlertasQueryDto } from '@/reportes/presentacion/dto/reporte-historial-alertas-query.dto';
 import { ReporteSolicitudesCancelacionQueryDto } from '@/reportes/presentacion/dto/reporte-solicitudes-cancelacion-query.dto';
 @ApiTags('REPORTES')
-@Controller('reportes')
 @ApiSecurity('jwt-auth')
-@UseGuards(KerberosJwtAuthGuard)
+@ApiRespuestasComunes()
+@Controller('reportes')
+@UseGuards(KerberosJwtAuthGuard, RolesGuard)
+@Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.INVESTIGADOR, RolesPermitidos.OPERADOR)
 export class ReportesController {
   constructor(
     private readonly reporteHistorialAlertasUseCase: ReporteHistorialAlertasUseCase,
@@ -21,7 +27,7 @@ export class ReportesController {
   ) {}
 
   @Get('historial-alertas')
-  @ApiOperation({ summary: 'Generar reporte PDF del historial de alertas' })
+  @ApiOperation({ summary: 'Generar reporte PDF del historial de alertas', description: 'Roles permitidos: ADMINISTRADOR, INVESTIGADOR, OPERADOR' })
   @ApiProduces('application/pdf')
   async reporteHistorialAlertas(@Query() filtros: ReporteHistorialAlertasQueryDto, @Res() res: Response): Promise<void> {
     const buffer = await this.reporteHistorialAlertasUseCase.ejecutar(filtros);
@@ -29,7 +35,7 @@ export class ReportesController {
   }
 
   @Get('alertas/:idAlerta/detalle')
-  @ApiOperation({ summary: 'Generar reporte PDF del detalle de una alerta' })
+  @ApiOperation({ summary: 'Generar reporte PDF del detalle de una alerta', description: 'Roles permitidos: ADMINISTRADOR, INVESTIGADOR, OPERADOR' })
   @ApiProduces('application/pdf')
   async reporteDetalleAlerta(@Param('idAlerta', ParseUUIDPipe) idAlerta: string, @Res() res: Response): Promise<void> {
     const buffer = await this.reporteDetalleAlertaUseCase.ejecutar(idAlerta);
@@ -37,7 +43,7 @@ export class ReportesController {
   }
 
   @Get('victimas/:idVictima/historial-alertas')
-  @ApiOperation({ summary: 'Generar reporte PDF del historial de alertas de una víctima' })
+  @ApiOperation({ summary: 'Generar reporte PDF del historial de alertas de una víctima', description: 'Roles permitidos: ADMINISTRADOR, INVESTIGADOR, OPERADOR' })
   @ApiProduces('application/pdf')
   async reporteHistorialVictima(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Res() res: Response): Promise<void> {
     const buffer = await this.reporteHistorialVictimaUseCase.ejecutar({ idVictima });
@@ -45,7 +51,7 @@ export class ReportesController {
   }
 
   @Get('solicitudes-cancelacion')
-  @ApiOperation({ summary: 'Generar reporte PDF de solicitudes de cancelación' })
+  @ApiOperation({ summary: 'Generar reporte PDF de solicitudes de cancelación', description: 'Roles permitidos: ADMINISTRADOR, INVESTIGADOR, OPERADOR' })
   @ApiProduces('application/pdf')
   async reporteSolicitudesCancelacion(@Query() filtros: ReporteSolicitudesCancelacionQueryDto, @Res() res: Response): Promise<void> {
     const buffer = await this.reporteSolicitudesCancelacionUseCase.ejecutar(filtros);
