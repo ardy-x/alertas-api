@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 
-import { IntegracionesModule } from '../integraciones/integraciones.module';
 import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { UsuariosWebModule } from '../usuarios-web/usuarios-web.module';
@@ -67,7 +66,7 @@ import { RutaAlertaController } from './presentacion/controladores/ruta-alerta.c
 import { SolicitudesCancelacionController } from './presentacion/controladores/solicitudes-cancelacion.controller';
 
 @Module({
-  imports: [IntegracionesModule, PrismaModule, VictimasModule, NotificacionesModule, UsuariosWebModule],
+  imports: [PrismaModule, VictimasModule, NotificacionesModule, UsuariosWebModule],
   controllers: [
     AlertasController,
     AlertasWebController,
@@ -186,7 +185,6 @@ import { SolicitudesCancelacionController } from './presentacion/controladores/s
     SolicitudCancelacionPrismaAdapter,
     CrearAtencionCompletaUseCase,
     AgregarFuncionarioUseCase,
-    IntegracionesModule,
   ],
 })
 export class AlertasModule {}

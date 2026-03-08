@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 
-import { IntegracionesModule } from '@/integraciones/integraciones.module';
 import { PrismaModule } from '@/prisma/prisma.module';
 
 import { ObtenerAlertasPorUbicacionUseCase } from './aplicacion/casos-uso/obtener-alertas-por-ubicacion.use-case';
@@ -16,7 +15,7 @@ import { MonitorSistemaAdapter } from './infraestructura/adaptadores/monitor-sis
 import { DashboardController } from './presentacion/controladores/dashboard.controller';
 
 @Module({
-  imports: [PrismaModule, IntegracionesModule],
+  imports: [PrismaModule],
   controllers: [DashboardController],
   providers: [
     ObtenerMetricasGeneralesUseCase,

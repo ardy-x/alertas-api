@@ -12,6 +12,6 @@ import { VictimasModule } from './victimas/victimas.module';
 import { WebSocketsModule } from './websockets/websockets.module';
 
 @Module({
-  imports: [CoreModule, AutenticacionModule, UsuariosWebModule, IntegracionesModule, VictimasModule, AlertasModule, NotificacionesModule, WebSocketsModule, DashboardModule, ReportesModule],
+  imports: [CoreModule, IntegracionesModule, AutenticacionModule, UsuariosWebModule, VictimasModule, AlertasModule, NotificacionesModule, WebSocketsModule, DashboardModule, ReportesModule],
 })
 export class AppModule {}

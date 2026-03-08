@@ -1,6 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { ScheduleModule } from '@nestjs/schedule';
-
+import { VictimasModule } from '@/victimas/victimas.module';
 import { CoreModule } from '../core/core.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { RedisModule } from '../redis/redis.module';
@@ -24,8 +24,9 @@ import { DepartamentosController } from './presentacion/controladores/departamen
 import { FuncionariosController } from './presentacion/controladores/funcionarios.controller';
 import { UnidadesController } from './presentacion/controladores/unidades.controller';
 
+@Global()
 @Module({
-  imports: [ScheduleModule.forRoot(), CoreModule, PrismaModule, RedisModule],
+  imports: [ScheduleModule.forRoot(), CoreModule, PrismaModule, RedisModule, VictimasModule],
   providers: [
     InicializacionService,
     {
