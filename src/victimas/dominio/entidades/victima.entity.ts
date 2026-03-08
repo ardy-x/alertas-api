@@ -70,5 +70,6 @@ export interface ActualizarConexion {
 export interface FiltrosVictima extends PaginacionQuery {
   estadoCuenta?: EstadoCuenta[];
   municipiosIds?: number[];
+  victimasIds?: string[];
   busqueda?: string;
 }

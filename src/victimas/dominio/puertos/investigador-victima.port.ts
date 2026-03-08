@@ -12,4 +12,6 @@ export interface InvestigadorVictimaRepositorioPort {
   desasignar(idVictima: string): Promise<void>;
   obtenerActivo(idVictima: string): Promise<InvestigadorVictimaEntity | null>;
   obtenerHistorial(idVictima: string): Promise<InvestigadorVictimaEntity[]>;
+  obtenerVictimasIdsPorInvestigador(ciInvestigador: string): Promise<string[]>;
+  tieneInvestigadorActivo(idVictima: string): Promise<boolean>;
 }

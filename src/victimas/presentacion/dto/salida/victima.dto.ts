@@ -29,6 +29,9 @@ export class VictimaBaseResponseDto {
 
   @ApiPropertyOptional()
   permisosApp?: PermisosAppDto;
+
+  @ApiProperty({ description: 'Indica si la víctima tiene un investigador activo asignado' })
+  declare tieneInvestigadorActivo: boolean;
 }
 
 export class ContactoEmergenciaResponseDto {

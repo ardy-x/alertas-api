@@ -82,4 +82,29 @@ export class InvestigadorVictimaPrismaAdapter implements InvestigadorVictimaRepo
 
     return investigadores.map((inv) => new InvestigadorVictimaEntity(inv.id, inv.idVictima, inv.ciInvestigador, inv.fechaAsignacion, inv.activo, inv.observaciones, inv.creadoEn, inv.actualizadoEn));
   }
+
+  async obtenerVictimasIdsPorInvestigador(ciInvestigador: string): Promise<string[]> {
+    const asignaciones = await this.prisma.investigadorVictima.findMany({
+      where: {
+        ciInvestigador,
+        activo: true,
+      },
+      select: {
+        idVictima: true,
+      },
+    });
+
+    return asignaciones.map((a) => a.idVictima);
+  }
+
+  async tieneInvestigadorActivo(idVictima: string): Promise<boolean> {
+    const count = await this.prisma.investigadorVictima.count({
+      where: {
+        idVictima,
+        activo: true,
+      },
+    });
+
+    return count > 0;
+  }
 }

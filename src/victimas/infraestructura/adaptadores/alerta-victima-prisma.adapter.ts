@@ -93,6 +93,9 @@ export class AlertaVictimaPrismaAdapter implements AlertaVictimaRepositorioPort 
     if (filtros.municipiosIds && filtros.municipiosIds.length > 0) {
       where.idMunicipio = { in: filtros.municipiosIds };
     }
+    if (filtros.victimasIds && filtros.victimasIds.length > 0) {
+      where.id = { in: filtros.victimasIds };
+    }
 
     // Búsqueda por texto en campos relevantes
     if (filtros.busqueda && filtros.busqueda.trim() !== '') {
