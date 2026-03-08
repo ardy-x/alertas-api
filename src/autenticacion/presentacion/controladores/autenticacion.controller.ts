@@ -1,6 +1,7 @@
 import { BadRequestException, Body, Controller, Get, Headers, HttpStatus, Post, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { CierreSesionSistemaUseCase } from '../../aplicacion/casos-uso/cierre-sesion-sistema.use-case';
@@ -13,6 +14,7 @@ import { RefreshTokenResponseDto } from '../dtos/salida/refresh-token-response.d
 
 @ApiTags('AUTENTICACIÓN')
 @Controller('autenticacion')
+@ApiRespuestasComunes()
 export class AutenticacionController {
   constructor(
     private readonly decodificarTokenUseCase: DecodificarTokenUseCase,
@@ -23,6 +25,7 @@ export class AutenticacionController {
   @Post('intercambio-codigo')
   @ApiOperation({ summary: 'Decodificar token JWT' })
   @ApiBody({ type: DecodificarTokenRequestDto })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Token decodificado exitosamente', type: DecodificarTokenDatosDto })
   async decodificarToken(@Body() request: DecodificarTokenRequestDto): Promise<RespuestaBaseDto<DecodificarTokenDatosDto>> {
     const resultado = await this.decodificarTokenUseCase.ejecutar(request);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Token decodificado exitosamente', resultado);
@@ -31,6 +34,8 @@ export class AutenticacionController {
   @Post('cierre-sesion-sistema')
   @UseGuards(KerberosJwtAuthGuard)
   @ApiOperation({ summary: 'Termina la sesión del usuario en el sistema' })
+  @ApiBody({ type: CierreSesionSistemaRequestDto })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Cierre de sesión del sistema completado exitosamente' })
   async cierreSesionSistema(@Body() dto: CierreSesionSistemaRequestDto, @Headers('authorization') authHeader: string): Promise<RespuestaBaseDto<void>> {
     const accessToken = authHeader.replace('Bearer ', '');
     await this.cierreSesionSistemaUseCase.ejecutar(dto.idSistema, accessToken);
@@ -39,6 +44,7 @@ export class AutenticacionController {
 
   @Get('refresh')
   @ApiOperation({ summary: 'Renovar tokens' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Renovación de tokens exitosa', type: RefreshTokenResponseDto })
   async refreshToken(@Headers('authorization') refreshToken: string): Promise<RespuestaBaseDto<RefreshTokenResponseDto>> {
     if (!refreshToken) {
       throw new BadRequestException('Header de autorización faltante');

@@ -1,6 +1,7 @@
 import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { SolicitarCodigoEmailUseCase } from '@/victimas/aplicacion/casos-uso/validacion/solicitar-codigo-email.use-case';
@@ -16,6 +17,7 @@ import { VerificarCodigoResponseDto } from '../dto/salida/verificar-codigo-respo
 
 @ApiTags('CÓDIGOS DE VERIFICACIÓN')
 @Controller('codigos')
+@ApiRespuestasComunes()
 export class ValidacionController {
   constructor(
     private readonly solicitarCodigoWhatsappUseCase: SolicitarCodigoWhatsappUseCase,
