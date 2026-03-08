@@ -1,5 +1,5 @@
 import { Controller, Get, HttpStatus, Param, ParseIntPipe, Query, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
 import { Public } from '@/autenticacion/infraestructura/decoradores/public.decorator';
 import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
@@ -16,6 +16,7 @@ import { DepartamentoDto, MunicipioProvinciaDepartamentoDto, MunicipioSimpleDto,
 import { EncontrarDepartamentoQueryDto } from '../dto/encontrar-departamento-query.dto';
 
 @ApiTags('DEPARTAMENTOS')
+@ApiSecurity('jwt-auth')
 @ApiRespuestasComunes()
 @Controller('departamentos')
 @UseGuards(KerberosJwtAuthGuard, RolesGuard)
