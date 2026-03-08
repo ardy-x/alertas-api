@@ -4,6 +4,7 @@ import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.
 import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { AsignarInvestigadorUseCase } from '@/victimas/aplicacion/casos-uso/investigadores/asignar-investigador.use-case';
@@ -14,9 +15,10 @@ import { AsignarInvestigadorDto } from '../dtos/entrada/asignar-investigador.dto
 import { InvestigadorActivoDto, ListarHistorialInvestigadoresResponseDto } from '../dtos/salida/investigador.dto';
 
 @ApiTags('VÍCTIMAS WEB')
+@ApiSecurity('jwt-auth')
+@ApiRespuestasComunes()
 @Controller('victimas')
 @UseGuards(KerberosJwtAuthGuard, RolesGuard)
-@ApiSecurity('jwt-auth')
 @Roles(RolesPermitidos.ADMINISTRADOR)
 export class InvestigadoresController {
   constructor(

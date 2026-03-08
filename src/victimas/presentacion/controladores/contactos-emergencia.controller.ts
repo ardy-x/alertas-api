@@ -1,6 +1,6 @@
 import { Body, Controller, Delete, HttpStatus, Param, ParseUUIDPipe, Patch, Post, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-
+import { ApiBody, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { AgregarContactoVictimaUseCase } from '@/victimas/aplicacion/casos-uso/contactos-emergencia/agregar-contacto-victima.use-case';
 import { ActualizarContactoEmergenciaUseCase } from '../../aplicacion/casos-uso/contactos-emergencia/actualizar-contacto-emergencia.use-case';
@@ -10,6 +10,8 @@ import { ClaveApiGuard } from '../../infraestructura/guards/clave-api.guard';
 import { ActualizarContactoEmergenciaDto, ContactoEmergenciaDto } from '../dto/entrada/contactos-victima.dto';
 
 @ApiTags('CONTACTOS DE EMERGENCIA')
+@ApiSecurity('api-key')
+@ApiRespuestasComunes()
 @Controller('victimas/:idVictima/contactos')
 @UseGuards(ClaveApiGuard)
 export class ContactosEmergenciaController {

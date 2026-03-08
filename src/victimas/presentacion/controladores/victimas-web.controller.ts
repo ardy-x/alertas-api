@@ -7,19 +7,20 @@ import { RolUsuarioActual } from '@/autenticacion/infraestructura/decoradores/ro
 import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { PaginacionRespuestaBaseDto, RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { ActivarCuentaUseCase } from '@/victimas/aplicacion/casos-uso/web/activar-cuenta.use-case';
 import { ListarVictimasUseCase } from '@/victimas/aplicacion/casos-uso/web/listar-victimas.use-case';
 import { ObtenerHistorialAlertasVictimaUseCase } from '@/victimas/aplicacion/casos-uso/web/obtener-historial-alertas-victima.use-case';
 import { SuspenderCuentaUseCase } from '@/victimas/aplicacion/casos-uso/web/suspender-cuenta.use-case';
-
 import { ListarVictimasRequestDto, ObtenerHistorialAlertasParamsDto } from '../dto/entrada/victima.dto';
 import { HistorialAlertasVictimaDto } from '../dto/salida/historial-alertas-victima.dto';
 import { ListarVictimasData } from '../dto/salida/victima.dto';
 
 @ApiTags('VÍCTIMAS WEB')
 @ApiSecurity('jwt-auth')
+@ApiRespuestasComunes()
 @Controller('victimas')
 @UseGuards(KerberosJwtAuthGuard, RolesGuard)
 @Roles(RolesPermitidos.ADMINISTRADOR)

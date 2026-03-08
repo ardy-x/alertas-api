@@ -1,5 +1,6 @@
 import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { LogDatosInterceptor } from '@/core/interceptores/log-datos.interceptor';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
@@ -12,7 +13,6 @@ import { CrearVictimaUseCase } from '@/victimas/aplicacion/casos-uso/crear-victi
 import { ObtenerVictimaUseCase } from '@/victimas/aplicacion/casos-uso/obtener-victima.use-case';
 import { VerificarDenunciaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-denuncia.use-case';
 import { VerificarVictimaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-victima.use-case';
-
 import { ClaveApiGuard } from '../../infraestructura/guards/clave-api.guard';
 import { PermisosAppDto } from '../dto/entrada/permisos-app.dto';
 import { VerificarDenunciaRequestDto } from '../dto/entrada/verificar-denuncia.dto';
@@ -20,6 +20,7 @@ import { ActualizarDatosContactoRequestDto, ActualizarDatosCuentaRequestDto, Act
 import { VictimaDto } from '../dto/salida/verificar-denuncia.dto';
 import { VerificarVictimaResponse, VictimaResponseDto } from '../dto/salida/victima.dto';
 @ApiTags('VÍCTIMAS')
+@ApiRespuestasComunes()
 @Controller('victimas')
 @UseInterceptors(LogDatosInterceptor)
 export class VictimasController {
