@@ -6,7 +6,7 @@ export class InvestigadorActivoDto {
   @ApiProperty()
   declare idVictima: string;
   @ApiProperty()
-  declare ciInvestigador: string;
+  declare idUsuarioInvestigador: string;
   @ApiProperty()
   declare fechaAsignacion: Date;
   @ApiProperty()
@@ -17,17 +17,13 @@ export class InvestigadorActivoDto {
   declare grado: string;
   @ApiProperty()
   declare unidad: string;
-  @ApiProperty()
-  declare cargo: string;
-  @ApiProperty()
-  declare nroEscalafon: string;
 }
 
 export class InvestigadorHistorialDto {
   @ApiProperty()
   declare id: string;
   @ApiProperty()
-  declare ciInvestigador: string;
+  declare idUsuarioInvestigador: string;
   @ApiProperty()
   declare fechaAsignacion: Date;
   @ApiProperty()
@@ -40,10 +36,6 @@ export class InvestigadorHistorialDto {
   declare grado: string;
   @ApiProperty()
   declare unidad: string;
-  @ApiProperty()
-  declare cargo: string;
-  @ApiProperty()
-  declare nroEscalafon: string;
 }
 
 export class ListarHistorialInvestigadoresResponseDto {

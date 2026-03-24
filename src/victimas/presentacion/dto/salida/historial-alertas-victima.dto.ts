@@ -158,22 +158,18 @@ export class InvestigadorActivoDto {
   @ApiProperty()
   declare idVictima: string;
   @ApiProperty()
-  declare ciInvestigador: string;
+  declare idUsuarioInvestigador: string;
   @ApiProperty()
   declare fechaAsignacion: Date;
   @ApiProperty()
   declare observaciones: string | null;
-  // Datos del funcionario desde Personal
+  // Datos del funcionario desde UsuarioWebKerberos
   @ApiProperty()
   declare nombreCompleto: string;
   @ApiProperty()
   declare grado: string;
   @ApiProperty()
   declare unidad: string;
-  @ApiProperty()
-  declare cargo: string;
-  @ApiProperty()
-  declare nroEscalafon: string;
 }
 
 export class HistorialAlertasVictimaDto {

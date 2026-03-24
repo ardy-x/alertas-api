@@ -2,7 +2,7 @@ import { InvestigadorVictimaEntity } from '../entidades/investigador-victima.ent
 
 export interface AsignarInvestigadorDatos {
   idVictima: string;
-  ciInvestigador: string;
+  idUsuarioInvestigador: string;
   idUsuarioAsignador: string;
   fechaAsignacion: Date;
   observaciones?: string;
@@ -13,6 +13,6 @@ export interface InvestigadorVictimaRepositorioPort {
   desasignar(idVictima: string): Promise<void>;
   obtenerActivo(idVictima: string): Promise<InvestigadorVictimaEntity | null>;
   obtenerHistorial(idVictima: string): Promise<InvestigadorVictimaEntity[]>;
-  obtenerVictimasIdsPorInvestigador(ciInvestigador: string): Promise<string[]>;
+  obtenerVictimasIdsPorInvestigador(idUsuarioInvestigador: string): Promise<string[]>;
   tieneInvestigadorActivo(idVictima: string): Promise<boolean>;
 }

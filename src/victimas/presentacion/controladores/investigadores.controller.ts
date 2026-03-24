@@ -33,7 +33,7 @@ export class InvestigadoresController {
   @ApiOperation({ summary: 'Asignar investigador a una víctima', description: 'Rol permitido: ADMINISTRADOR.' })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Investigador asignado exitosamente' })
   async asignarInvestigador(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() dto: AsignarInvestigadorDto, @IdUsuarioActual() idUsuarioAsignador: string): Promise<RespuestaBaseDto> {
-    await this.asignarInvestigadorUseCase.ejecutar(idVictima, dto.ciInvestigador, idUsuarioAsignador, dto.observaciones);
+    await this.asignarInvestigadorUseCase.ejecutar(idVictima, dto.idUsuarioInvestigador, idUsuarioAsignador, dto.observaciones);
     return RespuestaBuilder.exito(HttpStatus.CREATED, 'Investigador asignado exitosamente');
   }
 

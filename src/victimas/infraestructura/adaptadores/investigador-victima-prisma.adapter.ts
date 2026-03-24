@@ -23,7 +23,7 @@ export class InvestigadorVictimaPrismaAdapter implements InvestigadorVictimaRepo
     await this.prisma.investigadorVictima.create({
       data: {
         idVictima: datos.idVictima,
-        ciInvestigador: datos.ciInvestigador,
+        idUsuarioInvestigador: datos.idUsuarioInvestigador,
         idUsuarioAsignador: datos.idUsuarioAsignador,
         fechaAsignacion: datos.fechaAsignacion,
         observaciones: datos.observaciones || null,
@@ -50,6 +50,9 @@ export class InvestigadorVictimaPrismaAdapter implements InvestigadorVictimaRepo
         idVictima,
         activo: true,
       },
+      include: {
+        usuarioInvestigador: true,
+      },
       orderBy: {
         fechaAsignacion: 'desc',
       },
@@ -62,11 +65,14 @@ export class InvestigadorVictimaPrismaAdapter implements InvestigadorVictimaRepo
     return new InvestigadorVictimaEntity(
       investigador.id,
       investigador.idVictima,
-      investigador.ciInvestigador,
+      investigador.idUsuarioInvestigador,
       investigador.idUsuarioAsignador,
       investigador.fechaAsignacion,
       investigador.activo,
       investigador.observaciones,
+      investigador.usuarioInvestigador?.nombreCompleto,
+      investigador.usuarioInvestigador?.grado,
+      investigador.usuarioInvestigador?.unidad,
       investigador.creadoEn,
       investigador.actualizadoEn,
     );
@@ -77,20 +83,37 @@ export class InvestigadorVictimaPrismaAdapter implements InvestigadorVictimaRepo
       where: {
         idVictima,
       },
+      include: {
+        usuarioInvestigador: true,
+      },
       orderBy: {
         fechaAsignacion: 'desc',
       },
     });
 
     return investigadores.map(
-      (inv) => new InvestigadorVictimaEntity(inv.id, inv.idVictima, inv.ciInvestigador, inv.idUsuarioAsignador, inv.fechaAsignacion, inv.activo, inv.observaciones, inv.creadoEn, inv.actualizadoEn),
+      (inv) =>
+        new InvestigadorVictimaEntity(
+          inv.id,
+          inv.idVictima,
+          inv.idUsuarioInvestigador,
+          inv.idUsuarioAsignador,
+          inv.fechaAsignacion,
+          inv.activo,
+          inv.observaciones,
+          inv.usuarioInvestigador?.nombreCompleto,
+          inv.usuarioInvestigador?.grado,
+          inv.usuarioInvestigador?.unidad,
+          inv.creadoEn,
+          inv.actualizadoEn,
+        ),
     );
   }
 
-  async obtenerVictimasIdsPorInvestigador(ciInvestigador: string): Promise<string[]> {
+  async obtenerVictimasIdsPorInvestigador(idUsuarioInvestigador: string): Promise<string[]> {
     const asignaciones = await this.prisma.investigadorVictima.findMany({
       where: {
-        ciInvestigador,
+        idUsuarioInvestigador,
         activo: true,
       },
       select: {

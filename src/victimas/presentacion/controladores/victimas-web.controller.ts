@@ -2,7 +2,7 @@ import { Controller, Get, HttpStatus, Param, ParseUUIDPipe, Post, Query, UseGuar
 import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
-import { CiUsuarioActual } from '@/autenticacion/infraestructura/decoradores/ci-usuario.decorator';
+import { IdUsuarioActual } from '@/autenticacion/infraestructura/decoradores/id-usuario.decorator';
 import { RolUsuarioActual } from '@/autenticacion/infraestructura/decoradores/rol-usuario.decorator';
 import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
@@ -36,8 +36,8 @@ export class VictimasWebController {
   @Roles(RolesPermitidos.INVESTIGADOR)
   @ApiOperation({ summary: 'Listar víctimas con filtros y paginación', description: 'Roles permitidos: ADMINISTRADOR, INVESTIGADOR' })
   @ApiResponse({ status: HttpStatus.OK, type: ListarVictimasData })
-  async listarTodas(@Query() query: ListarVictimasRequestDto, @CiUsuarioActual() ciUsuario: string, @RolUsuarioActual() rolUsuario: string): Promise<PaginacionRespuestaBaseDto<ListarVictimasData>> {
-    const resultado = await this.listarVictimasUseCase.ejecutar(query, ciUsuario, rolUsuario);
+  async listarTodas(@Query() query: ListarVictimasRequestDto, @IdUsuarioActual() idUsuario: string, @RolUsuarioActual() rolUsuario: string): Promise<PaginacionRespuestaBaseDto<ListarVictimasData>> {
+    const resultado = await this.listarVictimasUseCase.ejecutar(query, idUsuario, rolUsuario);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Víctimas listadas exitosamente', resultado);
   }
 

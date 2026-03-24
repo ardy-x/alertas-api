@@ -18,7 +18,7 @@ export class ListarVictimasUseCase {
     private readonly obtenerMunicipiosPorFiltroGeograficoUseCase: ObtenerMunicipiosPorFiltroGeograficoUseCase,
   ) {}
 
-  async ejecutar(entrada: ListarVictimasRequestDto = { pagina: 1, elementosPorPagina: 10 }, ciUsuario?: string, rolUsuario?: string): Promise<ListarVictimasData> {
+  async ejecutar(entrada: ListarVictimasRequestDto = { pagina: 1, elementosPorPagina: 10 }, idUsuario?: string, rolUsuario?: string): Promise<ListarVictimasData> {
     // Preparar filtros para el repositorio
     const filtros: FiltrosVictima = {
       pagina: entrada.pagina,
@@ -26,8 +26,8 @@ export class ListarVictimasUseCase {
     };
 
     // Si el usuario es INVESTIGADOR, solo mostrar sus víctimas asignadas
-    if (rolUsuario === RolesPermitidos.INVESTIGADOR && ciUsuario) {
-      const victimasIds = await this.investigadorRepositorio.obtenerVictimasIdsPorInvestigador(ciUsuario);
+    if (rolUsuario === RolesPermitidos.INVESTIGADOR && idUsuario) {
+      const victimasIds = await this.investigadorRepositorio.obtenerVictimasIdsPorInvestigador(idUsuario);
       if (victimasIds.length === 0) {
         // Si no tiene víctimas asignadas, devolver lista vacía
         return {

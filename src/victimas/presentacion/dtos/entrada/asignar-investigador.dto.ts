@@ -5,7 +5,7 @@ export class AsignarInvestigadorDto {
   @ApiProperty({ example: '' })
   @IsNotEmpty()
   @IsString()
-  declare ciInvestigador: string;
+  declare idUsuarioInvestigador: string;
 
   @ApiProperty({ example: '' })
   @IsOptional()
