@@ -1,15 +1,22 @@
-import { Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
+import { ConflictException, Inject, Injectable, Logger, NotFoundException } from '@nestjs/common';
 
 import { v4 as uuidv4 } from 'uuid';
 
 import { MotivoCierre } from '@/alertas/dominio/enums/alerta-enums';
 import { TipoEvento } from '@/alertas/dominio/enums/evento-enums';
 import { AlertaRepositorioPort } from '@/alertas/dominio/puertos/alerta.port';
+import { AtencionRepositorioPort } from '@/alertas/dominio/puertos/atencion.port';
 import { CierreAlertaRepositorioPort } from '@/alertas/dominio/puertos/cierre-alerta.port';
 import { SolicitudCancelacionRepositorioPort } from '@/alertas/dominio/puertos/solicitud-cancelacion.port';
 import { AlertaValidacionDominioService } from '@/alertas/dominio/servicios/alerta-validacion-dominio.service';
 import { EventoDominioService } from '@/alertas/dominio/servicios/evento-dominio.service';
-import { ALERTA_REPOSITORIO_TOKEN, CIERRE_ALERTA_REPOSITORIO_TOKEN, EVENTO_DOMINIO_SERVICE_TOKEN, SOLICITUD_CANCELACION_REPOSITORIO_TOKEN } from '@/alertas/dominio/tokens/alerta.tokens';
+import {
+  ALERTA_REPOSITORIO_TOKEN,
+  ATENCION_REPOSITORIO_TOKEN,
+  CIERRE_ALERTA_REPOSITORIO_TOKEN,
+  EVENTO_DOMINIO_SERVICE_TOKEN,
+  SOLICITUD_CANCELACION_REPOSITORIO_TOKEN,
+} from '@/alertas/dominio/tokens/alerta.tokens';
 import { CerrarAlertaRequestDto } from '@/alertas/presentacion/dto/entrada/cierre-alertas-entrada.dto';
 import { NotificarVictimaAlertaUseCase } from '../notificar-victima-alerta.use-case';
 
@@ -26,6 +33,8 @@ export class CerrarAlertaUseCase {
     private readonly solicitudCancelacionRepo: SolicitudCancelacionRepositorioPort,
     @Inject(EVENTO_DOMINIO_SERVICE_TOKEN)
     private readonly eventoDominioService: EventoDominioService,
+    @Inject(ATENCION_REPOSITORIO_TOKEN)
+    private readonly atencionRepositorio: AtencionRepositorioPort,
     private readonly notificarVictimaAlertaUseCase: NotificarVictimaAlertaUseCase,
   ) {}
 
@@ -37,6 +46,11 @@ export class CerrarAlertaUseCase {
     }
 
     // 2. Validaciones de reglas de negocio
+    const atencionExistente = await this.atencionRepositorio.existePorAlerta(idAlerta);
+    if (!atencionExistente) {
+      throw new ConflictException('No se puede cerrar la alerta como resuelta/falsa si no tiene atención; la alerta debe cancelarse');
+    }
+
     AlertaValidacionDominioService.validarAlertaNoCerrada(alerta);
     AlertaValidacionDominioService.validarObservacionesFalsaAlarma(entrada.motivoCierre, entrada.observaciones);
 
