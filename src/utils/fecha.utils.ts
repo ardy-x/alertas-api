@@ -124,3 +124,10 @@ export function obtenerRangoMesesLiteral(fechaDesde: string, fechaHasta: string)
   const mesHasta = obtenerMesLiteral(fechaHasta);
   return mesDesde === mesHasta ? mesDesde : `${mesDesde} - ${mesHasta}`;
 }
+
+export function obtenerFechaBoliviaYYYYMMDD(): string {
+  const ahora = new Date();
+  const partes = ahora.toLocaleDateString('es-BO', { timeZone: 'America/La_Paz' }).split('/');
+  const [dia, mes, anio] = partes;
+  return `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+}

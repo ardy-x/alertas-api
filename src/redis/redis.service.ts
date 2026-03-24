@@ -86,6 +86,29 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     }
   }
 
+  async incr(key: string): Promise<number | null> {
+    if (!this.isConnected) return null;
+
+    try {
+      return await this.client.incr(key);
+    } catch (error) {
+      this.logger.error('Error al incrementar en Redis:', error instanceof Error ? error.message : String(error));
+      return null;
+    }
+  }
+
+  async expire(key: string, ttlSeconds: number): Promise<boolean> {
+    if (!this.isConnected) return false;
+
+    try {
+      const resultado = await this.client.expire(key, ttlSeconds);
+      return resultado === 1;
+    } catch (error) {
+      this.logger.error('Error al aplicar TTL en Redis:', error instanceof Error ? error.message : String(error));
+      return false;
+    }
+  }
+
   getConnectionStatus(): boolean {
     return this.isConnected;
   }

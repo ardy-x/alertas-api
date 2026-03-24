@@ -1,6 +1,6 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
-
 import { APP_CONFIG } from '@/config/app.config';
+import { hashString } from '@/utils/security.utils';
 import { ClavesApiPort } from '../../dominio/puertos/claves-api.port';
 import { CLAVES_API_PORT_TOKEN } from '../../dominio/tokens/victima.tokens';
 
@@ -28,7 +28,8 @@ export class ClaveApiGuard implements CanActivate {
     }
 
     try {
-      const clave = await this.clavesApiPort.obtenerPorClave(claveApi);
+      const claveApiHash = hashString(claveApi);
+      const clave = await this.clavesApiPort.obtenerPorClave(claveApiHash);
       if (!clave || clave.estadoCuenta !== 'ACTIVA') {
         throw new UnauthorizedException('Clave API inválida o cuenta inactiva');
       }

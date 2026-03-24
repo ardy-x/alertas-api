@@ -1,5 +1,5 @@
-import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-
+import { ForbiddenException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { obtenerFechaBoliviaYYYYMMDD } from '@/utils/fecha.utils';
 import { CodigoValidacionRepositorioPort } from '@/victimas/dominio/puertos/codigo-validacion.port';
 import { MensajePort } from '@/victimas/dominio/puertos/mensaje.port';
 import { VictimaRepositorioPort } from '@/victimas/dominio/puertos/victima.port';
@@ -25,11 +25,26 @@ export class SolicitarCodigoWhatsappUseCase {
       throw new NotFoundException('No se encontró víctima con ese número de celular');
     }
 
+    // Eliminar cualquier código WhatsApp activo (mismo canal) para evitar código anterior válido
+    await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(victima.celular);
+
+    // Eliminar el código email activo (canal opuesto) también si existe
+    if (victima.correo) {
+      await this.codigoValidacionRepositorio.eliminarCodigoPorEmail(victima.correo);
+    }
+
+    const fechaHoy = obtenerFechaBoliviaYYYYMMDD();
+    const intentosWhatsapp = await this.codigoValidacionRepositorio.obtenerIntentosPorCelular(victima.celular, fechaHoy);
+
+    if (intentosWhatsapp >= 1) {
+      throw new ForbiddenException('Se alcanzó el límite diario de 1 solicitud de código por WhatsApp');
+    }
+
     // Generar código de 6 dígitos
     const codigo = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // TTL de 15 minutos (900 segundos)
-    const ttlSegundos = 15 * 60;
+    // TTL de 10 minutos (600 segundos)
+    const ttlSegundos = 10 * 60;
 
     // Crear código en Redis (se elimina automáticamente con TTL)
     await this.codigoValidacionRepositorio.crear(
@@ -45,8 +60,11 @@ export class SolicitarCodigoWhatsappUseCase {
     const codigoEnviado = await this.mensajePort.enviarMensajeWhatsapp(victima.celular, mensaje);
 
     if (!codigoEnviado) {
+      await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(victima.celular, codigo);
       throw new InternalServerErrorException('No se pudo enviar el código por WhatsApp');
     }
+
+    await this.codigoValidacionRepositorio.incrementarIntentosPorCelular(victima.celular, fechaHoy, 24 * 60 * 60);
 
     return {
       codigoEnviado: true,

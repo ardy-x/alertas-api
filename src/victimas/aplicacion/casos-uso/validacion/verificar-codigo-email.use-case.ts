@@ -1,5 +1,6 @@
-import { createHash } from 'node:crypto';
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+
+import { generarApiKey, hashString } from '@/utils/security.utils';
 
 import { CodigoValidacionRepositorioPort } from '@/victimas/dominio/puertos/codigo-validacion.port';
 import { VictimaRepositorioPort } from '@/victimas/dominio/puertos/victima.port';
@@ -21,24 +22,21 @@ export class VerificarCodigoEmailUseCase {
     const codigoValido = await this.codigoValidacionRepositorio.validarCodigoPorEmail(request.email.trim(), request.codigo.trim());
 
     if (!codigoValido) {
-      throw new Error('Código inválido o expirado');
+      throw new BadRequestException('Código inválido o expirado');
     }
 
     // Buscar víctima por email
     const victima = await this.victimaRepositorio.obtenerPorEmail(request.email.trim());
 
     if (!victima) {
-      throw new Error('Víctima no encontrada');
+      throw new NotFoundException('Víctima no encontrada');
     }
 
-    const timestamp = Date.now().toString();
-    const randomData = Math.random().toString();
-    const apiKey = createHash('sha256')
-      .update(victima.id + timestamp + randomData)
-      .digest('hex');
+    const apiKeyRaw = generarApiKey();
+    const apiKeyHash = hashString(apiKeyRaw);
 
-    // Guardar API key hasheada y activar cuenta
-    await this.victimaRepositorio.actualizarApiKey(victima.id, apiKey);
+    // Guardar hash de API key en DB y activar cuenta
+    await this.victimaRepositorio.actualizarApiKey(victima.id, apiKeyHash);
 
     // Eliminar código usado
     await this.codigoValidacionRepositorio.eliminarCodigoPorEmail(request.email.trim(), request.codigo.trim());
@@ -46,7 +44,7 @@ export class VerificarCodigoEmailUseCase {
     return {
       victima: {
         id: victima.id,
-        apiKey,
+        apiKey: apiKeyRaw,
       },
     };
   }
