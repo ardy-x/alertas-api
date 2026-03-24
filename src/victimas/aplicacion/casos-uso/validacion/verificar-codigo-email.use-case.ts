@@ -18,15 +18,18 @@ export class VerificarCodigoEmailUseCase {
   ) {}
 
   async ejecutar(request: VerificarCodigoEmailRequestDto): Promise<VerificarCodigoResponseDto> {
+    const email = request.email.toLowerCase();
+    const codigo = request.codigo;
+
     // Validar código en Redis
-    const codigoValido = await this.codigoValidacionRepositorio.validarCodigoPorEmail(request.email.trim(), request.codigo.trim());
+    const codigoValido = await this.codigoValidacionRepositorio.validarCodigoPorEmail(email, codigo);
 
     if (!codigoValido) {
       throw new BadRequestException('Código inválido o expirado');
     }
 
     // Buscar víctima por email
-    const victima = await this.victimaRepositorio.obtenerPorEmail(request.email.trim());
+    const victima = await this.victimaRepositorio.obtenerPorEmail(email);
 
     if (!victima) {
       throw new NotFoundException('Víctima no encontrada');
@@ -39,7 +42,7 @@ export class VerificarCodigoEmailUseCase {
     await this.victimaRepositorio.actualizarApiKey(victima.id, apiKeyHash);
 
     // Eliminar código usado
-    await this.codigoValidacionRepositorio.eliminarCodigoPorEmail(request.email.trim(), request.codigo.trim());
+    await this.codigoValidacionRepositorio.eliminarCodigoPorEmail(email, codigo);
 
     return {
       victima: {

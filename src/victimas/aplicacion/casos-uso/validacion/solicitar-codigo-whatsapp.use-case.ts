@@ -19,22 +19,24 @@ export class SolicitarCodigoWhatsappUseCase {
 
   async ejecutar(request: SolicitarCodigoWhatsappRequestDto): Promise<{ codigoEnviado: boolean }> {
     // Buscar víctima por celular
-    const victima = await this.victimaRepositorio.obtenerPorCelular(request.celular.trim());
+    const victima = await this.victimaRepositorio.obtenerPorCelular(request.celular);
 
     if (!victima) {
       throw new NotFoundException('No se encontró víctima con ese número de celular');
     }
 
-    // Eliminar cualquier código WhatsApp activo (mismo canal) para evitar código anterior válido
-    await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(victima.celular);
+    const correo = victima.correo?.toLowerCase() ?? '';
+    const celular = victima.celular ?? '';
 
-    // Eliminar el código email activo (canal opuesto) también si existe
-    if (victima.correo) {
-      await this.codigoValidacionRepositorio.eliminarCodigoPorEmail(victima.correo);
+    if (celular) {
+      await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(celular);
+    }
+    if (correo) {
+      await this.codigoValidacionRepositorio.eliminarCodigoPorEmail(correo);
     }
 
     const fechaHoy = obtenerFechaBoliviaYYYYMMDD();
-    const intentosWhatsapp = await this.codigoValidacionRepositorio.obtenerIntentosPorCelular(victima.celular, fechaHoy);
+    const intentosWhatsapp = await this.codigoValidacionRepositorio.obtenerIntentosPorCelular(celular, fechaHoy);
 
     if (intentosWhatsapp >= 1) {
       throw new ForbiddenException('Se alcanzó el límite diario de 1 solicitud de código por WhatsApp');
@@ -49,7 +51,7 @@ export class SolicitarCodigoWhatsappUseCase {
     // Crear código en Redis (se elimina automáticamente con TTL)
     await this.codigoValidacionRepositorio.crear(
       {
-        celular: victima.celular,
+        celular,
         codigo,
       },
       ttlSegundos,
@@ -64,7 +66,7 @@ export class SolicitarCodigoWhatsappUseCase {
       throw new InternalServerErrorException('No se pudo enviar el código por WhatsApp');
     }
 
-    await this.codigoValidacionRepositorio.incrementarIntentosPorCelular(victima.celular, fechaHoy, 24 * 60 * 60);
+    await this.codigoValidacionRepositorio.incrementarIntentosPorCelular(celular, fechaHoy, 24 * 60 * 60);
 
     return {
       codigoEnviado: true,

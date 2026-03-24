@@ -18,15 +18,18 @@ export class VerificarCodigoCelularUseCase {
   ) {}
 
   async ejecutar(request: VerificarCodigoCelularRequestDto): Promise<VerificarCodigoResponseDto> {
+    const celular = request.celular;
+    const codigo = request.codigo;
+
     // Validar código en Redis
-    const codigoValido = await this.codigoValidacionRepositorio.validarCodigoPorCelular(request.celular.trim(), request.codigo.trim());
+    const codigoValido = await this.codigoValidacionRepositorio.validarCodigoPorCelular(celular, codigo);
 
     if (!codigoValido) {
       throw new BadRequestException('Código inválido o expirado');
     }
 
     // Buscar víctima por celular
-    const victima = await this.victimaRepositorio.obtenerPorCelular(request.celular.trim());
+    const victima = await this.victimaRepositorio.obtenerPorCelular(celular);
 
     if (!victima) {
       throw new NotFoundException('Víctima no encontrada');
@@ -40,7 +43,7 @@ export class VerificarCodigoCelularUseCase {
     await this.victimaRepositorio.actualizarApiKey(victima.id, apiKeyHash);
 
     // Eliminar código usado
-    await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(request.celular.trim(), request.codigo.trim());
+    await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(celular, codigo);
 
     return {
       victima: {

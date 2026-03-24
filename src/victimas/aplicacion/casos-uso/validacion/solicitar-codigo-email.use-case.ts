@@ -20,7 +20,7 @@ export class SolicitarCodigoEmailUseCase {
 
   async ejecutar(request: SolicitarCodigoEmailRequestDto): Promise<{ codigoEnviado: boolean }> {
     // Buscar víctima por email
-    const victima = await this.victimaRepositorio.obtenerPorEmail(request.email.trim());
+    const victima = await this.victimaRepositorio.obtenerPorEmail(request.email);
 
     if (!victima) {
       throw new NotFoundException('No se encontró víctima con ese correo electrónico');
@@ -30,16 +30,18 @@ export class SolicitarCodigoEmailUseCase {
       throw new InternalServerErrorException('La víctima no tiene correo electrónico registrado');
     }
 
-    // Eliminar cualquier código Email activo (mismo canal) para evitar código anterior válido
-    await this.codigoValidacionRepositorio.eliminarCodigoPorEmail(victima.correo);
+    const correo = victima.correo?.toLowerCase() ?? '';
+    const celular = victima.celular ?? '';
 
-    // Eliminar el código de WhatsApp activo (canal opuesto) también si existe
-    if (victima.celular) {
-      await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(victima.celular);
+    if (correo) {
+      await this.codigoValidacionRepositorio.eliminarCodigoPorEmail(correo);
+    }
+    if (celular) {
+      await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(celular);
     }
 
     const fechaHoy = obtenerFechaBoliviaYYYYMMDD();
-    const intentosEmail = await this.codigoValidacionRepositorio.obtenerIntentosPorEmail(victima.correo, fechaHoy);
+    const intentosEmail = await this.codigoValidacionRepositorio.obtenerIntentosPorEmail(correo, fechaHoy);
 
     if (intentosEmail >= 3) {
       throw new ForbiddenException('Se alcanzó el límite diario de 3 solicitudes de código por email');
@@ -54,7 +56,7 @@ export class SolicitarCodigoEmailUseCase {
     // Crear código en Redis (se elimina automáticamente con TTL)
     await this.codigoValidacionRepositorio.crear(
       {
-        email: victima.correo,
+        email: correo,
         codigo,
       },
       ttlSegundos,
