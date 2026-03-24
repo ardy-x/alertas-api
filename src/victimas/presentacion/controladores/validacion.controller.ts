@@ -1,14 +1,14 @@
-import { Body, Controller, HttpStatus, Post } from '@nestjs/common';
+import { Body, Controller, HttpStatus, Post, UseInterceptors } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 
 import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
+import { LogDatosInterceptor } from '@/core/interceptores/log-datos.interceptor';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { SolicitarCodigoEmailUseCase } from '@/victimas/aplicacion/casos-uso/validacion/solicitar-codigo-email.use-case';
 import { SolicitarCodigoWhatsappUseCase } from '@/victimas/aplicacion/casos-uso/validacion/solicitar-codigo-whatsapp.use-case';
 import { VerificarCodigoCelularUseCase } from '@/victimas/aplicacion/casos-uso/validacion/verificar-codigo-celular.use-case';
 import { VerificarCodigoEmailUseCase } from '@/victimas/aplicacion/casos-uso/validacion/verificar-codigo-email.use-case';
-
 import { VerificarCodigoCelularRequestDto } from '../dto/entrada/validacion/codigo-verificacion-celular-request.dto';
 import { VerificarCodigoEmailRequestDto } from '../dto/entrada/validacion/codigo-verificacion-email-request.dto';
 import { SolicitarCodigoEmailRequestDto } from '../dto/entrada/validacion/solicitar-codigo-email-request.dto';
@@ -18,6 +18,7 @@ import { VerificarCodigoResponseDto } from '../dto/salida/verificar-codigo-respo
 @ApiTags('CÓDIGOS DE VERIFICACIÓN')
 @Controller('codigos')
 @ApiRespuestasComunes()
+@UseInterceptors(LogDatosInterceptor)
 export class ValidacionController {
   constructor(
     private readonly solicitarCodigoWhatsappUseCase: SolicitarCodigoWhatsappUseCase,

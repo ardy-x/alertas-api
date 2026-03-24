@@ -19,7 +19,7 @@ export class VictimaValidacionDominioService {
   private validarContactos(celularVictima: string, contactosEmergencia: { celular: string }[]): void {
     const contactosConMismoCelular = contactosEmergencia.filter((c) => c.celular.trim() === celularVictima);
     if (contactosConMismoCelular.length > 0) {
-      throw new Error('El celular de la víctima no puede ser el mismo que el de un contacto de emergencia');
+      throw new Error('Tu número de celular no puede ser el mismo que el de un contacto de emergencia');
     }
     const celularesContactos = contactosEmergencia.map((c) => c.celular.trim());
     const celularesUnicos = new Set(celularesContactos);
