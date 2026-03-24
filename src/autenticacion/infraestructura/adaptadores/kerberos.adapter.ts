@@ -6,6 +6,24 @@ import { HttpClientPublicoService } from '@/core/utilidades/http-client-publico.
 import { analizarErrorHttp, esErrorTimeout } from '@/core/utilidades/http-error.util';
 import { KerberosPort } from '../../dominio/puertos/kerberos.port';
 
+export interface KerberosUsuarioSistema {
+  id: string;
+  nombreCompleto: string;
+  numeroDocumento: string;
+  fotografiaUrl: string;
+  grado: string;
+  unidad: string;
+  role: string;
+  estado: boolean;
+}
+
+export interface KerberosPaginacion {
+  total: number;
+  currentPage: number;
+  itemsPerPage: number;
+  lastPage: number;
+}
+
 const KERBEROS_ENDPOINTS = {
   EXCHANGE_CODE: '/auth/exchange-code',
   SYSTEM_LOGOUT: '/auth/system-logout',
@@ -89,6 +107,30 @@ export class KerberosAdapter implements KerberosPort {
       this.logger.error(`Error en refreshToken desde ${url} - Status: ${infoError.status}, Mensaje: ${infoError.mensaje}`);
       if (infoError.status === 401) {
         throw new BadRequestException('Tu sesión ha expirado completamente. Por favor, inicia sesión nuevamente');
+      } else if (esErrorTimeout(error)) {
+        throw new ServiceUnavailableException('Tiempo de espera agotado al conectar con el servidor de Kerberos');
+      } else {
+        throw new InternalServerErrorException(`Error en el servidor de Kerberos: ${infoError.status}`);
+      }
+    }
+  }
+
+  async obtenerUsuariosSistema(idSistema: string, accessToken: string, busqueda?: string): Promise<{ data: KerberosUsuarioSistema[]; meta: KerberosPaginacion }> {
+    const params = new URLSearchParams();
+    if (busqueda) params.set('search', busqueda);
+
+    const url = `${this.kerberosUrl}/systems/${idSistema}/get-users${params.toString() ? `?${params.toString()}` : ''}`;
+    this.logger.log(`Llamando a Kerberos: ${url} con idSistema: ${idSistema}, busqueda: ${busqueda}`);
+    try {
+      const response = await this.httpClientPrivado.get<{ data: KerberosUsuarioSistema[]; meta: KerberosPaginacion }>(url, accessToken);
+      this.logger.log('Obtención de usuarios del sistema exitoso');
+
+      return response;
+    } catch (error) {
+      const infoError = analizarErrorHttp(error);
+      this.logger.error(`Error en obtenerUsuariosSistema desde ${url} - Status: ${infoError.status}, Mensaje: ${infoError.mensaje}`);
+      if (infoError.status === 401) {
+        throw new BadRequestException('Token de autenticación expirado o inválido');
       } else if (esErrorTimeout(error)) {
         throw new ServiceUnavailableException('Tiempo de espera agotado al conectar con el servidor de Kerberos');
       } else {

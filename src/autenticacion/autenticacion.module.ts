@@ -8,6 +8,7 @@ import { PrismaModule } from '../prisma/prisma.module';
 import { UsuariosWebModule } from '../usuarios-web/usuarios-web.module';
 import { CierreSesionSistemaUseCase } from './aplicacion/casos-uso/cierre-sesion-sistema.use-case';
 import { DecodificarTokenUseCase } from './aplicacion/casos-uso/decodificar-token.use-case';
+import { ObtenerUsuariosSistemaUseCase } from './aplicacion/casos-uso/obtener-usuarios-sistema.use-case';
 import { RefreshTokenUseCase } from './aplicacion/casos-uso/refresh-token.use-case';
 import { KERBEROS_PORT_TOKEN } from './dominio/tokens/autenticacion.tokens';
 import { KerberosAdapter } from './infraestructura/adaptadores/kerberos.adapter';
@@ -27,6 +28,7 @@ import { AutenticacionController } from './presentacion/controladores/autenticac
     DecodificarTokenUseCase,
     RefreshTokenUseCase,
     CierreSesionSistemaUseCase,
+    ObtenerUsuariosSistemaUseCase,
     KerberosJwtStrategy,
     KerberosJwtAuthGuard,
     RolesGuard,
