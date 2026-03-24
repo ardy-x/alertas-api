@@ -8,10 +8,9 @@ import { ActualizarAlertaUseCase } from './aplicacion/casos-uso/actualizar-alert
 import { AgregarFuncionarioUseCase } from './aplicacion/casos-uso/atenciones/agregar-funcionario.use-case';
 import { ConfirmarLlegadaFuncionarioUseCase } from './aplicacion/casos-uso/atenciones/confirmar-llegada-funcionario.use-case';
 import { CrearAtencionCompletaUseCase } from './aplicacion/casos-uso/atenciones/crear-atencion-completa.use-case';
-import { NotificarAtencionAlertaUseCase } from './aplicacion/casos-uso/atenciones/notificar-atencion-alerta.use-case';
+import { MarcarEnAtencionUseCase } from './aplicacion/casos-uso/atenciones/marcar-en-atencion.use-case';
 import { crearAlertaAttUseCase } from './aplicacion/casos-uso/att/crear-alerta-att.use-case';
 import { CerrarAlertaUseCase } from './aplicacion/casos-uso/cierre-alertas/cerrar-alerta.use-case';
-import { NotificarCierreAlertaUseCase } from './aplicacion/casos-uso/cierre-alertas/notificar-cierre-alerta.use-case';
 import { CrearAlertaUseCase } from './aplicacion/casos-uso/crear-alerta.use-case';
 import { CrearPuntoRutaUseCase } from './aplicacion/casos-uso/crear-punto-ruta.use-case';
 import { EliminarEvidenciaUseCase } from './aplicacion/casos-uso/evidencias/eliminar-evidencia.use-case';
@@ -19,14 +18,13 @@ import { ListarEvidenciasUseCase } from './aplicacion/casos-uso/evidencias/lista
 import { SubirEvidenciaUseCase } from './aplicacion/casos-uso/evidencias/subir-evidencia.use-case';
 import { ListarAlertasActivasUseCase } from './aplicacion/casos-uso/listar-alertas-activas.use-case';
 import { ListarHistorialAlertasUseCase } from './aplicacion/casos-uso/listar-historial-alertas.use-case';
-import { MarcarEnAtencionUseCase } from './aplicacion/casos-uso/marcar-en-atencion.use-case';
 import { NotificarCreacionAlertaUseCase } from './aplicacion/casos-uso/notificar-creacion-alerta.use-case';
+import { NotificarVictimaAlertaUseCase } from './aplicacion/casos-uso/notificar-victima-alerta.use-case';
 import { ObtenerAlertaPorIdUseCase } from './aplicacion/casos-uso/obtener-detalle-alerta.use-case';
 import { ObtenerEstadoAlertaUseCase } from './aplicacion/casos-uso/obtener-estado-alerta.use-case';
 import { ObtenerFuncionariosLlegadosUseCase } from './aplicacion/casos-uso/obtener-funcionarios-llegados.use-case';
 import { CrearSolicitudUseCase } from './aplicacion/casos-uso/solicitudes-cancelacion/crear-solicitud.use-case';
 import { ListarSolicitudesUseCase } from './aplicacion/casos-uso/solicitudes-cancelacion/listar-solicitudes.use-case';
-import { NotificarCancelacionAlertaUseCase } from './aplicacion/casos-uso/solicitudes-cancelacion/notificar-cancelacion-alerta.use-case';
 import { NotificarCreacionSolicitudUseCase } from './aplicacion/casos-uso/solicitudes-cancelacion/notificar-creacion-solicitud.use-case';
 import { ObtenerSolicitudDetalleUseCase } from './aplicacion/casos-uso/solicitudes-cancelacion/obtener-solicitud-detalle.use-case';
 import { ProcesarSolicitudUseCase } from './aplicacion/casos-uso/solicitudes-cancelacion/procesar-solicitud.use-case';
@@ -91,12 +89,10 @@ import { SolicitudesCancelacionController } from './presentacion/controladores/s
     ObtenerAlertaPorIdUseCase,
     ObtenerEstadoAlertaUseCase,
     MarcarEnAtencionUseCase,
-    NotificarAtencionAlertaUseCase,
+    NotificarVictimaAlertaUseCase,
     crearAlertaAttUseCase,
     CrearPuntoRutaUseCase,
     NotificarCreacionAlertaUseCase,
-    NotificarCierreAlertaUseCase,
-    NotificarCancelacionAlertaUseCase,
     NotificarCreacionSolicitudUseCase,
 
     // Casos de uso - Atenciones

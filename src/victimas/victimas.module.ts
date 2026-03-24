@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 
 import { CoreModule } from '../core/core.module';
+import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { RedisModule } from '../redis/redis.module';
 import { ActualizarDatosContactoUseCase } from './aplicacion/casos-uso/actualizar-datos-contacto.use-case';
@@ -57,7 +58,7 @@ import { VictimasController } from './presentacion/controladores/victimas.contro
 import { VictimasWebController } from './presentacion/controladores/victimas-web.controller';
 
 @Module({
-  imports: [CoreModule, PrismaModule, RedisModule],
+  imports: [CoreModule, PrismaModule, RedisModule, NotificacionesModule],
   controllers: [VictimasController, VictimasWebController, ContactosEmergenciaController, ValidacionController, InvestigadoresController],
   providers: [
     // Casos de Uso - Víctimas

@@ -4,4 +4,7 @@ export interface NotificarCambioEstadoAlertaRequest {
   idAlerta: string;
   idVictima: string;
   estadoFinal: string | EstadoAlerta;
+  tipoNotificacion: string;
+  titulo: string;
+  cuerpo: string;
 }

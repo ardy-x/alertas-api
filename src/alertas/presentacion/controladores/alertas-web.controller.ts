@@ -1,9 +1,8 @@
 import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Query, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
-
+import { MarcarEnAtencionUseCase } from '@/alertas/aplicacion/casos-uso/atenciones/marcar-en-atencion.use-case';
 import { ListarAlertasActivasUseCase } from '@/alertas/aplicacion/casos-uso/listar-alertas-activas.use-case';
 import { ListarHistorialAlertasUseCase } from '@/alertas/aplicacion/casos-uso/listar-historial-alertas.use-case';
-import { MarcarEnAtencionUseCase } from '@/alertas/aplicacion/casos-uso/marcar-en-atencion.use-case';
 import { ObtenerAlertaPorIdUseCase } from '@/alertas/aplicacion/casos-uso/obtener-detalle-alerta.use-case';
 import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
 import { IdUsuarioActual } from '@/autenticacion/infraestructura/decoradores/id-usuario.decorator';

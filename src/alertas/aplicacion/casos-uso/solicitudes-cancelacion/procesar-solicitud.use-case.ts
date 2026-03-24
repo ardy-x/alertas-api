@@ -8,7 +8,7 @@ import { AlertaValidacionDominioService } from '@/alertas/dominio/servicios/aler
 import { EventoDominioService } from '@/alertas/dominio/servicios/evento-dominio.service';
 import { ALERTA_REPOSITORIO_TOKEN, EVENTO_DOMINIO_SERVICE_TOKEN, SOLICITUD_CANCELACION_REPOSITORIO_TOKEN } from '@/alertas/dominio/tokens/alerta.tokens';
 import { ProcesarSolicitudCancelacionRequestDto } from '@/alertas/presentacion/dto/entrada/solicitudes-cancelacion-entrada.dto';
-import { NotificarCancelacionAlertaUseCase } from './notificar-cancelacion-alerta.use-case';
+import { NotificarVictimaAlertaUseCase } from '../notificar-victima-alerta.use-case';
 
 @Injectable()
 export class ProcesarSolicitudUseCase {
@@ -19,7 +19,7 @@ export class ProcesarSolicitudUseCase {
     private readonly alertaRepositorio: AlertaRepositorioPort,
     @Inject(EVENTO_DOMINIO_SERVICE_TOKEN)
     private readonly eventoDominioService: EventoDominioService,
-    private readonly notificarCancelacionAlertaUseCase: NotificarCancelacionAlertaUseCase,
+    private readonly notificarVictimaAlertaUseCase: NotificarVictimaAlertaUseCase,
   ) {}
 
   async ejecutar(idSolicitud: string, idUsuarioWeb: string, entrada: ProcesarSolicitudCancelacionRequestDto): Promise<void> {
@@ -49,10 +49,13 @@ export class ProcesarSolicitudUseCase {
     await this.alertaRepositorio.actualizarEstado(solicitudExistente.idAlerta, EstadoAlerta.CANCELADA);
 
     if (alerta.idVictima) {
-      await this.notificarCancelacionAlertaUseCase.ejecutar({
+      await this.notificarVictimaAlertaUseCase.ejecutar({
+        idAlerta: solicitudExistente.idAlerta,
         idVictima: alerta.idVictima,
         estadoFinal: EstadoAlerta.CANCELADA,
-        idAlerta: solicitudExistente.idAlerta,
+        tipoNotificacion: 'alerta_finalizada',
+        titulo: 'Alerta cancelada',
+        cuerpo: 'Tu alerta fue cancelada',
       });
     }
 

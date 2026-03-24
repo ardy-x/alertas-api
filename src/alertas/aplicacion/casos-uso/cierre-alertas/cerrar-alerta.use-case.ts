@@ -11,7 +11,7 @@ import { AlertaValidacionDominioService } from '@/alertas/dominio/servicios/aler
 import { EventoDominioService } from '@/alertas/dominio/servicios/evento-dominio.service';
 import { ALERTA_REPOSITORIO_TOKEN, CIERRE_ALERTA_REPOSITORIO_TOKEN, EVENTO_DOMINIO_SERVICE_TOKEN, SOLICITUD_CANCELACION_REPOSITORIO_TOKEN } from '@/alertas/dominio/tokens/alerta.tokens';
 import { CerrarAlertaRequestDto } from '@/alertas/presentacion/dto/entrada/cierre-alertas-entrada.dto';
-import { NotificarCierreAlertaUseCase } from './notificar-cierre-alerta.use-case';
+import { NotificarVictimaAlertaUseCase } from '../notificar-victima-alerta.use-case';
 
 @Injectable()
 export class CerrarAlertaUseCase {
@@ -26,7 +26,7 @@ export class CerrarAlertaUseCase {
     private readonly solicitudCancelacionRepo: SolicitudCancelacionRepositorioPort,
     @Inject(EVENTO_DOMINIO_SERVICE_TOKEN)
     private readonly eventoDominioService: EventoDominioService,
-    private readonly notificarCierreAlertaUseCase: NotificarCierreAlertaUseCase,
+    private readonly notificarVictimaAlertaUseCase: NotificarVictimaAlertaUseCase,
   ) {}
 
   async ejecutar(idAlerta: string, idUsuarioWeb: string, entrada: CerrarAlertaRequestDto): Promise<void> {
@@ -74,10 +74,13 @@ export class CerrarAlertaUseCase {
 
     // 6. Notificar a la víctima
     if (alerta.idVictima) {
-      await this.notificarCierreAlertaUseCase.ejecutar({
+      await this.notificarVictimaAlertaUseCase.ejecutar({
         idAlerta: idAlerta,
         idVictima: alerta.idVictima,
         estadoFinal: estadoAlerta,
+        tipoNotificacion: 'alerta_finalizada',
+        titulo: 'Alerta finalizada',
+        cuerpo: `Tu alerta fue finalizada con estado ${estadoAlerta}`,
       });
     }
 

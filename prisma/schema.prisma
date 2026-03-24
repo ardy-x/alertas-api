@@ -23,12 +23,6 @@ enum EstadoCuenta {
   PENDIENTE_VERIFICACION
 }
 
-enum EstadoOperativo {
-  DISPONIBLE
-  EN_ATENCION
-  NO_DISPONIBLE
-}
-
 enum EstadoSolicitudCancelacion {
   PENDIENTE
   APROBADA

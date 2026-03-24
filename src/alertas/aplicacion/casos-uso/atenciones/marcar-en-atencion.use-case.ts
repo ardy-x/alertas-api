@@ -8,7 +8,7 @@ import { AtencionPersonalPort } from '@/alertas/dominio/puertos/atencion-funcion
 import { AlertaEstadoDominioService } from '@/alertas/dominio/servicios/alerta-estado-dominio.service';
 import { EventoDominioService } from '@/alertas/dominio/servicios/evento-dominio.service';
 import { ALERTA_REPOSITORIO_TOKEN, ATENCION_FUNCIONARIO_REPOSITORIO_TOKEN, ATENCION_REPOSITORIO_TOKEN, EVENTO_DOMINIO_SERVICE_TOKEN } from '@/alertas/dominio/tokens/alerta.tokens';
-import { NotificarAtencionAlertaUseCase } from './atenciones/notificar-atencion-alerta.use-case';
+import { NotificarVictimaAlertaUseCase } from '../notificar-victima-alerta.use-case';
 
 @Injectable()
 export class MarcarEnAtencionUseCase {
@@ -21,7 +21,7 @@ export class MarcarEnAtencionUseCase {
     private readonly atencionFuncionarioRepo: AtencionPersonalPort,
     @Inject(EVENTO_DOMINIO_SERVICE_TOKEN)
     private readonly eventoDominioService: EventoDominioService,
-    private readonly notificarAtencionAlertaUseCase: NotificarAtencionAlertaUseCase,
+    private readonly notificarVictimaAlertaUseCase: NotificarVictimaAlertaUseCase,
   ) {}
 
   async ejecutar(idAlerta: string, idUsuarioWeb: string, ciFuncionario: string): Promise<void> {
@@ -53,10 +53,13 @@ export class MarcarEnAtencionUseCase {
 
     // Notificar a la víctima que el policía tomó contacto
     if (alerta.idVictima) {
-      await this.notificarAtencionAlertaUseCase.ejecutar({
+      await this.notificarVictimaAlertaUseCase.ejecutar({
         idAlerta,
         idVictima: alerta.idVictima,
         estadoFinal: EstadoAlerta.EN_ATENCION,
+        tipoNotificacion: 'alerta_en_atencion',
+        titulo: 'Oficial de policía en el lugar',
+        cuerpo: 'Un oficial de policía se encuentra contigo en el lugar',
       });
     }
 

@@ -7,8 +7,8 @@ import { VictimaRepositorioPort } from '@/victimas/dominio/puertos/victima.port'
 import { VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
 
 @Injectable()
-export class NotificarAtencionAlertaUseCase {
-  private readonly logger = new Logger(NotificarAtencionAlertaUseCase.name);
+export class NotificarVictimaAlertaUseCase {
+  private readonly logger = new Logger(NotificarVictimaAlertaUseCase.name);
 
   constructor(
     @Inject(VICTIMA_REPOSITORIO)
@@ -23,22 +23,22 @@ export class NotificarAtencionAlertaUseCase {
 
       if (fcmToken && fcmToken.trim().length > 0) {
         const datos = {
-          tipo: 'alerta_en_atencion',
+          tipo: request.tipoNotificacion,
           idAlerta: request.idAlerta,
           estadoFinal: request.estadoFinal,
         };
 
         await this.enviarNotificacionUseCase.ejecutar({
           fcmToken,
-          titulo: 'Oficial de policía en el lugar',
-          cuerpo: `Un oficial de policía se encuentra contigo en el lugar`,
+          titulo: request.titulo,
+          cuerpo: request.cuerpo,
           datos,
           tipoDestinatario: TipoDestinatario.VICTIMA,
         });
       }
     } catch (error) {
       // No fallar por error en notificaciones
-      this.logger.warn(`Error al notificar a la víctima sobre atención de alerta ${request.idAlerta}:`, error);
+      this.logger.warn(`Error al notificar a la víctima sobre alerta ${request.idAlerta}:`, error);
     }
   }
 }
