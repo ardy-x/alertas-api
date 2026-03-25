@@ -6,7 +6,6 @@ import { DecodificarTokenRequestDto } from '@/autenticacion/presentacion/dtos/en
 import { DecodificarTokenDatosDto, ModuloDto } from '@/autenticacion/presentacion/dtos/salida/decodificar-token-response.dto';
 import { EncontrarDepartamentoUseCase } from '@/integraciones/aplicacion/casos-uso/encontrar-departamento.use-case';
 import { RegistrarUsuarioWebUseCase } from '@/usuarios-web/aplicacion/casos-uso/registrar-usuario-web.use-case';
-import { RolUsuarioWeb } from '@/usuarios-web/dominio/interfaces/rol-usuario.interface';
 import { DecodedJWT, ModuloJWT } from '../../dominio/entidades/jwt-entity';
 import { KerberosPort } from '../../dominio/puertos/kerberos.port';
 import { KERBEROS_PORT_TOKEN } from '../../dominio/tokens/autenticacion.tokens';
@@ -59,12 +58,6 @@ export class DecodificarTokenUseCase {
 
       const datosTraducidos = JwtMapeoUtilidades.mapearADecodificarTokenResponse(decoded, departamento, modulos, entrada);
 
-      // Crear objeto de autorización tipado
-      const autorizacion: RolUsuarioWeb = {
-        rol: sistema.role,
-        modulos,
-      };
-
       // Registrar o actualizar usuario en la base de datos
       await this.registrarUsuarioWebUseCase.ejecutar({
         id: usuario.userId,
@@ -72,7 +65,7 @@ export class DecodificarTokenUseCase {
         nombreCompleto: usuario.fullName,
         unidad: usuario.unidad,
         idDepartamento: departamento.departamento.id,
-        autorizacion,
+        rol: sistema.role,
         estadoSession: true,
       });
 

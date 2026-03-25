@@ -16,6 +16,8 @@ export class InvestigadorActivoDto {
   @ApiProperty()
   declare grado: string;
   @ApiProperty()
+  declare rol: string;
+  @ApiProperty()
   declare unidad: string;
 }
 
@@ -34,6 +36,8 @@ export class InvestigadorHistorialDto {
   declare nombreCompleto: string;
   @ApiProperty()
   declare grado: string;
+  @ApiProperty()
+  declare rol: string;
   @ApiProperty()
   declare unidad: string;
 }

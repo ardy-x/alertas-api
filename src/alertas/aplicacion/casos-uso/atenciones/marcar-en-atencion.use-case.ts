@@ -31,13 +31,28 @@ export class MarcarEnAtencionUseCase {
       throw new NotFoundException('Alerta no encontrada');
     }
 
-    const transicionValida = AlertaEstadoDominioService.validarCambioEstado(alerta.estadoAlerta, EstadoAlerta.EN_ATENCION);
+    if (alerta.estadoAlerta !== EstadoAlerta.EN_ATENCION) {
+      const transicionValida = AlertaEstadoDominioService.validarCambioEstado(alerta.estadoAlerta, EstadoAlerta.EN_ATENCION);
 
-    if (!transicionValida) {
-      throw new ConflictException(`No se puede cambiar la alerta a EN_ATENCION desde el estado actual: ${alerta.estadoAlerta}`);
+      if (!transicionValida) {
+        throw new ConflictException(`No se puede cambiar la alerta a EN_ATENCION desde el estado actual: ${alerta.estadoAlerta}`);
+      }
+
+      await this.alertaRepositorio.actualizarEstado(idAlerta, EstadoAlerta.EN_ATENCION);
+
+      if (alerta.idVictima) {
+        await this.notificarVictimaAlertaUseCase.ejecutar({
+          idAlerta,
+          idVictima: alerta.idVictima,
+          estadoFinal: EstadoAlerta.EN_ATENCION,
+          tipoNotificacion: 'alerta_en_atencion',
+          titulo: 'Oficial de policía en el lugar',
+          cuerpo: 'Un oficial de policía se encuentra contigo en el lugar',
+        });
+      }
+
+      await this.eventoDominioService.registrarEventoSemiautomatico(idAlerta, TipoEvento.ATENCION_VICTIMA, idUsuarioWeb);
     }
-
-    await this.alertaRepositorio.actualizarEstado(idAlerta, EstadoAlerta.EN_ATENCION);
 
     const atencion = await this.atencionRepositorio.obtenerPorAlerta(idAlerta);
     if (!atencion) {
@@ -50,19 +65,5 @@ export class MarcarEnAtencionUseCase {
     if (func && !func.fechaLlegada) {
       await this.atencionFuncionarioRepo.marcarLlegada(atencion.id, ciFuncionario);
     }
-
-    // Notificar a la víctima que el policía tomó contacto
-    if (alerta.idVictima) {
-      await this.notificarVictimaAlertaUseCase.ejecutar({
-        idAlerta,
-        idVictima: alerta.idVictima,
-        estadoFinal: EstadoAlerta.EN_ATENCION,
-        tipoNotificacion: 'alerta_en_atencion',
-        titulo: 'Oficial de policía en el lugar',
-        cuerpo: 'Un oficial de policía se encuentra contigo en el lugar',
-      });
-    }
-
-    await this.eventoDominioService.registrarEventoSemiautomatico(idAlerta, TipoEvento.ATENCION_VICTIMA, idUsuarioWeb);
   }
 }

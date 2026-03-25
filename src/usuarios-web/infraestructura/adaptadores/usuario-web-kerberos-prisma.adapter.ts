@@ -24,7 +24,7 @@ export class UsuarioWebKerberosPrismaAdapter implements UsuarioWebKerberosReposi
       nombreCompleto: datos.nombreCompleto,
       unidad: datos.unidad,
       idDepartamento: datos.idDepartamento,
-      autorizacion: datos.autorizacion as Prisma.JsonObject,
+      rol: datos.rol,
       estadoSession: datos.estadoSession,
     };
 
@@ -36,7 +36,7 @@ export class UsuarioWebKerberosPrismaAdapter implements UsuarioWebKerberosReposi
         nombreCompleto: data.nombreCompleto,
         unidad: data.unidad,
         idDepartamento: data.idDepartamento,
-        autorizacion: data.autorizacion,
+        rol: data.rol,
         estadoSession: data.estadoSession,
       },
       update: data,
@@ -82,7 +82,7 @@ export class UsuarioWebKerberosPrismaAdapter implements UsuarioWebKerberosReposi
       nombreCompleto: usuario.nombreCompleto,
       unidad: usuario.unidad,
       idDepartamento: usuario.idDepartamento,
-      autorizacion: usuario.autorizacion as UsuarioWebKerberosEntity['autorizacion'],
+      rol: usuario.rol,
       estadoSession: usuario.estadoSession,
       fcmToken: usuario.fcmToken ?? undefined,
       infoDispositivo: usuarioAny.infoDispositivo ? this.mapearInfoDispositivo(usuarioAny.infoDispositivo as Prisma.JsonValue) : undefined,
@@ -160,10 +160,7 @@ export class UsuarioWebKerberosPrismaAdapter implements UsuarioWebKerberosReposi
         estadoSession: true,
         fcmToken: { not: null },
         idDepartamento: idDepartamento,
-        autorizacion: {
-          path: ['rol'],
-          equals: RolesPermitidos.OPERADOR,
-        },
+        rol: RolesPermitidos.OPERADOR as string,
       },
       select: {
         fcmToken: true,

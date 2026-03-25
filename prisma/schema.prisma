@@ -264,7 +264,6 @@ model InvestigadorVictima {
   actualizadoEn         DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz()
 
   victima             Victima            @relation(fields: [idVictima], references: [id])
-  usuarioInvestigador UsuarioWebKerberos @relation(fields: [idUsuarioInvestigador], references: [id])
 
   @@map("investigador_victima")
 }
@@ -275,7 +274,7 @@ model UsuarioWebKerberos {
   nombreCompleto         String                 @map("nombre_completo") @db.VarChar(200)
   unidad                 String                 @db.VarChar(255)
   idDepartamento         Int                    @map("id_departamento") @db.Integer
-  autorizacion           Json                   @map("autorizacion") @db.JsonB
+  rol                    String                 @map("rol") @db.VarChar(50)
   estadoSession          Boolean                @default(false) @map("estado_session") @db.Boolean
   fcmToken               String?                @map("fcm_token") @db.VarChar(255)
   infoDispositivo        Json?                  @map("info_dispositivo") @db.JsonB
@@ -284,7 +283,6 @@ model UsuarioWebKerberos {
   cierresAlerta          CierreAlerta[]
   eventos                Evento[]
   solicitudesCancelacion SolicitudCancelacion[]
-  investigadoresVictimas InvestigadorVictima[]
 
   @@map("usuarios_web_kerberos")
 }

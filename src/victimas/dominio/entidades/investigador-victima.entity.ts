@@ -7,9 +7,6 @@ export class InvestigadorVictimaEntity {
     public readonly fechaAsignacion: Date,
     public readonly activo: boolean,
     public readonly observaciones: string | null,
-    public readonly nombreCompleto: string,
-    public readonly grado: string,
-    public readonly unidad: string,
     public readonly creadoEn: Date,
     public readonly actualizadoEn: Date | null,
   ) {}

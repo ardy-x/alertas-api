@@ -28,6 +28,6 @@ import { UsuariosWebController } from './presentacion/controladores/usuarios-web
     ListarUsuariosWebUseCase,
     ObtenerTokensFCMUseCase,
   ],
-  exports: [USUARIO_WEB_KERBEROS_REPOSITORIO_TOKEN, RegistrarUsuarioWebUseCase, ObtenerTokensFCMUseCase],
+  exports: [USUARIO_WEB_KERBEROS_REPOSITORIO_TOKEN, RegistrarUsuarioWebUseCase, ObtenerTokensFCMUseCase, ObtenerUsuarioWebUseCase],
 })
 export class UsuariosWebModule {}

@@ -50,9 +50,6 @@ export class InvestigadorVictimaPrismaAdapter implements InvestigadorVictimaRepo
         idVictima,
         activo: true,
       },
-      include: {
-        usuarioInvestigador: true,
-      },
       orderBy: {
         fechaAsignacion: 'desc',
       },
@@ -70,9 +67,6 @@ export class InvestigadorVictimaPrismaAdapter implements InvestigadorVictimaRepo
       investigador.fechaAsignacion,
       investigador.activo,
       investigador.observaciones,
-      investigador.usuarioInvestigador?.nombreCompleto,
-      investigador.usuarioInvestigador?.grado,
-      investigador.usuarioInvestigador?.unidad,
       investigador.creadoEn,
       investigador.actualizadoEn,
     );
@@ -83,9 +77,6 @@ export class InvestigadorVictimaPrismaAdapter implements InvestigadorVictimaRepo
       where: {
         idVictima,
       },
-      include: {
-        usuarioInvestigador: true,
-      },
       orderBy: {
         fechaAsignacion: 'desc',
       },
@@ -93,20 +84,7 @@ export class InvestigadorVictimaPrismaAdapter implements InvestigadorVictimaRepo
 
     return investigadores.map(
       (inv) =>
-        new InvestigadorVictimaEntity(
-          inv.id,
-          inv.idVictima,
-          inv.idUsuarioInvestigador,
-          inv.idUsuarioAsignador,
-          inv.fechaAsignacion,
-          inv.activo,
-          inv.observaciones,
-          inv.usuarioInvestigador?.nombreCompleto,
-          inv.usuarioInvestigador?.grado,
-          inv.usuarioInvestigador?.unidad,
-          inv.creadoEn,
-          inv.actualizadoEn,
-        ),
+        new InvestigadorVictimaEntity(inv.id, inv.idVictima, inv.idUsuarioInvestigador, inv.idUsuarioAsignador, inv.fechaAsignacion, inv.activo, inv.observaciones, inv.creadoEn, inv.actualizadoEn),
     );
   }
 

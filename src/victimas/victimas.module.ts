@@ -4,6 +4,7 @@ import { CoreModule } from '../core/core.module';
 import { NotificacionesModule } from '../notificaciones/notificaciones.module';
 import { PrismaModule } from '../prisma/prisma.module';
 import { RedisModule } from '../redis/redis.module';
+import { UsuariosWebModule } from '../usuarios-web/usuarios-web.module';
 import { ActualizarDatosContactoUseCase } from './aplicacion/casos-uso/actualizar-datos-contacto.use-case';
 import { ActualizarDatosCuentaUseCase } from './aplicacion/casos-uso/actualizar-datos-cuenta.use-case';
 import { ActualizarPermisosUseCase } from './aplicacion/casos-uso/actualizar-permisos.use-case';
@@ -58,7 +59,7 @@ import { VictimasController } from './presentacion/controladores/victimas.contro
 import { VictimasWebController } from './presentacion/controladores/victimas-web.controller';
 
 @Module({
-  imports: [CoreModule, PrismaModule, RedisModule, NotificacionesModule],
+  imports: [CoreModule, PrismaModule, RedisModule, NotificacionesModule, UsuariosWebModule],
   controllers: [VictimasController, VictimasWebController, ContactosEmergenciaController, ValidacionController, InvestigadoresController],
   providers: [
     // Casos de Uso - Víctimas
