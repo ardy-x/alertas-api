@@ -239,6 +239,14 @@ export class PdfGeneratorService {
     doc.fillColor(COLOR_TEXTO_OSCURO);
   }
 
+  agregarSubtitulo(doc: PDFKit.PDFDocument, nombre: string): void {
+    doc.moveDown(0.3);
+    const y = doc.y;
+    doc.font('Helvetica-Bold').fontSize(8).fillColor(COLOR_TEXTO_OSCURO).text(nombre.toUpperCase(), MARGIN, y, { lineBreak: false });
+    doc.y = y + 11;
+    doc.fillColor(COLOR_TEXTO_OSCURO);
+  }
+
   agregarTextoDescriptivo(doc: PDFKit.PDFDocument, texto: string): void {
     doc.moveDown(0.5);
     const contentWidth = doc.page.width - MARGIN * 2;

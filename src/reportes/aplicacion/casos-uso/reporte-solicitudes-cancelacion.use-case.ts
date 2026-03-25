@@ -5,7 +5,7 @@ import { EstadoSolicitudCancelacion } from '@/alertas/dominio/enums/alerta-enums
 import { SolicitudCancelacionListadoDto } from '@/alertas/presentacion/dto/salida/solicitudes-cancelacion-salida.dto';
 import { MetadatoPar, PdfGeneratorService, TablaColumna } from '@/reportes/infraestructura/generadores/pdf-generator.service';
 import { ReporteSolicitudesCancelacionQueryDto } from '@/reportes/presentacion/dto/reporte-solicitudes-cancelacion-query.dto';
-import { convertirFechaBoliviaFinalDelDiaAUTC, convertirFechaBoliviaInicioDelDiaAUTC, formatearFechaSimple, obtenerRangoMesesLiteral } from '@/utils/fecha.utils';
+import { convertirFechaBoliviaFinalDelDiaAUTC, convertirFechaBoliviaInicioDelDiaAUTC, formatearFechaSimple, obtenerRangoMesesLiteral, separarFechaHoraBolivia } from '@/utils/fecha.utils';
 
 @Injectable()
 export class ReporteSolicitudesCancelacionUseCase {
@@ -60,7 +60,7 @@ export class ReporteSolicitudesCancelacionUseCase {
     ];
 
     const filas = datos.solicitudes.map((solicitud: SolicitudCancelacionListadoDto, idx) => {
-      const [fecha, hora] = this.separarFechaHora(solicitud.fechaSolicitud);
+      const [fecha, hora] = separarFechaHoraBolivia(solicitud.fechaSolicitud);
       return [
         String(idx + 1),
         fecha,
@@ -77,13 +77,5 @@ export class ReporteSolicitudesCancelacionUseCase {
     this.pdfGenerator.agregarPieDePagina(doc, 1, 1);
 
     return this.pdfGenerator.finalizar(doc);
-  }
-
-  private separarFechaHora(fecha: Date | string | undefined): [string, string] {
-    if (!fecha) return ['—', '—'];
-    const date = new Date(fecha);
-    const fechaStr = date.toLocaleDateString('es-BO', { timeZone: 'America/La_Paz', day: '2-digit', month: '2-digit', year: 'numeric' });
-    const horaStr = date.toLocaleTimeString('es-BO', { timeZone: 'America/La_Paz', hour: '2-digit', minute: '2-digit' });
-    return [fechaStr, horaStr];
   }
 }

@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 
 import { MetadatoPar, PdfGeneratorService, TablaColumna } from '@/reportes/infraestructura/generadores/pdf-generator.service';
+import { formatearFechaBoliviaSoloFecha, separarFechaHoraBolivia } from '@/utils/fecha.utils';
 import { ObtenerInvestigadorActivoUseCase } from '@/victimas/aplicacion/casos-uso/investigadores/obtener-investigador-activo.use-case';
 import { ObtenerHistorialAlertasVictimaUseCase } from '@/victimas/aplicacion/casos-uso/web/obtener-historial-alertas-victima.use-case';
 import { ObtenerHistorialAlertasParamsDto } from '@/victimas/presentacion/dto/entrada/victima.dto';
@@ -30,7 +31,7 @@ export class ReporteHistorialVictimaUseCase {
 
     const doc = this.pdfGenerator.crearDocumento();
 
-    const fechaNacimiento = datos.victima.fechaNacimiento ? this.formatearFechaSolo(datos.victima.fechaNacimiento) : '—';
+    const fechaNacimiento = datos.victima.fechaNacimiento ? formatearFechaBoliviaSoloFecha(datos.victima.fechaNacimiento) : '—';
     const edad = datos.victima.fechaNacimiento ? this.calcularEdad(datos.victima.fechaNacimiento) : '—';
     const estadoCuentaDescripcion = this.obtenerDescripcionEstadoCuenta(datos.victima.estadoCuenta);
 
@@ -38,7 +39,7 @@ export class ReporteHistorialVictimaUseCase {
 
     const metadatos: MetadatoPar[] = [
       ['VÍCTIMA', datos.victima.nombreCompleto, 'TOTAL ALERTAS', String(datos.estadisticas.totalAlertas)],
-      ['C.I.', datos.victima.cedulaIdentidad, 'ALERTAS ACTIVAS', String(datos.estadisticas.alertasActivas)],
+      ['CÉDULA DE IDENTIDAD', datos.victima.cedulaIdentidad, 'ALERTAS ACTIVAS', String(datos.estadisticas.alertasActivas)],
       ['CELULAR', datos.victima.celular ?? '—', 'ALERTAS FINALIZADAS', String(datos.estadisticas.alertasFinalizadas)],
       ['CORREO', datos.victima.correo ?? '—', 'T. PROM. ASIGNACIÓN', datos.estadisticas.tiempoPromedioAsignacion ?? '—'],
       ['FECHA NACIMIENTO', `${fechaNacimiento} (${edad} años)`, 'T. PROM. CIERRE', datos.estadisticas.tiempoPromedioCierre ?? '—'],
@@ -63,7 +64,7 @@ export class ReporteHistorialVictimaUseCase {
     ];
 
     const filas = datos.alertas.map((alerta: AlertaVictimaDto, idx) => {
-      const [fecha, hora] = this.separarFechaHora(alerta.fechaHora);
+      const [fecha, hora] = separarFechaHoraBolivia(alerta.fechaHora);
       return [
         String(idx + 1),
         fecha,
@@ -82,19 +83,6 @@ export class ReporteHistorialVictimaUseCase {
     this.pdfGenerator.agregarPieDePagina(doc, 1, 1);
 
     return this.pdfGenerator.finalizar(doc);
-  }
-
-  private separarFechaHora(fecha: Date | string | undefined): [string, string] {
-    if (!fecha) return ['—', '—'];
-    const date = new Date(fecha);
-    const fechaStr = date.toLocaleDateString('es-BO', { timeZone: 'America/La_Paz', day: '2-digit', month: '2-digit', year: 'numeric' });
-    const horaStr = date.toLocaleTimeString('es-BO', { timeZone: 'America/La_Paz', hour: '2-digit', minute: '2-digit' });
-    return [fechaStr, horaStr];
-  }
-
-  private formatearFechaSolo(fecha: Date | string | undefined): string {
-    if (!fecha) return '—';
-    return new Date(fecha).toLocaleDateString('es-BO', { timeZone: 'America/La_Paz', day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
   private calcularEdad(fechaNacimiento: Date | string): string {

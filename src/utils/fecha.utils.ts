@@ -77,6 +77,7 @@ export function formatearFechaBolivia(
     day: '2-digit',
     hour: '2-digit',
     minute: '2-digit',
+    second: '2-digit',
   },
 ): string {
   const fecha = typeof fechaUTC === 'string' ? new Date(fechaUTC) : fechaUTC;
@@ -130,4 +131,57 @@ export function obtenerFechaBoliviaYYYYMMDD(): string {
   const partes = ahora.toLocaleDateString('es-BO', { timeZone: 'America/La_Paz' }).split('/');
   const [dia, mes, anio] = partes;
   return `${anio}-${mes.padStart(2, '0')}-${dia.padStart(2, '0')}`;
+}
+
+/**
+ * Formatea una fecha a string de solo fecha (DD/MM/YYYY) en hora de Bolivia
+ */
+export function formatearFechaBoliviaSoloFecha(fechaUTC: Date | string | undefined): string {
+  if (!fechaUTC) return '—';
+  const fecha = typeof fechaUTC === 'string' ? new Date(fechaUTC) : fechaUTC;
+  return fecha.toLocaleDateString('es-BO', {
+    timeZone: 'America/La_Paz',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+  });
+}
+
+/**
+ * Formatea una fecha a string de solo hora (HH:MM:SS) en hora de Bolivia
+ */
+export function formatearFechaBoliviaSoloHora(fechaUTC: Date | string | undefined): string {
+  if (!fechaUTC) return '—';
+  const fecha = typeof fechaUTC === 'string' ? new Date(fechaUTC) : fechaUTC;
+  return fecha.toLocaleTimeString('es-BO', {
+    timeZone: 'America/La_Paz',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
+}
+
+/**
+ * Retorna un arreglo con la [fecha, hora] formateadas en hora de Bolivia
+ */
+export function separarFechaHoraBolivia(fechaUTC: Date | string | undefined): [string, string] {
+  if (!fechaUTC) return ['—', '—'];
+  return [formatearFechaBoliviaSoloFecha(fechaUTC), formatearFechaBoliviaSoloHora(fechaUTC)];
+}
+
+/**
+ * Formatea una fecha y hora completa en hora de Bolivia
+ */
+export function formatearFechaBoliviaCompleta(fechaUTC: Date | string | undefined): string {
+  if (!fechaUTC) return '—';
+  const fecha = typeof fechaUTC === 'string' ? new Date(fechaUTC) : fechaUTC;
+  return fecha.toLocaleString('es-BO', {
+    timeZone: 'America/La_Paz',
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+    second: '2-digit',
+  });
 }

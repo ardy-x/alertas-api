@@ -4,6 +4,7 @@ import { ObtenerAlertaPorIdUseCase } from '@/alertas/aplicacion/casos-uso/obtene
 import { EstadoSolicitudCancelacion } from '@/alertas/dominio/enums/alerta-enums';
 import { EventoDto, FuncionarioAsignadoDto } from '@/alertas/presentacion/dto/salida/alertas-salida.dto';
 import { MetadatoPar, PdfGeneratorService, TablaColumna } from '@/reportes/infraestructura/generadores/pdf-generator.service';
+import { formatearFechaBoliviaCompleta, formatearFechaBoliviaSoloFecha, formatearFechaBoliviaSoloHora } from '@/utils/fecha.utils';
 
 @Injectable()
 export class ReporteDetalleAlertaUseCase {
@@ -16,9 +17,8 @@ export class ReporteDetalleAlertaUseCase {
     const { alerta } = await this.obtenerAlertaPorIdUseCase.ejecutar(idAlerta);
 
     const doc = this.pdfGenerator.crearDocumento({ size: 'LETTER', layout: 'portrait' });
-    const fechaAlerta = new Date(alerta.fechaHora);
-    const fechaFormateada = fechaAlerta.toLocaleDateString('es-BO', { day: '2-digit', month: '2-digit', year: 'numeric', timeZone: 'America/La_Paz' });
-    const horaFormateada = fechaAlerta.toLocaleTimeString('es-BO', { hour: '2-digit', minute: '2-digit', timeZone: 'America/La_Paz' });
+    const fechaFormateada = formatearFechaBoliviaSoloFecha(alerta.fechaHora);
+    const horaFormateada = formatearFechaBoliviaSoloHora(alerta.fechaHora);
 
     this.pdfGenerator.agregarEncabezado(doc, 'Detalle de Alerta', 'Sistema de Alertas Adela Zamudio');
 
@@ -38,7 +38,7 @@ export class ReporteDetalleAlertaUseCase {
       const metVictima: MetadatoPar[] = [
         ['NOMBRE COMPLETO', alerta.victima.nombreCompleto ?? '—', 'CÉDULA DE IDENTIDAD', alerta.victima.cedulaIdentidad ?? '—'],
         ['EDAD', `${edad} años`, 'CELULAR', alerta.victima.celular ?? '—'],
-        ['CORREO ELECTRÓNICO', alerta.victima.correo ?? '—', 'FECHA NACIMIENTO', alerta.victima.fechaNacimiento ? this.formatearFechaSolo(alerta.victima.fechaNacimiento) : '—'],
+        ['CORREO ELECTRÓNICO', alerta.victima.correo ?? '—', 'FECHA NACIMIENTO', alerta.victima.fechaNacimiento ? formatearFechaBoliviaSoloFecha(alerta.victima.fechaNacimiento) : '—'],
         ['DIRECCIÓN', alerta.victima.direccionDomicilio ?? '—', '', ''],
       ];
       this.pdfGenerator.agregarMetadatos(doc, metVictima);
@@ -46,32 +46,24 @@ export class ReporteDetalleAlertaUseCase {
 
     // — Atención —
     if (alerta.atencion) {
-      this.pdfGenerator.agregarSeccion(doc, 'Atención y Funcionarios Asignados');
+      this.pdfGenerator.agregarSeccion(doc, 'Recursos y Personal Policial Asignado');
+      const despachador = alerta.atencion.usuarioWeb ? `${alerta.atencion.usuarioWeb.grado ?? ''} ${alerta.atencion.usuarioWeb.nombreCompleto ?? ''}`.trim() || '—' : '—';
       const metAtencion: MetadatoPar[] = [
-        ['VEHÍCULO', alerta.atencion.siglaVehiculo, 'RADIO', alerta.atencion.siglaRadio],
-        ['RESPONSABLE', alerta.atencion.usuarioWeb?.nombreCompleto ?? '—', 'GRADO', alerta.atencion.usuarioWeb?.grado ?? '—'],
+        ['CÓDIGO VEHÍCULO', alerta.atencion.siglaVehiculo, 'CÓDIGO RADIO', alerta.atencion.siglaRadio],
+        ['USUARIO DESPACHADOR', despachador, '', ''],
       ];
       this.pdfGenerator.agregarMetadatos(doc, metAtencion);
 
       if (alerta.atencion.atencionFuncionario?.length) {
-        const colsFuncionarios: TablaColumna[] = [
-          { header: 'NRO', width: 40, align: 'center' },
-          { header: 'NOMBRE COMPLETO', width: 180 },
-          { header: 'GRADO', width: 90 },
-          { header: 'ROL', width: 90 },
-          { header: 'UNIDAD', width: 90 },
-          { header: 'FECHA LLEGADA', width: 160 },
-        ];
-        const filasFuncionarios = alerta.atencion.atencionFuncionario.map((f: FuncionarioAsignadoDto, i) => [
-          String(i + 1),
-          f.nombreCompleto,
-          f.grado,
-          f.rolAtencion,
-          f.unidad,
-          f.fechaLlegada ? new Date(f.fechaLlegada).toLocaleString('es-BO', { timeZone: 'America/La_Paz' }) : 'NO',
-        ]);
-
-        this.pdfGenerator.agregarTabla(doc, colsFuncionarios, filasFuncionarios);
+        alerta.atencion.atencionFuncionario.forEach((f: FuncionarioAsignadoDto, i) => {
+          this.pdfGenerator.agregarSubtitulo(doc, `N\u00b0 ${i + 1}`);
+          const nombreConGrado = `${f.grado ?? ''} ${f.nombreCompleto ?? ''}`.trim() || '—';
+          const datos: MetadatoPar[] = [
+            ['NOMBRE', nombreConGrado, 'ROL', f.rolAtencion ?? '—'],
+            ['UNIDAD', f.unidad ?? '—', 'FECHA LLEGADA', f.fechaLlegada ? formatearFechaBoliviaCompleta(f.fechaLlegada) : 'NO'],
+          ];
+          this.pdfGenerator.agregarMetadatos(doc, datos);
+        });
       }
     }
 
@@ -80,7 +72,7 @@ export class ReporteDetalleAlertaUseCase {
       this.pdfGenerator.agregarSeccion(doc, 'Solicitud de Cancelación');
       const solicitud = alerta.solicitudesCancelacion;
 
-      const metSolicitud: MetadatoPar[] = [['ESTADO SOLICITUD', solicitud.estadoSolicitud, 'FECHA SOLICITUD', this.formatearFecha(solicitud.fechaSolicitud)]];
+      const metSolicitud: MetadatoPar[] = [['ESTADO SOLICITUD', solicitud.estadoSolicitud, 'FECHA SOLICITUD', formatearFechaBoliviaCompleta(solicitud.fechaSolicitud)]];
 
       // Si fue APROBADA, mostrar usuario que aprobó
       if (solicitud.estadoSolicitud === EstadoSolicitudCancelacion.APROBADA && solicitud.usuarioWeb) {
@@ -104,7 +96,7 @@ export class ReporteDetalleAlertaUseCase {
     if (alerta.cierre) {
       this.pdfGenerator.agregarSeccion(doc, 'Información de Cierre');
       const metCierre: MetadatoPar[] = [
-        ['MOTIVO CIERRE', alerta.cierre.motivoCierre, 'FECHA Y HORA', this.formatearFecha(alerta.cierre.fechaHora)],
+        ['MOTIVO CIERRE', alerta.cierre.motivoCierre, 'FECHA Y HORA', formatearFechaBoliviaCompleta(alerta.cierre.fechaHora)],
         ['ESTADO VÍCTIMA', alerta.cierre.estadoVictima, '', ''],
         ['OBSERVACIONES', alerta.cierre.observaciones ?? '—', '', ''],
       ];
@@ -131,22 +123,12 @@ export class ReporteDetalleAlertaUseCase {
         { header: 'TIPO DE EVENTO', width: 352 },
         { header: 'FECHA Y HORA', width: 300, align: 'center' },
       ];
-      const filasEventos = alerta.eventos.map((e: EventoDto, i) => [String(i + 1), this.obtenerTituloEvento(e.tipoEvento), this.formatearFecha(e.fechaHora)]);
+      const filasEventos = alerta.eventos.map((e: EventoDto, i) => [String(i + 1), this.obtenerTituloEvento(e.tipoEvento), formatearFechaBoliviaCompleta(e.fechaHora)]);
       this.pdfGenerator.agregarTabla(doc, colsEventos, filasEventos);
     }
 
     this.pdfGenerator.agregarPieDePagina(doc, 1, 1);
     return this.pdfGenerator.finalizar(doc);
-  }
-
-  private formatearFecha(fecha: Date | string | undefined): string {
-    if (!fecha) return '—';
-    return new Date(fecha).toLocaleString('es-BO', { timeZone: 'America/La_Paz', day: '2-digit', month: '2-digit', year: 'numeric', hour: '2-digit', minute: '2-digit' });
-  }
-
-  private formatearFechaSolo(fecha: Date | string | undefined): string {
-    if (!fecha) return '—';
-    return new Date(fecha).toLocaleDateString('es-BO', { timeZone: 'America/La_Paz', day: '2-digit', month: '2-digit', year: 'numeric' });
   }
 
   private calcularEdad(fechaNacimiento: Date | string): string {

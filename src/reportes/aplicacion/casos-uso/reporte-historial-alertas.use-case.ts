@@ -4,7 +4,7 @@ import { ListarHistorialAlertasUseCase } from '@/alertas/aplicacion/casos-uso/li
 import { AlertaHistorialDto } from '@/alertas/presentacion/dto/salida/alertas-salida.dto';
 import { MetadatoPar, PdfGeneratorService, TablaColumna } from '@/reportes/infraestructura/generadores/pdf-generator.service';
 import { ReporteHistorialAlertasQueryDto } from '@/reportes/presentacion/dto/reporte-historial-alertas-query.dto';
-import { convertirFechaBoliviaFinalDelDiaAUTC, convertirFechaBoliviaInicioDelDiaAUTC, formatearFechaSimple, obtenerRangoMesesLiteral } from '@/utils/fecha.utils';
+import { convertirFechaBoliviaFinalDelDiaAUTC, convertirFechaBoliviaInicioDelDiaAUTC, formatearFechaSimple, obtenerRangoMesesLiteral, separarFechaHoraBolivia } from '@/utils/fecha.utils';
 
 @Injectable()
 export class ReporteHistorialAlertasUseCase {
@@ -59,7 +59,7 @@ export class ReporteHistorialAlertasUseCase {
     ];
 
     const filas = datos.historial.map((alerta: AlertaHistorialDto, idx) => {
-      const [fecha, hora] = this.separarFechaHora(alerta.fechaHora);
+      const [fecha, hora] = separarFechaHoraBolivia(alerta.fechaHora);
       return [String(idx + 1), fecha, hora, alerta.codigoCud ?? '—', alerta.victima?.cedulaIdentidad ?? '—', alerta.victima?.nombreCompleto ?? '—', alerta.municipio ?? '—', alerta.provincia ?? '—'];
     });
 
@@ -67,13 +67,5 @@ export class ReporteHistorialAlertasUseCase {
     this.pdfGenerator.agregarPieDePagina(doc, 1, 1);
 
     return this.pdfGenerator.finalizar(doc);
-  }
-
-  private separarFechaHora(fecha: Date | string | undefined): [string, string] {
-    if (!fecha) return ['—', '—'];
-    const date = new Date(fecha);
-    const fechaStr = date.toLocaleDateString('es-BO', { timeZone: 'America/La_Paz', day: '2-digit', month: '2-digit', year: 'numeric' });
-    const horaStr = date.toLocaleTimeString('es-BO', { timeZone: 'America/La_Paz', hour: '2-digit', minute: '2-digit' });
-    return [fechaStr, horaStr];
   }
 }
