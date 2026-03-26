@@ -1,18 +1,30 @@
+import { exec } from 'node:child_process';
 import * as os from 'node:os';
+import { promisify } from 'node:util';
 import { Injectable } from '@nestjs/common';
 import * as pm2 from 'pm2';
 
 import { SERVICIOS_CONFIG } from '@/config/servicios.config';
-import type { EstadoBaseDatos, EstadoProcesoPM2, EstadoServicioExterno, EstadoWebSocket, OperadoresPorDepartamento, RecursosHardware } from '@/dashboard/dominio/entidades/estado-sistema.entity';
+import type {
+  EstadoBaseDatos,
+  EstadoProcesoPM2,
+  EstadoRedis,
+  EstadoServicioExterno,
+  EstadoWebSocket,
+  OperadoresPorDepartamento,
+  RecursosHardware,
+} from '@/dashboard/dominio/entidades/estado-sistema.entity';
 import type { MonitorSistemaPuerto } from '@/dashboard/dominio/puertos/monitor-sistema.puerto';
 import { ObtenerDepartamentosUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-departamentos.use-case';
 import { PrismaService } from '@/prisma/prisma.service';
+import { RedisService } from '@/redis/redis.service';
 import { AlertasGateway } from '@/websockets/infraestructura/alertas.gateway';
 
 @Injectable()
 export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
   constructor(
     private readonly prismaService: PrismaService,
+    private readonly redisService: RedisService,
     private readonly alertasGateway: AlertasGateway,
     private readonly obtenerDepartamentosUseCase: ObtenerDepartamentosUseCase,
   ) {}
@@ -25,6 +37,10 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
             nombresProcesos.map((nombre) => ({
               nombre,
               status: 'unknown' as const,
+              uptime: 'N/A',
+              restarts: 0,
+              memory: 'N/A',
+              cpu: 'N/A',
             })),
           );
           return;
@@ -38,6 +54,10 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
               nombresProcesos.map((nombre) => ({
                 nombre,
                 status: 'unknown' as const,
+                uptime: 'N/A',
+                restarts: 0,
+                memory: 'N/A',
+                cpu: 'N/A',
               })),
             );
             return;
@@ -50,6 +70,10 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
               return {
                 nombre,
                 status: 'unknown' as const,
+                uptime: 'N/A',
+                restarts: 0,
+                memory: 'N/A',
+                cpu: 'N/A',
               };
             }
 
@@ -66,9 +90,32 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
               estadoFinal = 'unknown';
             }
 
+            // Calcular uptime
+            const pmUptime = proceso.pm2_env?.pm_uptime;
+            let uptime = 'N/A';
+            if (pmUptime && estadoFinal === 'online') {
+              const uptimeMs = Date.now() - pmUptime;
+              uptime = this.formatearUptime(uptimeMs);
+            }
+
+            // Extraer memoria
+            const memory = proceso.monit?.memory;
+            const memoryFormatted = memory ? this.formatearBytes(memory) : 'N/A';
+
+            // Extraer CPU
+            const cpu = proceso.monit?.cpu;
+            const cpuFormatted = cpu !== undefined ? `${cpu}%` : 'N/A';
+
+            // Extraer reinicios
+            const restarts = proceso.pm2_env?.restart_time ?? 0;
+
             return {
               nombre,
               status: estadoFinal,
+              uptime,
+              restarts,
+              memory: memoryFormatted,
+              cpu: cpuFormatted,
             };
           });
 
@@ -80,10 +127,95 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
 
   async verificarConexionBaseDatos(): Promise<EstadoBaseDatos> {
     try {
+      // Verificar conexión básica
       await this.prismaService.$queryRaw`SELECT 1`;
-      return { db_status: 'connected' };
+
+      // Obtener versión de PostgreSQL
+      const versionResult = await this.prismaService.$queryRaw<Array<{ version: string }>>`SELECT version()`;
+      const versionString = versionResult[0]?.version;
+      const versionMatch = versionString?.match(/PostgreSQL ([\d.]+)/);
+      const version = versionMatch ? `PostgreSQL ${versionMatch[1]}` : 'PostgreSQL';
+
+      // Obtener configuración de conexiones máximas
+      const maxConnResult = await this.prismaService.$queryRaw<Array<{ max_connections: string }>>`SHOW max_connections`;
+      const maxConnections = maxConnResult[0]?.max_connections ? parseInt(maxConnResult[0].max_connections, 10) : 0;
+
+      // Obtener número de conexiones activas
+      const activeConnResult = await this.prismaService.$queryRaw<Array<{ count: bigint }>>`
+        SELECT count(*) FROM pg_stat_activity WHERE state = 'active'
+      `;
+      const activeConnections = activeConnResult[0]?.count ? Number(activeConnResult[0].count) : 0;
+
+      return {
+        db_status: 'connected',
+        version,
+        max_connections: maxConnections,
+        active_connections: activeConnections,
+      };
     } catch {
-      return { db_status: 'error' };
+      return {
+        db_status: 'error',
+        version: 'N/A',
+        max_connections: 0,
+        active_connections: 0,
+      };
+    }
+  }
+
+  async verificarConexionRedis(): Promise<EstadoRedis> {
+    try {
+      // Verificar si Redis está conectado
+      const isConnected = this.redisService.getConnectionStatus();
+
+      if (!isConnected) {
+        return {
+          status: 'disconnected',
+          uptime: 'N/A',
+          used_memory: 'N/A',
+          connected_clients: 0,
+        };
+      }
+
+      // Obtener información de Redis usando el comando INFO
+      const infoString = await this.redisService.getServerInfo('server');
+      const statsString = await this.redisService.getServerInfo('stats');
+      const memoryString = await this.redisService.getServerInfo('memory');
+
+      if (!infoString || !statsString || !memoryString) {
+        return {
+          status: 'connected',
+          uptime: 'N/A',
+          used_memory: 'N/A',
+          connected_clients: 0,
+        };
+      }
+
+      // Parsear uptime
+      const uptimeMatch = infoString.match(/uptime_in_seconds:(\d+)/);
+      const uptimeSeconds = uptimeMatch ? parseInt(uptimeMatch[1], 10) : 0;
+      const uptime = uptimeSeconds ? this.formatearUptime(uptimeSeconds * 1000) : 'N/A';
+
+      // Parsear memoria usada
+      const memoryMatch = memoryString.match(/used_memory_human:([^\r\n]+)/);
+      const usedMemory = memoryMatch ? memoryMatch[1].trim() : 'N/A';
+
+      // Parsear clientes conectados
+      const clientsMatch = statsString.match(/connected_clients:(\d+)/);
+      const connectedClients = clientsMatch ? parseInt(clientsMatch[1], 10) : 0;
+
+      return {
+        status: 'connected',
+        uptime,
+        used_memory: usedMemory,
+        connected_clients: connectedClients,
+      };
+    } catch {
+      return {
+        status: 'disconnected',
+        uptime: 'N/A',
+        used_memory: 'N/A',
+        connected_clients: 0,
+      };
     }
   }
 
@@ -107,12 +239,50 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
     const freeMem = os.freemem();
     const usedMem = totalMem - freeMem;
 
+    // Obtener información de disco
+    const diskInfo = await this.obtenerInfoDisco();
+
     return {
       cpu_load: `${usage}%`,
       free_mem: this.formatearBytes(freeMem),
       total_mem: this.formatearBytes(totalMem),
       used_mem: this.formatearBytes(usedMem),
+      ...diskInfo,
     };
+  }
+
+  private async obtenerInfoDisco(): Promise<{
+    disk_free?: string;
+    disk_total?: string;
+    disk_used?: string;
+    disk_usage_percent?: string;
+  }> {
+    try {
+      const execAsync = promisify(exec);
+      // Usar df para obtener info del sistema de archivos raíz
+      const { stdout } = await execAsync('df -k /');
+      const lines = stdout.trim().split('\n');
+
+      if (lines.length < 2) return {};
+
+      // Parsear la segunda línea (primera es header)
+      const parts = lines[1].split(/\s+/);
+
+      // df output: Filesystem 1K-blocks Used Available Use% Mounted
+      const totalKB = parseInt(parts[1], 10) || 0;
+      const usedKB = parseInt(parts[2], 10) || 0;
+      const availableKB = parseInt(parts[3], 10) || 0;
+      const usagePercent = parts[4];
+
+      return {
+        disk_total: this.formatearBytes(totalKB * 1024),
+        disk_used: this.formatearBytes(usedKB * 1024),
+        disk_free: this.formatearBytes(availableKB * 1024),
+        disk_usage_percent: usagePercent,
+      };
+    } catch {
+      return {};
+    }
   }
 
   async obtenerEstadoConexionesWebSocket(): Promise<EstadoWebSocket> {
@@ -125,6 +295,21 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
       operadores_conectados: operadoresConectados,
       por_departamento: porDepartamento,
     };
+  }
+
+  private formatearUptime(uptimeMs: number): string {
+    const seconds = Math.floor(uptimeMs / 1000);
+    const days = Math.floor(seconds / 86400);
+    const hours = Math.floor((seconds % 86400) / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+
+    if (days > 0) {
+      return `${days}d ${hours}h`;
+    }
+    if (hours > 0) {
+      return `${hours}h ${minutes}m`;
+    }
+    return `${minutes}m`;
   }
 
   private formatearBytes(bytes: number): string {

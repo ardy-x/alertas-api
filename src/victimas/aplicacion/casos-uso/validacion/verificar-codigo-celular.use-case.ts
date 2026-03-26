@@ -1,10 +1,12 @@
-import { createHash } from 'node:crypto';
-import { Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
+
+import { generarApiKey, hashString } from '@/utils/security.utils';
 
 import { CodigoValidacionRepositorioPort } from '@/victimas/dominio/puertos/codigo-validacion.port';
 import { VictimaRepositorioPort } from '@/victimas/dominio/puertos/victima.port';
 import { CODIGO_VALIDACION_REPOSITORIO_TOKEN, VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
 import { VerificarCodigoCelularRequestDto } from '@/victimas/presentacion/dto/entrada/validacion/codigo-verificacion-celular-request.dto';
+import { VerificarCodigoResponseDto } from '@/victimas/presentacion/dto/salida/verificar-codigo-response.dto';
 
 @Injectable()
 export class VerificarCodigoCelularUseCase {
@@ -15,38 +17,38 @@ export class VerificarCodigoCelularUseCase {
     private readonly codigoValidacionRepositorio: CodigoValidacionRepositorioPort,
   ) {}
 
-  async ejecutar(request: VerificarCodigoCelularRequestDto): Promise<{ victima: { id: string; apiKey: string } }> {
+  async ejecutar(request: VerificarCodigoCelularRequestDto): Promise<VerificarCodigoResponseDto> {
+    const celular = request.celular;
+    const codigo = request.codigo;
+
     // Validar código en Redis
-    const codigoValido = await this.codigoValidacionRepositorio.validarCodigoPorCelular(request.celular.trim(), request.codigo.trim());
+    const codigoValido = await this.codigoValidacionRepositorio.validarCodigoPorCelular(celular, codigo);
 
     if (!codigoValido) {
-      throw new Error('Código inválido o expirado');
+      throw new BadRequestException('Código inválido o expirado');
     }
 
     // Buscar víctima por celular
-    const victima = await this.victimaRepositorio.obtenerPorCelular(request.celular.trim());
+    const victima = await this.victimaRepositorio.obtenerPorCelular(celular);
 
     if (!victima) {
-      throw new Error('Víctima no encontrada');
+      throw new NotFoundException('Víctima no encontrada');
     }
 
-    // Generar API key hasheada (sin salt como solicitaste)
-    const timestamp = Date.now().toString();
-    const randomData = Math.random().toString();
-    const apiKey = createHash('sha256')
-      .update(victima.id + timestamp + randomData)
-      .digest('hex');
+    // Generar API key aleatoria y segura
+    const apiKeyRaw = generarApiKey();
+    const apiKeyHash = hashString(apiKeyRaw);
 
-    // Guardar API key hasheada y activar cuenta
-    await this.victimaRepositorio.actualizarApiKey(victima.id, apiKey);
+    // Guardar hash de API key en DB y activar cuenta
+    await this.victimaRepositorio.actualizarApiKey(victima.id, apiKeyHash);
 
     // Eliminar código usado
-    await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(request.celular.trim(), request.codigo.trim());
+    await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(celular, codigo);
 
     return {
       victima: {
         id: victima.id,
-        apiKey,
+        apiKey: apiKeyRaw,
       },
     };
   }

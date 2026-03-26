@@ -18,7 +18,7 @@ export class RegistrarUsuarioWebUseCase {
       nombreCompleto: entrada.nombreCompleto,
       unidad: entrada.unidad,
       idDepartamento: entrada.idDepartamento,
-      autorizacion: entrada.autorizacion,
+      rol: entrada.rol,
       estadoSession: entrada.estadoSession,
     });
   }

@@ -17,6 +17,11 @@ export interface AtencionFuncionarioEntity {
   turnoFin: string;
   ciFuncionario: string | null;
   unidad: string | null;
+  fechaLlegada?: string | null;
+  confirmacionVictima?: boolean;
+  // campos adicionales para mostrar información externa
+  grado?: string | null;
+  nombreCompleto?: string | null;
 }
 
 export interface CrearAtencionFuncionarioDatos {

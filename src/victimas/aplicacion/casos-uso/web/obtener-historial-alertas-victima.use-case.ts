@@ -1,13 +1,14 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 import { ObtenerProvinciaDepartamentoUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-provincia-departamento.use-case';
+import { ObtenerInvestigadorActivoUseCase } from '@/victimas/aplicacion/casos-uso/investigadores/obtener-investigador-activo.use-case';
 import { AlertaVictimaRepositorioPort } from '@/victimas/dominio/puertos/alerta-victima.port';
 import { VictimaRepositorioPort } from '@/victimas/dominio/puertos/victima.port';
 import { EstadisticasAlertasService } from '@/victimas/dominio/servicios/estadisticas-alertas.service';
 import { ALERTA_VICTIMA_REPOSITORIO, VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
 import { HistorialAlertasVictimaDto } from '@/victimas/presentacion/dto/salida/historial-alertas-victima.dto';
 
-import { ObtenerHistorialAlertasParamsDto } from '../../presentacion/dto/entrada/victima.dto';
+import { ObtenerHistorialAlertasParamsDto } from '../../../presentacion/dto/entrada/victima.dto';
 
 @Injectable()
 export class ObtenerHistorialAlertasVictimaUseCase {
@@ -18,6 +19,7 @@ export class ObtenerHistorialAlertasVictimaUseCase {
     private readonly alertaVictimaRepositorio: AlertaVictimaRepositorioPort,
     private readonly obtenerProvinciaDepartamentoUseCase: ObtenerProvinciaDepartamentoUseCase,
     private readonly estadisticasAlertasService: EstadisticasAlertasService,
+    private readonly obtenerInvestigadorActivoUseCase: ObtenerInvestigadorActivoUseCase,
   ) {}
 
   async ejecutar(params: ObtenerHistorialAlertasParamsDto): Promise<HistorialAlertasVictimaDto> {
@@ -81,10 +83,14 @@ export class ObtenerHistorialAlertasVictimaUseCase {
       }),
     );
 
+    // Obtener investigador activo
+    const investigadorActivo = await this.obtenerInvestigadorActivoUseCase.ejecutar(idVictima);
+
     return {
       victima: datos.victima,
       estadisticas,
       alertas: alertasEnriquecidas,
+      investigadorActivo,
     };
   }
 }

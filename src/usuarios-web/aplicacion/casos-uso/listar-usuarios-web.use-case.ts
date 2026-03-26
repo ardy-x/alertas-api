@@ -17,9 +17,13 @@ export class ListarUsuariosWebUseCase {
     const filtros: FiltrosUsuarioWeb = {
       pagina: entrada.pagina,
       elementosPorPagina: entrada.elementosPorPagina,
-      busqueda: entrada?.busqueda,
-      estadoSession: entrada?.estadoSession,
     };
+
+    // Agregar filtros opcionales si están presentes
+    if (entrada.busqueda) filtros.busqueda = entrada.busqueda;
+    if (entrada.estadoSession !== undefined) filtros.estadoSession = entrada.estadoSession;
+    if (entrada.ordenarPor) filtros.ordenarPor = entrada.ordenarPor;
+    if (entrada.orden) filtros.orden = entrada.orden.toLowerCase() as 'asc' | 'desc';
 
     const listado = await this.usuarioWebRepositorio.listarUsuariosWeb(filtros);
 

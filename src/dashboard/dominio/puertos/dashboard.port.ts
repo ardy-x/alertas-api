@@ -1,15 +1,7 @@
-import {
-  AlertaPorMunicipio,
-  AlertaReciente,
-  AlertaRecienteBase,
-  DatosMetricasGenerales,
-  DatosMetricasTiempo,
-  MetricasGenerales,
-  MetricasPorOrigen,
-  MetricasTiempo,
-} from '../entidades/dashboard.entity';
+import { UbicacionPoint } from '@/integraciones/dominio/entidades/ubicacion.types';
+import { AlertaPorMunicipio, DatosMetricasGenerales, MetricasGenerales, MetricasPorOrigen } from '../entidades/dashboard.entity';
 
-export { MetricasGenerales, DatosMetricasGenerales, AlertaPorMunicipio, AlertaReciente, AlertaRecienteBase, MetricasTiempo, DatosMetricasTiempo, MetricasPorOrigen };
+export { MetricasGenerales, DatosMetricasGenerales, AlertaPorMunicipio, MetricasPorOrigen };
 
 export interface EstadoAlertaCount {
   estado: string;
@@ -27,13 +19,12 @@ export interface AlertaParaMapa {
   idMunicipio: number | null;
   fechaHora: Date;
   origen: string;
+  ubicacion: UbicacionPoint | null;
 }
 
 export interface DashboardRepositorioPort {
   obtenerMetricasGenerales(): Promise<DatosMetricasGenerales>;
   obtenerAlertasPorMunicipio(): Promise<AlertaPorMunicipio[]>;
-  obtenerAlertasRecientes(limite: number): Promise<AlertaRecienteBase[]>;
-  obtenerMetricasTiempo(): Promise<DatosMetricasTiempo>;
   obtenerDistribucionEstados(): Promise<EstadoAlertaCount[]>;
   obtenerAlertasConFechaHora(): Promise<AlertaConFechaHora[]>;
   obtenerTodasLasAlertas(): Promise<AlertaParaMapa[]>;

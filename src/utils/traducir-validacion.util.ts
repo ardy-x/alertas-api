@@ -23,7 +23,15 @@ export function traducirMensaje(mensaje: string): string {
     'must not be less than': 'no debe ser menor que',
     'each value in': 'cada valor en',
     'must be one of the following values': 'debe ser uno de los siguientes valores',
+    'conforming to the specified constraints': 'que cumpla con las restricciones especificadas',
     characters: 'caracteres',
+    // Errores de archivos (Multer)
+    'File too large': 'El archivo es demasiado grande',
+    'Too many files': 'Demasiados archivos',
+    'Unexpected field': 'Campo inesperado',
+    'Missing field': 'Campo faltante',
+    'Tipo de archivo no permitido': 'Tipo de archivo no permitido',
+    'No se proporcionó ningún archivo': 'No se proporcionó ningún archivo',
   };
 
   for (const [ingles, traduccion] of Object.entries(traducciones)) {

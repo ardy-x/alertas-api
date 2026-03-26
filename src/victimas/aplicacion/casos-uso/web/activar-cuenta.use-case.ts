@@ -1,16 +1,13 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-
-import { AlertaVictimaRepositorioPort } from '@/victimas/dominio/puertos/alerta-victima.port';
+import { EstadoCuenta } from '@/victimas/dominio/enums/victima-enums';
 import { VictimaRepositorioPort } from '@/victimas/dominio/puertos/victima.port';
-import { ALERTA_VICTIMA_REPOSITORIO, VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
+import { VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
 
 @Injectable()
-export class SuspenderCuentaUseCase {
+export class ActivarCuentaUseCase {
   constructor(
     @Inject(VICTIMA_REPOSITORIO)
     private readonly victimaRepositorio: VictimaRepositorioPort,
-    @Inject(ALERTA_VICTIMA_REPOSITORIO)
-    private readonly alertaVictimaRepositorio: AlertaVictimaRepositorioPort,
   ) {}
 
   async ejecutar(idVictima: string): Promise<void> {
@@ -19,7 +16,6 @@ export class SuspenderCuentaUseCase {
       throw new NotFoundException('Víctima no encontrada');
     }
 
-    // Suspender cuenta: cambiar estado a SUSPENDIDA y limpiar apiKey
-    await this.alertaVictimaRepositorio.suspenderCuenta(idVictima);
+    await this.victimaRepositorio.actualizarEstadoCuenta(idVictima, EstadoCuenta.ACTIVA);
   }
 }

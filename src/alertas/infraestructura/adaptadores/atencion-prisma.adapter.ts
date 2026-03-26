@@ -72,4 +72,19 @@ export class AtencionPrismaAdapter implements AtencionRepositorioPort {
     });
     return count > 0;
   }
+
+  async obtenerPorAlerta(idAlerta: string): Promise<AtencionEntity | null> {
+    const atencion = await this.prisma.atencion.findUnique({
+      where: { idAlerta },
+    });
+    if (!atencion) return null;
+
+    return {
+      id: atencion.id,
+      idAlerta: atencion.idAlerta,
+      idUsuarioWeb: atencion.idUsuarioWeb,
+      siglaVehiculo: atencion.siglaVehiculo,
+      siglaRadio: atencion.siglaRadio,
+    };
+  }
 }

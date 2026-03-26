@@ -12,16 +12,17 @@ export class ObtenerEstadoSistemaUseCase {
   ) {}
 
   async ejecutar(): Promise<EstadoSistema> {
-    const procesosPM2 = ['alertas-api'];
+    const procesosPM2 = ['alertas-api', 'alertas-web'];
 
-    const [estadoProcesos, estadoBaseDatos, recursosHardware, estadoWebSocket, serviciosExternos] = await Promise.all([
+    const [estadoProcesos, estadoBaseDatos, estadoRedis, recursosHardware, estadoWebSocket, serviciosExternos] = await Promise.all([
       this.monitorSistema.obtenerEstadoProcesosPM2(procesosPM2),
       this.monitorSistema.verificarConexionBaseDatos(),
+      this.monitorSistema.verificarConexionRedis(),
       this.monitorSistema.obtenerRecursosHardware(),
       this.monitorSistema.obtenerEstadoConexionesWebSocket(),
       this.monitorSistema.verificarServiciosExternos(),
     ]);
 
-    return new EstadoSistema(estadoProcesos, estadoBaseDatos, recursosHardware, estadoWebSocket, serviciosExternos);
+    return new EstadoSistema(estadoProcesos, estadoBaseDatos, estadoRedis, recursosHardware, estadoWebSocket, serviciosExternos);
   }
 }

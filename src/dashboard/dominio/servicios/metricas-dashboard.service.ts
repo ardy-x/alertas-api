@@ -1,15 +1,6 @@
 import { Injectable } from '@nestjs/common';
 
-import { AlertaReciente, MetricasGenerales, MetricasPorOrigen, MetricasTiempo } from '../entidades/dashboard.entity';
-
-export interface DatosMetricasGenerales {
-  alertasActivas: number;
-  alertasPendientes: number;
-  alertasResueltas: number;
-  tiemposAsignacion: Array<{ creadoEn: Date; alerta: { creadoEn: Date } }>;
-  tiemposCierre: Array<{ creadoEn: Date; alerta: { creadoEn: Date } }>;
-  alertasConTiempoRegistro: Array<{ fechaHora: Date; creadoEn: Date }>;
-}
+import { AlertaReciente, DatosMetricasGenerales, MetricasGenerales, MetricasPorOrigen, MetricasTiempo } from '../entidades/dashboard.entity';
 
 export interface DatosMetricasTiempo {
   tiemposAsignacion: Array<{ creadoEn: Date; alerta: { creadoEn: Date; origen: string } }>;
@@ -60,13 +51,34 @@ export class MetricasDashboardService {
         }, 0) / datos.alertasConTiempoRegistro.length
       : 0;
 
+    // Calcular tiempo promedio de llegada física del policía (alerta.creado_en → atencionFuncionario.fecha_llegada)
+    const promedioLlegada = datos.tiemposLlegada.length
+      ? datos.tiemposLlegada.reduce((acc, t) => {
+          const diff = (t.fechaLlegada!.getTime() - t.atencion.alerta.creadoEn.getTime()) / 1000;
+          return acc + diff;
+        }, 0) / datos.tiemposLlegada.length
+      : 0;
+
     return {
       alertasActivas: datos.alertasActivas,
       alertasPendientes: datos.alertasPendientes,
       alertasResueltas: datos.alertasResueltas,
-      tiempoPromedioAsignacion: this.formatearTiempo(promedioAsignacion),
-      tiempoPromedioAtencionTotal: this.formatearTiempo(promedioAtencionTotal),
-      tiempoPromedioRegistro: this.formatearTiempo(promedioRegistro),
+      promedioAsignacion: {
+        tiempo: this.formatearTiempo(promedioAsignacion),
+        descripcion: 'Tiempo que tarda en asignarse un policía',
+      },
+      promedioAtencionTotal: {
+        tiempo: this.formatearTiempo(promedioAtencionTotal),
+        descripcion: 'Tiempo que toma resolver la alerta',
+      },
+      promedioRegistro: {
+        tiempo: this.formatearTiempo(promedioRegistro),
+        descripcion: 'Tiempo que tarda en registrarse en el sistema',
+      },
+      promedioLlegada: {
+        tiempo: this.formatearTiempo(promedioLlegada),
+        descripcion: 'Tiempo que tarda el policía en llegar',
+      },
     };
   }
 

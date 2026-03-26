@@ -5,9 +5,10 @@ import { DatosExternosAttRepositorioPort } from '@/alertas/dominio/puertos/datos
 import { ALERTA_WEB_REPOSITORIO_TOKEN, DATOS_EXTERNOS_ATT_REPOSITORIO_TOKEN } from '@/alertas/dominio/tokens/alerta.tokens';
 import { ObtenerMunicipiosPorFiltroGeograficoUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-municipios-por-filtro-geografico.use-case';
 import { ObtenerProvinciaDepartamentoUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-provincia-departamento.use-case';
+import { convertirFechaBoliviaFinalDelDiaAUTC, convertirFechaBoliviaInicioDelDiaAUTC } from '@/utils/fecha.utils';
 
 import { AlertaHistorial, FiltrosAlerta } from '../../dominio/entidades/alerta.entity';
-import { OrigenAlerta } from '../../dominio/enums/alerta-enums';
+import { EstadoAlerta, OrigenAlerta } from '../../dominio/enums/alerta-enums';
 import { AlertasPaginacionQueryDto } from '../../presentacion/dto/entrada/alertas-entrada.dto';
 import { ObtenerHistorialAlertasResponseDto } from '../../presentacion/dto/salida/alertas-salida.dto';
 
@@ -32,13 +33,16 @@ export class ListarHistorialAlertasUseCase {
     const filtrosAdaptador: FiltrosAlerta = {
       pagina,
       elementosPorPagina,
-      busqueda: entrada.busqueda,
     };
 
-    // Agregar filtros adicionales si están presentes
+    // Agregar filtros opcionales si están presentes
+    if (entrada.busqueda) filtrosAdaptador.busqueda = entrada.busqueda;
     if (entrada.origen) filtrosAdaptador.origen = entrada.origen as OrigenAlerta[];
-    if (entrada.fechaDesde) filtrosAdaptador.fechaDesde = new Date(entrada.fechaDesde);
-    if (entrada.fechaHasta) filtrosAdaptador.fechaHasta = new Date(entrada.fechaHasta);
+    if (entrada.estadoAlerta) filtrosAdaptador.estadoAlerta = entrada.estadoAlerta as EstadoAlerta[];
+    if (entrada.fechaDesde) filtrosAdaptador.fechaDesde = convertirFechaBoliviaInicioDelDiaAUTC(entrada.fechaDesde);
+    if (entrada.fechaHasta) filtrosAdaptador.fechaHasta = convertirFechaBoliviaFinalDelDiaAUTC(entrada.fechaHasta);
+    if (entrada.ordenarPor) filtrosAdaptador.ordenarPor = entrada.ordenarPor;
+    if (entrada.orden) filtrosAdaptador.orden = entrada.orden.toLowerCase() as 'asc' | 'desc';
 
     // Manejar filtros geográficos usando el nuevo caso de uso
     if (entrada.idDepartamento || entrada.idProvincia || entrada.idMunicipio) {
@@ -69,6 +73,7 @@ export class ListarHistorialAlertasUseCase {
                 cedulaIdentidad: datosExternos.persona?.cedulaIdentidad || '',
                 nombreCompleto: `${datosExternos.persona?.nombres || 'Sin nombre'} ${datosExternos.persona?.apellidos || ''}`.trim(),
                 celular: datosExternos.contacto?.celular || '',
+                correo: datosExternos.contacto?.correo || undefined,
               };
             }
           } catch (error) {

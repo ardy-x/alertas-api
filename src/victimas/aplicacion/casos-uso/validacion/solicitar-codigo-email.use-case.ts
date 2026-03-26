@@ -1,5 +1,6 @@
-import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 
+import { obtenerFechaBoliviaYYYYMMDD } from '@/utils/fecha.utils';
 import { CodigoValidacionRepositorioPort } from '@/victimas/dominio/puertos/codigo-validacion.port';
 import { MensajePort } from '@/victimas/dominio/puertos/mensaje.port';
 import { VictimaRepositorioPort } from '@/victimas/dominio/puertos/victima.port';
@@ -19,7 +20,7 @@ export class SolicitarCodigoEmailUseCase {
 
   async ejecutar(request: SolicitarCodigoEmailRequestDto): Promise<{ codigoEnviado: boolean }> {
     // Buscar víctima por email
-    const victima = await this.victimaRepositorio.obtenerPorEmail(request.email.trim());
+    const victima = await this.victimaRepositorio.obtenerPorEmail(request.email);
 
     if (!victima) {
       throw new NotFoundException('No se encontró víctima con ese correo electrónico');
@@ -29,16 +30,33 @@ export class SolicitarCodigoEmailUseCase {
       throw new InternalServerErrorException('La víctima no tiene correo electrónico registrado');
     }
 
+    const correo = victima.correo?.toLowerCase() ?? '';
+    const celular = victima.celular ?? '';
+
+    if (correo) {
+      await this.codigoValidacionRepositorio.eliminarCodigoPorEmail(correo);
+    }
+    if (celular) {
+      await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(celular);
+    }
+
+    const fechaHoy = obtenerFechaBoliviaYYYYMMDD();
+    const intentosEmail = await this.codigoValidacionRepositorio.obtenerIntentosPorEmail(correo, fechaHoy);
+
+    if (intentosEmail >= 3) {
+      throw new ForbiddenException('Se alcanzó el límite diario de 3 solicitudes de código por email');
+    }
+
     // Generar código de 6 dígitos
     const codigo = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // TTL de 15 minutos (900 segundos)
-    const ttlSegundos = 15 * 60;
+    // TTL de 10 minutos (600 segundos)
+    const ttlSegundos = 10 * 60;
 
     // Crear código en Redis (se elimina automáticamente con TTL)
     await this.codigoValidacionRepositorio.crear(
       {
-        email: victima.correo,
+        email: correo,
         codigo,
       },
       ttlSegundos,
@@ -50,15 +68,18 @@ export class SolicitarCodigoEmailUseCase {
       userName,
       verificationCode: codigo,
       processName: 'registro',
-      expirationTime: 15,
+      expirationTime: 10,
       additionalInstructions: 'Por favor, ingresa el código en la aplicación para verificar tu cuenta.',
     };
 
     const enviado = await this.mensajePort.enviarEmail(victima.correo, 'Código de verificación', 'verification-code', templateData);
 
     if (!enviado) {
+      await this.codigoValidacionRepositorio.eliminarCodigoPorEmail(victima.correo, codigo);
       throw new InternalServerErrorException('No se pudo enviar el código por email');
     }
+
+    await this.codigoValidacionRepositorio.incrementarIntentosPorEmail(victima.correo, fechaHoy, 24 * 60 * 60);
 
     return {
       codigoEnviado: true,

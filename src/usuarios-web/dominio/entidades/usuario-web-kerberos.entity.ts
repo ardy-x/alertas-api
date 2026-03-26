@@ -1,7 +1,5 @@
 import { PaginacionQuery } from '@/core/interfaces/paginacion-query.interface';
 
-import { RolUsuarioWeb } from '../interfaces/rol-usuario.interface';
-
 export interface InfoDispositivo {
   navegador?: string;
   sistemaOperativo?: string;
@@ -14,7 +12,7 @@ export interface UsuarioWebKerberosEntity {
   nombreCompleto: string;
   unidad: string;
   idDepartamento: number;
-  autorizacion: RolUsuarioWeb;
+  rol: string;
   estadoSession: boolean;
   fcmToken?: string;
   infoDispositivo?: InfoDispositivo;
@@ -27,7 +25,7 @@ export interface CrearUsuarioWebKerberosDatos {
   nombreCompleto: string;
   unidad: string;
   idDepartamento: number;
-  autorizacion: RolUsuarioWeb;
+  rol: string;
   estadoSession: boolean;
 }
 

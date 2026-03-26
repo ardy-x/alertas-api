@@ -1,7 +1,8 @@
 import { Injectable } from '@nestjs/common';
 
-import { AlertaPorMunicipio, AlertaRecienteBase, DatosMetricasGenerales, DatosMetricasTiempo } from '@/dashboard/dominio/entidades/dashboard.entity';
+import { AlertaPorMunicipio, DatosMetricasGenerales } from '@/dashboard/dominio/entidades/dashboard.entity';
 import { AlertaConFechaHora, AlertaParaMapa, DashboardRepositorioPort, EstadoAlertaCount } from '@/dashboard/dominio/puertos/dashboard.port';
+import { UbicacionPoint } from '@/integraciones/dominio/entidades/ubicacion.types';
 import { PrismaService } from '@/prisma/prisma.service';
 
 @Injectable()
@@ -65,6 +66,35 @@ export class DashboardPrismaAdapter implements DashboardRepositorioPort {
       take: 1000, // Limitar para no sobrecargar
     });
 
+    // Obtener datos crudos de tiempos de llegada física del policía
+    const tiemposLlegadaBrutos = await this.prisma.atencionFuncionario.findMany({
+      where: {
+        fechaLlegada: {
+          not: null,
+        },
+      },
+      select: {
+        fechaLlegada: true,
+        atencion: {
+          select: {
+            alerta: {
+              select: {
+                creadoEn: true,
+              },
+            },
+          },
+        },
+      },
+    });
+
+    // Filtrar y transformar para garantizar que fechaLlegada nunca sea null
+    const tiemposLlegada = tiemposLlegadaBrutos
+      .filter((t) => t.fechaLlegada !== null)
+      .map((t) => ({
+        fechaLlegada: t.fechaLlegada!,
+        atencion: t.atencion,
+      }));
+
     return {
       alertasActivas,
       alertasPendientes,
@@ -72,6 +102,7 @@ export class DashboardPrismaAdapter implements DashboardRepositorioPort {
       tiemposAsignacion,
       tiemposCierre,
       alertasConTiempoRegistro,
+      tiemposLlegada,
     };
   }
 
@@ -90,20 +121,22 @@ export class DashboardPrismaAdapter implements DashboardRepositorioPort {
     });
 
     // Agrupar en memoria (más eficiente que N+1 queries)
-    const agrupacionPorMunicipio = new Map<number, { total: number; activas: number }>();
+    const agrupacionPorMunicipio = new Map<number, { total: number; activas: number; cerradas: number }>();
 
     alertas.forEach((alerta) => {
       if (!alerta.idMunicipio) return;
 
       if (!agrupacionPorMunicipio.has(alerta.idMunicipio)) {
-        agrupacionPorMunicipio.set(alerta.idMunicipio, { total: 0, activas: 0 });
+        agrupacionPorMunicipio.set(alerta.idMunicipio, { total: 0, activas: 0, cerradas: 0 });
       }
 
       const stats = agrupacionPorMunicipio.get(alerta.idMunicipio)!;
       stats.total += 1;
 
-      if (alerta.estadoAlerta === 'ASIGNADA' || alerta.estadoAlerta === 'EN_ATENCION') {
+      if (['PENDIENTE', 'ASIGNADA', 'EN_ATENCION'].includes(alerta.estadoAlerta)) {
         stats.activas += 1;
+      } else if (['RESUELTA', 'CANCELADA', 'FALSA_ALERTA'].includes(alerta.estadoAlerta)) {
+        stats.cerradas += 1;
       }
     });
 
@@ -112,74 +145,8 @@ export class DashboardPrismaAdapter implements DashboardRepositorioPort {
       idMunicipio,
       totalAlertas: stats.total,
       alertasActivas: stats.activas,
+      alertasCerradas: stats.cerradas,
     }));
-  }
-
-  async obtenerAlertasRecientes(limite: number = 10): Promise<AlertaRecienteBase[]> {
-    const alertas = await this.prisma.alerta.findMany({
-      take: limite,
-      orderBy: {
-        creadoEn: 'desc',
-      },
-      select: {
-        id: true,
-        idMunicipio: true,
-        estadoAlerta: true,
-        origen: true,
-        creadoEn: true,
-        victima: {
-          select: {
-            nombreCompleto: true,
-          },
-        },
-      },
-    });
-
-    return alertas;
-  }
-
-  async obtenerMetricasTiempo(): Promise<DatosMetricasTiempo> {
-    // Obtener datos crudos de tiempos de asignación
-    const tiemposAsignacion = await this.prisma.atencion.findMany({
-      select: {
-        creadoEn: true,
-        alerta: {
-          select: {
-            creadoEn: true,
-            origen: true,
-          },
-        },
-      },
-    });
-
-    // Obtener datos crudos de tiempos de cierre
-    const tiemposCierre = await this.prisma.cierreAlerta.findMany({
-      select: {
-        creadoEn: true,
-        alerta: {
-          select: {
-            creadoEn: true,
-            origen: true,
-          },
-        },
-      },
-    });
-
-    // Obtener datos crudos de tiempos de registro
-    const alertasConTiempoRegistro = await this.prisma.alerta.findMany({
-      select: {
-        fechaHora: true,
-        creadoEn: true,
-        origen: true,
-      },
-      take: 1000,
-    });
-
-    return {
-      tiemposAsignacion,
-      tiemposCierre,
-      alertasConTiempoRegistro,
-    };
   }
 
   async obtenerDistribucionEstados(): Promise<EstadoAlertaCount[]> {
@@ -213,6 +180,7 @@ export class DashboardPrismaAdapter implements DashboardRepositorioPort {
         idMunicipio: true,
         fechaHora: true,
         origen: true,
+        ubicacion: true,
       },
       orderBy: {
         creadoEn: 'desc',
@@ -225,6 +193,7 @@ export class DashboardPrismaAdapter implements DashboardRepositorioPort {
       idMunicipio: alerta.idMunicipio,
       fechaHora: alerta.fechaHora,
       origen: alerta.origen,
+      ubicacion: alerta.ubicacion as UbicacionPoint | null,
     }));
   }
 }

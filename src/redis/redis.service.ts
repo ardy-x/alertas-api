@@ -6,7 +6,7 @@ import { REDIS_CONFIG } from '../config/redis.config';
 
 @Injectable()
 export class RedisService implements OnModuleInit, OnModuleDestroy {
-  private client: Redis;
+  private declare client: Redis;
   private isConnected = false;
   private logger = new Logger(RedisService.name);
   private connectionErrorLogged = false;
@@ -83,6 +83,44 @@ export class RedisService implements OnModuleInit, OnModuleDestroy {
     } catch (error) {
       this.logger.error('Error al eliminar de Redis:', error instanceof Error ? error.message : String(error));
       return false;
+    }
+  }
+
+  async incr(key: string): Promise<number | null> {
+    if (!this.isConnected) return null;
+
+    try {
+      return await this.client.incr(key);
+    } catch (error) {
+      this.logger.error('Error al incrementar en Redis:', error instanceof Error ? error.message : String(error));
+      return null;
+    }
+  }
+
+  async expire(key: string, ttlSeconds: number): Promise<boolean> {
+    if (!this.isConnected) return false;
+
+    try {
+      const resultado = await this.client.expire(key, ttlSeconds);
+      return resultado === 1;
+    } catch (error) {
+      this.logger.error('Error al aplicar TTL en Redis:', error instanceof Error ? error.message : String(error));
+      return false;
+    }
+  }
+
+  getConnectionStatus(): boolean {
+    return this.isConnected;
+  }
+
+  async getServerInfo(section?: string): Promise<string | null> {
+    if (!this.isConnected) return null;
+
+    try {
+      return section ? await this.client.info(section) : await this.client.info();
+    } catch (error) {
+      this.logger.error('Error al obtener info de Redis:', error instanceof Error ? error.message : String(error));
+      return null;
     }
   }
 }

@@ -20,6 +20,7 @@ export class ObtenerUsuarioWebUseCase {
 
     return {
       grado: usuario.grado,
+      rol: usuario.rol,
       nombreCompleto: usuario.nombreCompleto,
       unidad: usuario.unidad,
       estadoSession: usuario.estadoSession,

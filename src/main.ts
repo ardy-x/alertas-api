@@ -1,9 +1,11 @@
 import { networkInterfaces } from 'node:os';
+import { join } from 'node:path';
 import { Logger } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
+import * as express from 'express';
 import { Request, Response } from 'express';
 import { ExcepcionGlobalFilter } from '@/core/filtros/excepcion-global.filter';
 import { AppModule } from './app.module';
@@ -16,6 +18,15 @@ import { VALIDATION_PIPE_CONFIG } from './config/validation.config';
 async function bootstrap() {
   const logger = new Logger(swaggerEnv.API_TITLE);
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
+
+  // Aumentar límites para JSON y URL encoded (no afecta multipart/form-data)
+  app.use(express.json({ limit: '100mb' }));
+  app.use(express.urlencoded({ limit: '100mb', extended: true }));
+
+  // Servir archivos estáticos con express.static directamente
+  const archivosPath = join(process.cwd(), 'archivos');
+  logger.log(`Sirviendo archivos estáticos desde: ${archivosPath}`);
+  app.use('/archivos', express.static(archivosPath));
 
   // Configuración de OpenAPI
   const document = SwaggerModule.createDocument(app, SWAGGER_CONFIG);
@@ -31,7 +42,7 @@ async function bootstrap() {
   // Habilitar CORS para permitir requests desde el frontend
   app.enableCors(CORS_CONFIG);
 
-  // Establecer prefijo global para rutas
+  // Establecer prefijo global para rutas - DESPUÉS de archivos estáticos
   app.setGlobalPrefix(APP_CONFIG.globalPrefix);
 
   // Habilitar validacion global

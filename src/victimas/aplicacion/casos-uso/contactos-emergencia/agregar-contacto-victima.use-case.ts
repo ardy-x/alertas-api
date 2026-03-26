@@ -6,7 +6,7 @@ import { TextoUtilidades } from '@/utils/texto-utilidades.util';
 import { ContactoEmergenciaRepositorioPort } from '@/victimas/dominio/puertos/contacto-emergencia.port';
 import { VictimaRepositorioPort } from '@/victimas/dominio/puertos/victima.port';
 import { CONTACTO_EMERGENCIA_REPOSITORIO, VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
-import { ContactoEmergenciaDto } from '../../presentacion/dto/entrada/contactos-victima.dto';
+import { ContactoEmergenciaDto } from '@/victimas/presentacion/dto/entrada/victima.dto';
 
 @Injectable()
 export class AgregarContactoVictimaUseCase {

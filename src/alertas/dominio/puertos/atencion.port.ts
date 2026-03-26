@@ -6,4 +6,5 @@ export interface AtencionRepositorioPort {
   crearAtencionCompleta(datos: CrearAtencionCompleta): Promise<void>;
   obtenerAtencionSimple(id: string): Promise<AtencionEntity | null>;
   existePorAlerta(idAlerta: string): Promise<boolean>;
+  obtenerPorAlerta(idAlerta: string): Promise<AtencionEntity | null>;
 }

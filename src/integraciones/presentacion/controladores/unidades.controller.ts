@@ -1,29 +1,26 @@
-import { BadRequestException, Controller, Get, HttpStatus, Query, UseGuards } from '@nestjs/common';
-import { ApiQuery, ApiTags } from '@nestjs/swagger';
+import { Controller, Get, HttpStatus, Query, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
-import { Public } from '@/autenticacion/infraestructura/decoradores/public.decorator';
-import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
-
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
+import { ClaveApiGuard } from '@/victimas/infraestructura/guards/clave-api.guard';
 import { ObtenerUnidadesCercanasUseCase } from '../../aplicacion/casos-uso/obtener-unidades-cercanas.use-case';
+import { EncontrarDepartamentoQueryDto } from '../dto/encontrar-departamento-query.dto';
+import { UnidadDto } from '../dto/unidad.dto';
 
 @ApiTags('UNIDADES')
+@ApiSecurity('api-key')
+@ApiRespuestasComunes()
 @Controller('unidades')
-@UseGuards(KerberosJwtAuthGuard)
+@UseGuards(ClaveApiGuard)
 export class UnidadesController {
   constructor(private readonly obtenerUnidadesCercanasUseCase: ObtenerUnidadesCercanasUseCase) {}
 
-  @ApiQuery({ name: 'latitud', example: '-16.5000' })
-  @ApiQuery({ name: 'longitud', example: '-68.1501' })
-  @Public()
+  @ApiOperation({ summary: 'Obtener las 5 unidades más cercanas a una ubicación' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Unidades cercanas obtenidas exitosamente', type: [UnidadDto] })
   @Get('cercanas')
-  async obtenerUnidadesCercanas(@Query('latitud') latitud: string, @Query('longitud') longitud: string) {
-    const lat = parseFloat(latitud);
-    const lon = parseFloat(longitud);
-    if (Number.isNaN(lat) || Number.isNaN(lon)) {
-      throw new BadRequestException('Latitud y longitud deben ser números válidos');
-    }
-    const unidades = await this.obtenerUnidadesCercanasUseCase.ejecutar({ latitud: lat, longitud: lon });
+  async obtenerUnidadesCercanas(@Query() query: EncontrarDepartamentoQueryDto) {
+    const unidades = await this.obtenerUnidadesCercanasUseCase.ejecutar({ latitud: query.latitud, longitud: query.longitud });
     return RespuestaBuilder.exito(HttpStatus.OK, 'Unidades cercanas obtenidas exitosamente', unidades);
   }
 }

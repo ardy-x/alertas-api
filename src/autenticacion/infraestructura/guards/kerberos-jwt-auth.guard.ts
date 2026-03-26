@@ -28,7 +28,7 @@ export class KerberosJwtAuthGuard extends AuthGuard('jwt') {
       case 'invalid token':
         throw new UnauthorizedException('La sesión no es válida');
       case 'jwt malformed':
-        throw new UnauthorizedException('La información de autenticación tiene un formato incorrecto');
+        throw new UnauthorizedException('El token de sesión tiene un formato inválidoß');
       case 'invalid signature':
         throw new UnauthorizedException('La sesión no pudo ser verificada');
       case 'jwt not active':

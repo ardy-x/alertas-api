@@ -43,11 +43,16 @@ export interface SolicitudCancelacionBasica {
   idAlerta: string;
   fechaSolicitud: Date;
   estadoSolicitud: EstadoSolicitudCancelacion;
+  idMunicipio?: number | null;
+  municipio?: string;
+  provincia?: string;
+  departamento?: string;
   victima?: {
     id: string;
     nombreCompleto: string;
     cedulaIdentidad: string;
     celular: string;
+    correo?: string;
   };
 }
 

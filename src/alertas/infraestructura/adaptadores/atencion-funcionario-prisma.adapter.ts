@@ -13,6 +13,21 @@ import { AgregarFuncionarioDatos, AtencionPersonalPort } from '../../dominio/pue
 export class AtencionFuncionarioPrismaAdapter implements AtencionPersonalPort {
   constructor(private readonly prisma: PrismaService) {}
 
+  async marcarLlegada(idAtencion: string, ciFuncionario: string): Promise<void> {
+    const fecha = new Date();
+    await this.prisma.atencionFuncionario.updateMany({
+      where: { idAtencion, ciFuncionario, fechaLlegada: null },
+      data: { fechaLlegada: fecha },
+    });
+  }
+
+  async confirmarLlegadaVictima(idAtencion: string, ciFuncionario: string): Promise<void> {
+    await this.prisma.atencionFuncionario.updateMany({
+      where: { idAtencion, ciFuncionario, confirmacionVictima: false },
+      data: { confirmacionVictima: true },
+    });
+  }
+
   async agregarFuncionario(datos: AgregarFuncionarioDatos): Promise<void> {
     await this.prisma.atencionFuncionario.create({
       data: {
@@ -43,6 +58,8 @@ export class AtencionFuncionarioPrismaAdapter implements AtencionPersonalPort {
       turnoFin: af.turnoFin.toISOString(),
       ciFuncionario: af.ciFuncionario || null,
       unidad: af.unidad || null,
+      fechaLlegada: af.fechaLlegada ? af.fechaLlegada.toISOString() : null,
+      confirmacionVictima: af.confirmacionVictima,
     }));
   }
 }

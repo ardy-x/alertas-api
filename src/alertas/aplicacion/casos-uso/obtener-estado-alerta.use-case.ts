@@ -1,5 +1,4 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
-
 import { AlertaRepositorioPort } from '@/alertas/dominio/puertos/alerta.port';
 import { ALERTA_REPOSITORIO_TOKEN } from '@/alertas/dominio/tokens/alerta.tokens';
 
@@ -17,8 +16,6 @@ export class ObtenerEstadoAlertaUseCase {
       throw new NotFoundException('Alerta no encontrada');
     }
 
-    return {
-      estadoAlerta,
-    };
+    return { estadoAlerta };
   }
 }

@@ -17,18 +17,8 @@ export class ObtenerDistribucionEstadosUseCase {
     // Calcular total
     const totalAlertas = estadosCrudos.reduce((sum, item) => sum + item.cantidad, 0);
 
-    // Mapear estados con nombres legibles y porcentajes
-    const estadosNombres: Record<string, string> = {
-      PENDIENTE: 'Pendiente',
-      ASIGNADA: 'Asignada',
-      EN_ATENCION: 'En Atención',
-      RESUELTA: 'Resuelta',
-      CANCELADA: 'Cancelada',
-      FALSA_ALERTA: 'Falsa Alerta',
-    };
-
     const estadosProcesados: EstadoAlertaDistribucion[] = estadosCrudos.map((item) => ({
-      estado: estadosNombres[item.estado] || item.estado,
+      estado: item.estado,
       cantidad: item.cantidad,
       porcentaje: totalAlertas > 0 ? parseFloat(((item.cantidad / totalAlertas) * 100).toFixed(2)) : 0,
     }));

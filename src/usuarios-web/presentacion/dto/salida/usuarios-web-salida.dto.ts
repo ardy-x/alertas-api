@@ -3,8 +3,10 @@ import { ApiProperty } from '@nestjs/swagger';
 import { PaginacionDto } from '@/core/dto/paginacion-response.dto';
 
 export class UsuarioWebResponseDto {
-  @ApiProperty()
   grado: string;
+
+  @ApiProperty()
+  rol: string;
 
   @ApiProperty()
   nombreCompleto: string;

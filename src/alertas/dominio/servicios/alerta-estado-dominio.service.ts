@@ -12,7 +12,7 @@ export class AlertaEstadoDominioService {
     const transicionesValidas: Record<EstadoAlerta, EstadoAlerta[]> = {
       [EstadoAlerta.PENDIENTE]: [EstadoAlerta.ASIGNADA, EstadoAlerta.CANCELADA, EstadoAlerta.FALSA_ALERTA],
       [EstadoAlerta.ASIGNADA]: [EstadoAlerta.EN_ATENCION, EstadoAlerta.CANCELADA, EstadoAlerta.FALSA_ALERTA],
-      [EstadoAlerta.EN_ATENCION]: [EstadoAlerta.RESUELTA, EstadoAlerta.CANCELADA],
+      [EstadoAlerta.EN_ATENCION]: [EstadoAlerta.RESUELTA, EstadoAlerta.CANCELADA, EstadoAlerta.FALSA_ALERTA],
       [EstadoAlerta.RESUELTA]: [],
       [EstadoAlerta.CANCELADA]: [],
       [EstadoAlerta.FALSA_ALERTA]: [],

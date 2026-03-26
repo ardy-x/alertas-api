@@ -28,6 +28,11 @@ export class FuncionarioAsignadoDto {
 
   @ApiPropertyOptional()
   unidad?: string | null;
+
+  @ApiPropertyOptional({ description: 'Fecha y hora en que el funcionario llegó al lugar' })
+  fechaLlegada?: string | null;
+  @ApiPropertyOptional({ description: 'Confirmación de llegada por la víctima' })
+  confirmacionVictima?: boolean;
 }
 
 export class AtencionDto {
@@ -41,10 +46,11 @@ export class AtencionDto {
   siglaRadio: string;
 
   @ApiPropertyOptional()
-  gradoUsuarioWeb?: string | null;
-
-  @ApiPropertyOptional()
-  nombreCompletoUsuarioWeb?: string | null;
+  usuarioWeb?: {
+    id: string;
+    nombreCompleto: string;
+    grado: string;
+  } | null;
 
   @ApiPropertyOptional({ type: [FuncionarioAsignadoDto] })
   atencionFuncionario?: FuncionarioAsignadoDto[];
@@ -103,6 +109,27 @@ export class RutaAlertaDto {
   ruta: RutaLineString;
 }
 
+export class SolicitudCancelacionDto {
+  @ApiProperty()
+  id: string;
+
+  @ApiProperty()
+  fechaSolicitud: Date;
+
+  @ApiProperty()
+  estadoSolicitud: string;
+
+  @ApiPropertyOptional()
+  motivoCancelacion?: string | null;
+
+  @ApiPropertyOptional()
+  usuarioWeb?: {
+    id: string;
+    nombreCompleto: string;
+    grado: string;
+  } | null;
+}
+
 export class AlertaDetalleDto {
   @ApiProperty()
   id: string;
@@ -154,6 +181,9 @@ export class AlertaDetalleDto {
 
   @ApiPropertyOptional()
   rutaAlerta?: RutaAlertaDto;
+
+  @ApiPropertyOptional()
+  solicitudesCancelacion?: SolicitudCancelacionDto;
 }
 
 export class AlertaBaseDto {
@@ -229,6 +259,23 @@ export class AlertaHistorialDto {
 
   @ApiPropertyOptional()
   victima?: Partial<VictimaBaseResponseDto>;
+}
+
+export class FuncionarioLlegadoDto {
+  @ApiProperty()
+  declare ciFuncionario: string;
+
+  @ApiPropertyOptional()
+  grado?: string | null;
+
+  @ApiPropertyOptional()
+  nombreCompleto?: string | null;
+
+  @ApiProperty()
+  declare rolAtencion: string;
+
+  @ApiProperty()
+  declare fechaLlegada: string;
 }
 
 export class CrearAlertaResponseDto {

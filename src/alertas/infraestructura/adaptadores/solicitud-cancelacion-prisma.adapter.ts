@@ -145,6 +145,19 @@ export class SolicitudCancelacionPrismaAdapter implements SolicitudCancelacionRe
     const campoOrden = filtros.ordenarPor || 'fechaSolicitud';
     const direccionOrden = filtros.orden?.toLowerCase() || 'desc';
 
+    // Manejar ordenamiento por campos de relaciones
+    let orderBy: Prisma.SolicitudCancelacionOrderByWithRelationInput;
+    if (campoOrden === 'nombreCompleto' || campoOrden === 'cedulaIdentidad') {
+      // Ordenar por campos de la víctima (a través de alerta)
+      orderBy = { alerta: { victima: { [campoOrden]: direccionOrden } } };
+    } else if (campoOrden === 'fechaHora' || campoOrden === 'estadoAlerta') {
+      // Ordenar por campos de la alerta
+      orderBy = { alerta: { [campoOrden]: direccionOrden } };
+    } else {
+      // Ordenar por campos directos de solicitudCancelacion
+      orderBy = { [campoOrden]: direccionOrden };
+    }
+
     const [solicitudes, total] = await Promise.all([
       this.prisma.solicitudCancelacion.findMany({
         where,
@@ -157,12 +170,13 @@ export class SolicitudCancelacionPrismaAdapter implements SolicitudCancelacionRe
                   nombreCompleto: true,
                   celular: true,
                   cedulaIdentidad: true,
+                  correo: true,
                 },
               },
             },
           },
         },
-        orderBy: { [campoOrden]: direccionOrden },
+        orderBy,
         skip,
         take: limite,
       }),
@@ -177,12 +191,14 @@ export class SolicitudCancelacionPrismaAdapter implements SolicitudCancelacionRe
         idAlerta: solicitud.idAlerta,
         fechaSolicitud: solicitud.fechaSolicitud,
         estadoSolicitud: solicitud.estadoSolicitud as EstadoSolicitudCancelacion,
+        idMunicipio: solicitud.alerta?.idMunicipio ?? null,
         victima: victima
           ? {
               id: victima.id,
               nombreCompleto: victima.nombreCompleto,
               cedulaIdentidad: victima.cedulaIdentidad,
               celular: victima.celular,
+              correo: victima.correo || undefined,
             }
           : undefined,
       };
@@ -202,5 +218,17 @@ export class SolicitudCancelacionPrismaAdapter implements SolicitudCancelacionRe
       },
     });
     return !!solicitud;
+  }
+
+  async rechazarSolicitudPendientePorAlerta(idAlerta: string): Promise<void> {
+    await this.prisma.solicitudCancelacion.updateMany({
+      where: {
+        idAlerta,
+        estadoSolicitud: EstadoSolicitudCancelacion.PENDIENTE,
+      },
+      data: {
+        estadoSolicitud: EstadoSolicitudCancelacion.RECHAZADA,
+      },
+    });
   }
 }

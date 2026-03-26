@@ -1,5 +1,5 @@
-import { Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
-
+import { ForbiddenException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { obtenerFechaBoliviaYYYYMMDD } from '@/utils/fecha.utils';
 import { CodigoValidacionRepositorioPort } from '@/victimas/dominio/puertos/codigo-validacion.port';
 import { MensajePort } from '@/victimas/dominio/puertos/mensaje.port';
 import { VictimaRepositorioPort } from '@/victimas/dominio/puertos/victima.port';
@@ -19,22 +19,39 @@ export class SolicitarCodigoWhatsappUseCase {
 
   async ejecutar(request: SolicitarCodigoWhatsappRequestDto): Promise<{ codigoEnviado: boolean }> {
     // Buscar víctima por celular
-    const victima = await this.victimaRepositorio.obtenerPorCelular(request.celular.trim());
+    const victima = await this.victimaRepositorio.obtenerPorCelular(request.celular);
 
     if (!victima) {
       throw new NotFoundException('No se encontró víctima con ese número de celular');
     }
 
+    const correo = victima.correo?.toLowerCase() ?? '';
+    const celular = victima.celular ?? '';
+
+    if (celular) {
+      await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(celular);
+    }
+    if (correo) {
+      await this.codigoValidacionRepositorio.eliminarCodigoPorEmail(correo);
+    }
+
+    const fechaHoy = obtenerFechaBoliviaYYYYMMDD();
+    const intentosWhatsapp = await this.codigoValidacionRepositorio.obtenerIntentosPorCelular(celular, fechaHoy);
+
+    if (intentosWhatsapp >= 1) {
+      throw new ForbiddenException('Se alcanzó el límite diario de 1 solicitud de código por WhatsApp');
+    }
+
     // Generar código de 6 dígitos
     const codigo = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // TTL de 15 minutos (900 segundos)
-    const ttlSegundos = 15 * 60;
+    // TTL de 10 minutos (600 segundos)
+    const ttlSegundos = 10 * 60;
 
     // Crear código en Redis (se elimina automáticamente con TTL)
     await this.codigoValidacionRepositorio.crear(
       {
-        celular: victima.celular,
+        celular,
         codigo,
       },
       ttlSegundos,
@@ -45,8 +62,11 @@ export class SolicitarCodigoWhatsappUseCase {
     const codigoEnviado = await this.mensajePort.enviarMensajeWhatsapp(victima.celular, mensaje);
 
     if (!codigoEnviado) {
+      await this.codigoValidacionRepositorio.eliminarCodigoPorCelular(victima.celular, codigo);
       throw new InternalServerErrorException('No se pudo enviar el código por WhatsApp');
     }
+
+    await this.codigoValidacionRepositorio.incrementarIntentosPorCelular(celular, fechaHoy, 24 * 60 * 60);
 
     return {
       codigoEnviado: true,

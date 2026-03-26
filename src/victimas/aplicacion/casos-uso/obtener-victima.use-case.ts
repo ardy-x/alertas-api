@@ -1,8 +1,9 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 
 import { ObtenerProvinciaDepartamentoUseCase } from '@/integraciones/aplicacion/casos-uso/obtener-provincia-departamento.use-case';
+import { InvestigadorVictimaRepositorioPort } from '@/victimas/dominio/puertos/investigador-victima.port';
 import { VictimaRepositorioPort } from '@/victimas/dominio/puertos/victima.port';
-import { VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
+import { INVESTIGADOR_VICTIMA_REPOSITORIO, VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
 
 import { VictimaResponseDto } from '../../presentacion/dto/salida/victima.dto';
 
@@ -11,6 +12,8 @@ export class ObtenerVictimaUseCase {
   constructor(
     @Inject(VICTIMA_REPOSITORIO)
     private readonly victimaRepositorio: VictimaRepositorioPort,
+    @Inject(INVESTIGADOR_VICTIMA_REPOSITORIO)
+    private readonly investigadorRepositorio: InvestigadorVictimaRepositorioPort,
     private readonly obtenerProvinciaDepartamentoUseCase: ObtenerProvinciaDepartamentoUseCase,
   ) {}
 
@@ -27,6 +30,9 @@ export class ObtenerVictimaUseCase {
       throw new Error('No se pudo obtener información geográfica de la víctima');
     }
 
+    // Verificar si tiene investigador activo
+    const tieneInvestigadorActivo = await this.investigadorRepositorio.tieneInvestigadorActivo(victima.id);
+
     return {
       id: victima.id,
       cedulaIdentidad: victima.cedulaIdentidad,
@@ -42,6 +48,7 @@ export class ObtenerVictimaUseCase {
       creadoEn: victima.creadoEn!,
       direccionDomicilio: victima.direccionDomicilio,
       puntoReferencia: victima.puntoReferencia,
+      tieneInvestigadorActivo,
       contactosEmergencia: victima.contactosEmergencia.map((vc) => ({
         id: vc.id,
         parentesco: vc.parentesco,

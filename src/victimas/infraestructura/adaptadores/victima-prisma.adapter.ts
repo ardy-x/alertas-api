@@ -158,6 +158,7 @@ export class VictimaPrismaAdapter implements VictimaRepositorioPort {
       nombreCompleto: victima.nombreCompleto,
       fechaNacimiento: victima.fechaNacimiento,
       celular: victima.celular,
+      correo: victima.correo || undefined,
       idMunicipio: victima.idMunicipio,
       estadoCuenta: victima.estadoCuenta as EstadoCuenta,
     };
@@ -166,7 +167,7 @@ export class VictimaPrismaAdapter implements VictimaRepositorioPort {
   async obtenerPorEmail(email: string): Promise<VictimaBase | null> {
     const victima = await this.prisma.victima.findFirst({
       where: {
-        correo: email.trim(),
+        correo: email.trim().toLowerCase(),
       },
     });
 

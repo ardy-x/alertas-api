@@ -19,14 +19,6 @@ export class ObtenerMapaCalorUseCase {
 
     const features: AlertaGeoJSONFeature[] = [];
 
-    // Coordenadas simuladas (en producción obtener de GeoServer/Catálogos)
-    const generarCoordenadas = (): [number, number] => {
-      return [
-        -68.1 + (Math.random() - 0.5) * 15, // lng
-        -16.5 + (Math.random() - 0.5) * 12, // lat
-      ];
-    };
-
     for (const alerta of alertas) {
       // Aplicar filtros jerárquicos si tienen municipio
       if (alerta.idMunicipio) {
@@ -39,11 +31,17 @@ export class ObtenerMapaCalorUseCase {
         }
       }
 
+      // Solo incluir alertas que tengan ubicación
+      if (!alerta.ubicacion) continue;
+
+      // Usar las coordenadas reales de la base de datos
+      const coordenadas = alerta.ubicacion.geometry.coordinates;
+
       features.push({
         type: 'Feature',
         geometry: {
           type: 'Point',
-          coordinates: generarCoordenadas(),
+          coordinates: coordenadas,
         },
         properties: {
           id_alerta: alerta.id,

@@ -108,3 +108,17 @@ export class CrearFuncionarioAtencionRequestDto {
   @IsString()
   unidad: string;
 }
+
+export class RegistrarLlegadaRequestDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  declare ciFuncionario: string;
+}
+
+export class ConfirmacionVictimaRequestDto {
+  @ApiProperty()
+  @IsNotEmpty()
+  @IsString()
+  declare ciFuncionario: string;
+}

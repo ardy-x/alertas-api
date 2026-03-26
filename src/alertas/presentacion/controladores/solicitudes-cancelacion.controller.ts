@@ -1,20 +1,26 @@
-import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Put, Query, UseGuards } from '@nestjs/common';
-import { ApiBody, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Query, UseGuards } from '@nestjs/common';
+import { ApiBody, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
 
 import { ListarSolicitudesUseCase } from '@/alertas/aplicacion/casos-uso/solicitudes-cancelacion/listar-solicitudes.use-case';
 import { ObtenerSolicitudDetalleUseCase } from '@/alertas/aplicacion/casos-uso/solicitudes-cancelacion/obtener-solicitud-detalle.use-case';
 import { ProcesarSolicitudUseCase } from '@/alertas/aplicacion/casos-uso/solicitudes-cancelacion/procesar-solicitud.use-case';
+import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
 import { IdUsuarioActual } from '@/autenticacion/infraestructura/decoradores/id-usuario.decorator';
+import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
+import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
-
 import { ObtenerSolicitudesCancelacionRequestDto, ProcesarSolicitudCancelacionRequestDto } from '../dto/entrada/solicitudes-cancelacion-entrada.dto';
 import { ObtenerSolicitudDetalleResponseDto, ObtenerSolicitudesResponseDto } from '../dto/salida/solicitudes-cancelacion-salida.dto';
 
-@Controller('solicitudes-cancelacion')
-@UseGuards(KerberosJwtAuthGuard)
 @ApiTags('SOLICITUDES DE CANCELACIÓN')
+@ApiSecurity('jwt-auth')
+@ApiRespuestasComunes()
+@Controller('solicitudes-cancelacion')
+@UseGuards(KerberosJwtAuthGuard, RolesGuard)
+@Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.OPERADOR)
 export class SolicitudesCancelacionController {
   constructor(
     private readonly obtenerSolicitudesUseCase: ListarSolicitudesUseCase,
@@ -23,28 +29,31 @@ export class SolicitudesCancelacionController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Obtener todas las solicitudes de cancelación' })
+  @ApiOperation({ summary: 'Obtener todas las solicitudes de cancelación', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Solicitudes de cancelación obtenidas exitosamente', type: ObtenerSolicitudesResponseDto })
   async obtenerTodas(@Query() query: ObtenerSolicitudesCancelacionRequestDto): Promise<RespuestaBaseDto<ObtenerSolicitudesResponseDto>> {
     const resultado = await this.obtenerSolicitudesUseCase.ejecutar(query);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Solicitudes de cancelación obtenidas exitosamente', resultado);
   }
 
   @Get(':idSolicitud/detalle')
-  @ApiOperation({ summary: 'Obtener detalle de solicitud de cancelación' })
+  @ApiOperation({ summary: 'Obtener detalle de solicitud de cancelación', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Detalle de solicitud obtenido exitosamente', type: ObtenerSolicitudDetalleResponseDto })
   async obtenerDetalle(@Param('idSolicitud', ParseUUIDPipe) idSolicitud: string): Promise<RespuestaBaseDto<ObtenerSolicitudDetalleResponseDto>> {
     const resultado = await this.obtenerSolicitudDetalleUseCase.ejecutar(idSolicitud);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Detalle de solicitud obtenido exitosamente', resultado);
   }
 
-  @Put(':idSolicitud')
-  @ApiOperation({ summary: 'Procesar solicitud de cancelación' })
+  @Patch(':idSolicitud/aprobar')
+  @ApiOperation({ summary: 'Aprobar solicitud de cancelación', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR' })
   @ApiBody({ type: ProcesarSolicitudCancelacionRequestDto })
-  async procesar(
+  @ApiResponse({ status: HttpStatus.OK, description: 'Solicitud de cancelación aprobada exitosamente' })
+  async aprobar(
     @Param('idSolicitud', ParseUUIDPipe) idSolicitud: string,
     @IdUsuarioActual() idUsuarioWeb: string,
     @Body() entrada: ProcesarSolicitudCancelacionRequestDto,
   ): Promise<RespuestaBaseDto<null>> {
     await this.procesarSolicitudUseCase.ejecutar(idSolicitud, idUsuarioWeb, entrada);
-    return RespuestaBuilder.exito(HttpStatus.OK, 'Solicitud de cancelación procesada exitosamente');
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Solicitud de cancelación aprobada exitosamente');
   }
 }

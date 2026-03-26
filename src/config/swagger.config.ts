@@ -25,7 +25,7 @@ export const SWAGGER_CONFIG = new DocumentBuilder()
       description: 'Ingresa tu token JWT',
       in: 'header',
     },
-    'JWT-auth',
+    'jwt-auth',
   )
   .addApiKey(
     {

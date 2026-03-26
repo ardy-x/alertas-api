@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
-
+import { Prisma } from '@prisma/client';
 import { AlertaExtendida } from '@/alertas/dominio/entidades/alerta.entity';
 import { EstadoAlerta, OrigenAlerta } from '@/alertas/dominio/enums/alerta-enums';
 import { UbicacionPoint } from '@/integraciones/dominio/entidades/ubicacion.types';
-
 import { PrismaService } from '@/prisma/prisma.service';
 import { AlertaActiva, AlertaHistorial, FiltrosAlerta, FiltrosAlertasActivas } from '../../dominio/entidades/alerta.entity';
 import { AlertaWebRepositorioPort } from '../../dominio/puertos/alerta-web.port';
@@ -44,14 +43,29 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
         atencion: {
           include: {
             atencionFuncionario: true,
+            usuarioWeb: {
+              select: {
+                id: true,
+                grado: true,
+                nombreCompleto: true,
+              },
+            },
           },
         },
-        eventos: {
-          include: {
-            evidencias: true,
-          },
-        },
+        eventos: true,
+        evidencias: true,
         rutaAlerta: true,
+        solicitudesCancelacion: {
+          include: {
+            usuarioWeb: {
+              select: {
+                id: true,
+                grado: true,
+                nombreCompleto: true,
+              },
+            },
+          },
+        },
       },
     });
 
@@ -74,7 +88,9 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
       cierre: alerta.cierre,
       atencion: alerta.atencion,
       eventos: alerta.eventos,
+      evidencias: alerta.evidencias,
       rutaAlerta: alerta.rutaAlerta,
+      solicitudesCancelacion: alerta.solicitudesCancelacion?.[0],
     });
   }
 
@@ -158,19 +174,31 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
     const campoOrden = filtros.ordenarPor || 'fechaHora';
     const direccionOrden = filtros.orden?.toLowerCase() || 'desc';
 
+    // Manejar ordenamiento por campos de relaciones
+    let orderBy: Prisma.AlertaOrderByWithRelationInput;
+    if (campoOrden === 'nombreCompleto' || campoOrden === 'cedulaIdentidad') {
+      // Ordenar por campos de la víctima
+      orderBy = { victima: { [campoOrden]: direccionOrden } };
+    } else {
+      // Ordenar por campos directos de alerta
+      orderBy = { [campoOrden]: direccionOrden };
+    }
+
     const [alertas, total] = await Promise.all([
       this.prisma.alerta.findMany({
         where,
         include: {
           victima: {
             select: {
+              id: true,
               cedulaIdentidad: true,
               nombreCompleto: true,
               celular: true,
+              correo: true,
             },
           },
         },
-        orderBy: { [campoOrden]: direccionOrden },
+        orderBy,
         skip: filtros.pagina ? (filtros.pagina - 1) * (filtros.elementosPorPagina || 10) : 0,
         take: filtros.elementosPorPagina,
       }),
@@ -189,9 +217,11 @@ export class AlertaWebPrismaAdapter implements AlertaWebRepositorioPort {
         codigoRegistro: alerta.codigoRegistro,
         victima: alerta.victima
           ? {
+              id: alerta.victima.id,
               cedulaIdentidad: alerta.victima.cedulaIdentidad,
               nombreCompleto: alerta.victima.nombreCompleto,
               celular: alerta.victima.celular,
+              correo: alerta.victima.correo || undefined,
             }
           : undefined,
       })),

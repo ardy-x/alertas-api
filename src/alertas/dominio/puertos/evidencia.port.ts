@@ -4,12 +4,13 @@ import { EvidenciaEntity } from '../entidades/evidencia.entity';
 
 export interface CrearEvidenciaDatos {
   id: string;
-  idEvento: string;
+  idAlerta: string;
   tipoEvidencia: TipoEvidencia;
   rutaArchivo: string;
 }
 
 export interface EvidenciaRepositorioPort {
   crearEvidencia(datos: CrearEvidenciaDatos): Promise<void>;
-  obtenerPorEvento(idEvento: string): Promise<EvidenciaEntity[]>;
+  obtenerPorAlerta(idAlerta: string): Promise<EvidenciaEntity[]>;
+  eliminarEvidencia(id: string): Promise<void>;
 }

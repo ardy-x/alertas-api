@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 export class AlertaVictimaDto {
   @ApiProperty({
@@ -139,6 +139,37 @@ export class VictimaResumenDto {
     example: '70123456',
   })
   celular: string;
+
+  @ApiProperty({
+    description: 'Correo electrónico',
+    required: false,
+  })
+  correo?: string;
+
+  @ApiProperty({
+    description: 'Estado de la cuenta',
+    example: 'ACTIVA',
+  })
+  estadoCuenta: string;
+}
+export class InvestigadorActivoDto {
+  @ApiProperty()
+  declare id: string;
+  @ApiProperty()
+  declare idVictima: string;
+  @ApiProperty()
+  declare idUsuarioInvestigador: string;
+  @ApiProperty()
+  declare fechaAsignacion: Date;
+  @ApiProperty()
+  declare observaciones: string | null;
+  // Datos del funcionario desde UsuarioWebKerberos
+  @ApiProperty()
+  declare nombreCompleto: string;
+  @ApiProperty()
+  declare grado: string;
+  @ApiProperty()
+  declare unidad: string;
 }
 
 export class HistorialAlertasVictimaDto {
@@ -159,4 +190,11 @@ export class HistorialAlertasVictimaDto {
     type: [AlertaVictimaDto],
   })
   alertas: AlertaVictimaDto[];
+
+  @ApiPropertyOptional({
+    description: 'Investigador activo asignado a la víctima',
+    type: InvestigadorActivoDto,
+    nullable: true,
+  })
+  investigadorActivo?: InvestigadorActivoDto | null;
 }

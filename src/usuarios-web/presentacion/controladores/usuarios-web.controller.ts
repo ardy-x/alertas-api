@@ -1,9 +1,12 @@
-import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Query } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
-
+import { Body, Controller, Get, HttpStatus, Param, ParseUUIDPipe, Patch, Query, UseGuards } from '@nestjs/common';
+import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger';
+import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
+import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
+import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
+import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
+import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { PaginacionRespuestaBaseDto, RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
-
 import { ListarUsuariosWebUseCase } from '../../aplicacion/casos-uso/listar-usuarios-web.use-case';
 import { ObtenerUsuarioWebUseCase } from '../../aplicacion/casos-uso/obtener-usuario-web.use-case';
 import { RegistrarTokenFCMUseCase } from '../../aplicacion/casos-uso/registrar-token-fcm.use-case';
@@ -12,7 +15,11 @@ import { RegistrarTokenFCMRequestDto } from '../dto/entrada/usuarios-web-entrada
 import { ListarUsuariosWebResponseDto, UsuarioWebResponseDto } from '../dto/salida/usuarios-web-salida.dto';
 
 @ApiTags('USUARIOS WEB')
+@ApiSecurity('jwt-auth')
+@ApiRespuestasComunes()
 @Controller('usuarios-web')
+@UseGuards(KerberosJwtAuthGuard, RolesGuard)
+@Roles(RolesPermitidos.ADMINISTRADOR)
 export class UsuariosWebController {
   constructor(
     private readonly registrarTokenFCMUseCase: RegistrarTokenFCMUseCase,
@@ -21,21 +28,24 @@ export class UsuariosWebController {
   ) {}
 
   @Get()
-  @ApiOperation({ summary: 'Listar usuarios del web' })
+  @ApiOperation({ summary: 'Listar usuarios del web', description: 'Roles permitidos: ADMINISTRADOR' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Usuarios obtenidos exitosamente', type: [ListarUsuariosWebResponseDto] })
   async listarUsuarios(@Query() query: ListarUsuariosWebRequestDto): Promise<PaginacionRespuestaBaseDto<ListarUsuariosWebResponseDto>> {
     const resultado = await this.listarUsuariosWebUseCase.ejecutar(query);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Usuarios obtenidos exitosamente', resultado);
   }
 
   @Get(':idUsuarioWeb/perfil')
-  @ApiOperation({ summary: 'Obtener perfil del usuario' })
+  @ApiOperation({ summary: 'Obtener perfil del usuario', description: 'Roles permitidos: ADMINISTRADOR' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Usuario obtenido exitosamente', type: UsuarioWebResponseDto })
   async obtenerPerfil(@Param('idUsuarioWeb', ParseUUIDPipe) idUsuarioWeb: string): Promise<RespuestaBaseDto<{ usuarioWeb: UsuarioWebResponseDto }>> {
     const usuarioWeb = await this.obtenerUsuarioWebUseCase.ejecutar(idUsuarioWeb);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Usuario obtenido exitosamente', { usuarioWeb });
   }
 
   @Patch(':idUsuarioWeb/token-fcm')
-  @ApiOperation({ summary: 'Actualizar token FCM' })
+  @ApiOperation({ summary: 'Actualizar token FCM', description: 'Roles permitidos: ADMINISTRADOR' })
+  @ApiResponse({ status: HttpStatus.OK, description: 'Token FCM registrado exitosamente' })
   async registrarTokenFCM(@Param('idUsuarioWeb', ParseUUIDPipe) idUsuarioWeb: string, @Body() dto: RegistrarTokenFCMRequestDto): Promise<RespuestaBaseDto> {
     await this.registrarTokenFCMUseCase.ejecutar(dto, idUsuarioWeb);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Token FCM registrado exitosamente');

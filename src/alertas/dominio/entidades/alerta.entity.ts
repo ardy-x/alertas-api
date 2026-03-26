@@ -4,6 +4,7 @@ import { VictimaBase, VictimaDetalle } from '@/victimas/dominio/entidades/victim
 import { EstadoAlerta, OrigenAlerta } from '../enums/alerta-enums';
 import { CierreAlertaEntity } from './cierre-alerta.entity';
 import { RutaAlertaEntity } from './ruta-alerta.entity';
+import { DatosUsuarioWeb, SolicitudCancelacionEntity } from './solicitud-cancelacion.entity';
 
 export interface AlertaEntity {
   id: string;
@@ -39,9 +40,7 @@ export interface AtencionAlerta {
   siglaRadio: string;
   funcionarios: FuncionarioAtencion[];
   atencionFuncionario?: FuncionarioAtencion[];
-  idUsuarioWeb?: string | null;
-  gradoUsuarioWeb?: string | null;
-  nombreCompletoUsuarioWeb?: string | null;
+  usuarioWeb?: DatosUsuarioWeb;
 }
 
 export interface EventoAlerta {
@@ -74,6 +73,7 @@ export interface AlertaExtendida {
   provincia?: string;
   departamento?: string;
   rutaAlerta?: RutaAlertaEntity;
+  solicitudesCancelacion?: SolicitudCancelacionEntity;
 }
 
 export interface NuevaAlerta {

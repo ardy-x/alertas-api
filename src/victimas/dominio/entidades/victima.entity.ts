@@ -19,6 +19,8 @@ export interface VictimaBase {
   correo?: string;
   estadoCuenta: EstadoCuenta;
   creadoEn?: Date;
+  ultimaConexion?: Date;
+  permisosApp?: PermisoApp;
 }
 
 export interface VictimaConDispositivo extends VictimaBase {
@@ -68,5 +70,6 @@ export interface ActualizarConexion {
 export interface FiltrosVictima extends PaginacionQuery {
   estadoCuenta?: EstadoCuenta[];
   municipiosIds?: number[];
+  victimasIds?: string[];
   busqueda?: string;
 }

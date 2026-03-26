@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { Transform, Type } from 'class-transformer';
-import { IsDate, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
+import { IsDate, IsDateString, IsEnum, IsNotEmpty, IsNumber, IsObject, IsOptional, IsString, ValidateNested } from 'class-validator';
 
 import { EstadoSolicitudCancelacion } from '@/alertas/dominio/enums/alerta-enums';
 import { PaginacionQueryDto } from '@/core/dto/paginacion-query.dto';
@@ -24,12 +24,7 @@ export class CrearSolicitudCancelacionRequestDto {
 }
 
 export class ProcesarSolicitudCancelacionRequestDto {
-  @ApiProperty({ enum: EstadoSolicitudCancelacion })
-  @IsEnum(EstadoSolicitudCancelacion)
-  @IsNotEmpty()
-  estadoSolicitud: EstadoSolicitudCancelacion;
-
-  @ApiProperty()
+  @ApiProperty({ description: 'Motivo de aprobación de la solicitud' })
   @IsString()
   @IsNotEmpty()
   motivoCancelacion: string;
@@ -63,4 +58,14 @@ export class ObtenerSolicitudesCancelacionRequestDto extends PaginacionQueryDto 
   @Type(() => Number)
   @IsNumber({})
   idMunicipio?: number;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDateString()
+  fechaDesde?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsDateString()
+  fechaHasta?: string;
 }

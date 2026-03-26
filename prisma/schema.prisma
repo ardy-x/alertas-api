@@ -23,12 +23,6 @@ enum EstadoCuenta {
   PENDIENTE_VERIFICACION
 }
 
-enum EstadoOperativo {
-  DISPONIBLE
-  EN_ATENCION
-  NO_DISPONIBLE
-}
-
 enum EstadoSolicitudCancelacion {
   PENDIENTE
   APROBADA
@@ -88,6 +82,7 @@ model Alerta {
   cierre                 CierreAlerta?
   rutaAlerta             RutaAlerta?
   eventos                Evento[]
+  evidencias             Evidencia[]
   solicitudesCancelacion SolicitudCancelacion[]
 
   @@map("alertas")
@@ -110,16 +105,18 @@ model Atencion {
 }
 
 model AtencionFuncionario {
-  id            String      @id @default(uuid()) @db.Uuid
-  idAtencion    String      @map("id_atencion") @db.Uuid
-  ciFuncionario String?     @map("ci_funcionario") @db.VarChar(20)
-  rolAtencion   RolAtencion @default(ENCARGADO) @map("rol_atencion")
-  ubicacion     Json?       @db.JsonB
-  unidad        String      @map("unidad") @db.VarChar(255)
-  turnoInicio   DateTime    @map("turno_inicio") @db.Timestamptz()
-  turnoFin      DateTime    @map("turno_fin") @db.Timestamptz()
-  creadoEn      DateTime    @default(now()) @map("creado_en") @db.Timestamptz()
-  actualizadoEn DateTime?   @updatedAt @map("actualizado_en") @db.Timestamptz()
+  id                  String      @id @default(uuid()) @db.Uuid
+  idAtencion          String      @map("id_atencion") @db.Uuid
+  ciFuncionario       String?     @map("ci_funcionario") @db.VarChar(20)
+  rolAtencion         RolAtencion @default(ENCARGADO) @map("rol_atencion")
+  ubicacion           Json?       @db.JsonB
+  unidad              String      @map("unidad") @db.VarChar(255)
+  turnoInicio         DateTime    @map("turno_inicio") @db.Timestamptz()
+  turnoFin            DateTime    @map("turno_fin") @db.Timestamptz()
+  fechaLlegada        DateTime?   @map("fecha_llegada") @db.Timestamptz()
+  confirmacionVictima Boolean     @default(false) @map("confirmacion_victima")
+  creadoEn            DateTime    @default(now()) @map("creado_en") @db.Timestamptz()
+  actualizadoEn       DateTime?   @updatedAt @map("actualizado_en") @db.Timestamptz()
 
   atencion Atencion @relation(fields: [idAtencion], references: [id])
 
@@ -159,12 +156,12 @@ model CierreAlertaAgresor {
 
 model Evidencia {
   id            String        @id @default(uuid()) @db.Uuid
-  idEvento      String        @map("id_evento") @db.Uuid
+  idAlerta      String        @map("id_alerta") @db.Uuid
   tipoEvidencia TipoEvidencia @default(FOTO) @map("tipo_evidencia")
   rutaArchivo   String        @map("ruta_archivo") @db.VarChar(500)
   creadoEn      DateTime      @default(now()) @map("creado_en") @db.Timestamptz()
 
-  evento Evento @relation(fields: [idEvento], references: [id])
+  alerta Alerta @relation(fields: [idAlerta], references: [id])
 
   @@map("evidencias")
 }
@@ -181,7 +178,6 @@ model Evento {
 
   alerta     Alerta              @relation(fields: [idAlerta], references: [id])
   usuarioWeb UsuarioWebKerberos? @relation(fields: [idUsuarioWeb], references: [id])
-  evidencias Evidencia[]
 
   @@map("eventos")
 }
@@ -203,7 +199,7 @@ model SolicitudCancelacion {
   idAlerta          String                     @unique @map("id_alerta") @db.Uuid
   fechaSolicitud    DateTime                   @map("fecha_solicitud") @db.Timestamptz()
   estadoSolicitud   EstadoSolicitudCancelacion @default(PENDIENTE) @map("estado_solicitud")
-  idUsuarioWeb      String?                    @map("id_usuario_panel") @db.Uuid
+  idUsuarioWeb      String?                    @map("id_usuario_web") @db.Uuid
   motivoCancelacion String?                    @map("motivo_cancelacion") @db.Text
   creadoEn          DateTime                   @default(now()) @map("creado_en") @db.Timestamptz()
   actualizadoEn     DateTime                   @updatedAt @map("actualizado_en") @db.Timestamptz()
@@ -234,8 +230,9 @@ model Victima {
   creadoEn           DateTime     @default(now()) @map("creado_en") @db.Timestamptz()
   actualizadoEn      DateTime?    @updatedAt @map("actualizado_en") @db.Timestamptz()
 
-  contactosEmergencia ContactoEmergencia[]
-  alertas             Alerta[]
+  contactosEmergencia     ContactoEmergencia[]
+  alertas                 Alerta[]
+  investigadoresAsignados InvestigadorVictima[]
 
   @@map("victimas")
 }
@@ -255,13 +252,29 @@ model ContactoEmergencia {
   @@map("contactos_emergencia")
 }
 
+model InvestigadorVictima {
+  id                    String    @id @default(uuid()) @db.Uuid
+  idVictima             String    @map("id_victima") @db.Uuid
+  idUsuarioInvestigador String    @map("id_usuario_investigador") @db.Uuid
+  idUsuarioAsignador    String    @map("id_usuario_asignador") @db.Uuid
+  fechaAsignacion       DateTime  @map("fecha_asignacion") @db.Timestamptz()
+  activo                Boolean   @default(true)
+  observaciones         String?   @db.Text
+  creadoEn              DateTime  @default(now()) @map("creado_en") @db.Timestamptz()
+  actualizadoEn         DateTime? @updatedAt @map("actualizado_en") @db.Timestamptz()
+
+  victima             Victima            @relation(fields: [idVictima], references: [id])
+
+  @@map("investigador_victima")
+}
+
 model UsuarioWebKerberos {
   id                     String                 @id @db.Uuid
   grado                  String                 @db.VarChar(50)
   nombreCompleto         String                 @map("nombre_completo") @db.VarChar(200)
   unidad                 String                 @db.VarChar(255)
   idDepartamento         Int                    @map("id_departamento") @db.Integer
-  autorizacion           Json                   @map("autorizacion") @db.JsonB
+  rol                    String                 @map("rol") @db.VarChar(50)
   estadoSession          Boolean                @default(false) @map("estado_session") @db.Boolean
   fcmToken               String?                @map("fcm_token") @db.VarChar(255)
   infoDispositivo        Json?                  @map("info_dispositivo") @db.JsonB

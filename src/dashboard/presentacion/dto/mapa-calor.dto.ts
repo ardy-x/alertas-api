@@ -1,74 +1,43 @@
 import { ApiProperty } from '@nestjs/swagger';
 
-export class DatoDepartamentoDto {
-  @ApiProperty({ example: 2 })
-  id_departamento: number;
+// DTO para respuesta GeoJSON del mapa de calor
+export class GeoJSONGeometryDto {
+  @ApiProperty({ example: 'Point', description: 'Tipo de geometría GeoJSON' })
+  declare type: 'Point';
 
-  @ApiProperty({ example: 'La Paz' })
-  nombre_departamento: string;
-
-  @ApiProperty({ example: 450 })
-  total_alertas: number;
-
-  @ApiProperty({ example: 120 })
-  alertas_activas: number;
+  @ApiProperty({ example: [-68.1193, -16.4897], description: 'Coordenadas [longitud, latitud]', type: [Number] })
+  declare coordinates: [number, number];
 }
 
-export class DatoProvinciaDto {
-  @ApiProperty({ example: 10 })
-  id_provincia: number;
+export class AlertaGeoJSONPropertiesDto {
+  @ApiProperty({ example: 'uuid-1234-5678', description: 'ID de la alerta' })
+  declare id_alerta: string;
 
-  @ApiProperty({ example: 'Pedro Domingo Murillo' })
-  nombre_provincia: string;
+  @ApiProperty({ example: 'ACTIVA', description: 'Estado de la alerta' })
+  declare estado: string;
 
-  @ApiProperty({ example: 'La Paz' })
-  nombre_departamento: string;
+  @ApiProperty({ example: '2026-03-08T10:30:00.000Z', description: 'Fecha y hora de la alerta' })
+  declare fecha_hora: string;
 
-  @ApiProperty({ example: 230 })
-  total_alertas: number;
-
-  @ApiProperty({ example: 65 })
-  alertas_activas: number;
+  @ApiProperty({ example: 'APP_MOVIL', description: 'Origen de la alerta' })
+  declare origen: string;
 }
 
-export class DatoMunicipioDto {
-  @ApiProperty({ example: 100 })
-  id_municipio: number;
+export class AlertaGeoJSONFeatureDto {
+  @ApiProperty({ example: 'Feature', description: 'Tipo de elemento GeoJSON' })
+  declare type: 'Feature';
 
-  @ApiProperty({ example: 'Murillo' })
-  nombre_municipio: string;
+  @ApiProperty({ type: GeoJSONGeometryDto, description: 'Geometría del punto de la alerta' })
+  declare geometry: GeoJSONGeometryDto;
 
-  @ApiProperty({ example: 'Pedro Domingo Murillo' })
-  nombre_provincia: string;
-
-  @ApiProperty({ example: 'La Paz' })
-  nombre_departamento: string;
-
-  @ApiProperty({ example: 85 })
-  total_alertas: number;
-
-  @ApiProperty({ example: 22 })
-  alertas_activas: number;
+  @ApiProperty({ type: AlertaGeoJSONPropertiesDto, description: 'Propiedades de la alerta' })
+  declare properties: AlertaGeoJSONPropertiesDto;
 }
 
-export class FiltroAplicadoDto {
-  @ApiProperty({ example: 2, required: false })
-  id_departamento?: number;
+export class MapaCalorGeoJSONDto {
+  @ApiProperty({ example: 'FeatureCollection', description: 'Tipo de colección GeoJSON' })
+  declare type: 'FeatureCollection';
 
-  @ApiProperty({ example: 10, required: false })
-  id_provincia?: number;
-}
-
-export class MapaCalorDto {
-  @ApiProperty({ example: 'departamentos', enum: ['departamentos', 'provincias', 'municipios'] })
-  nivel: 'departamentos' | 'provincias' | 'municipios';
-
-  @ApiProperty({ type: [Object], description: 'Datos según el nivel: DatoDepartamentoDto[] | DatoProvinciaDto[] | DatoMunicipioDto[]' })
-  datos: DatoDepartamentoDto[] | DatoProvinciaDto[] | DatoMunicipioDto[];
-
-  @ApiProperty({ example: 1250 })
-  total_alertas: number;
-
-  @ApiProperty({ type: FiltroAplicadoDto, nullable: true })
-  filtro_aplicado: FiltroAplicadoDto | null;
+  @ApiProperty({ type: [AlertaGeoJSONFeatureDto], description: 'Colección de alertas en formato GeoJSON' })
+  declare features: AlertaGeoJSONFeatureDto[];
 }
