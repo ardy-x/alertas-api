@@ -1,7 +1,7 @@
 import { MunicipioProvinciaDepartamento } from '@/integraciones/dominio/entidades/departamentos.entidad';
 import { DecodificarTokenRequestDto } from '../../presentacion/dtos/entrada/decodificar-token-request.dto';
 import { DecodificarTokenDatosDto, ModuloDto, SubmoduloDto } from '../../presentacion/dtos/salida/decodificar-token-response.dto';
-import { DecodedJWT, ModuloSubJWT } from '../entidades/jwt-entity';
+import { DecodedJWT, ModuloJWT, ModuloSubJWT } from '../entidades/jwt-entity';
 
 /**
  * Utilidades para mapear datos de JWT a DTOs de respuesta
@@ -17,9 +17,11 @@ export class JwtMapeoUtilidades {
     };
   }
 
-  static mapearADecodificarTokenResponse(decoded: DecodedJWT, departamento: MunicipioProvinciaDepartamento, modulos: ModuloDto[], entrada: DecodificarTokenRequestDto): DecodificarTokenDatosDto {
+  static mapearADecodificarTokenResponse(decoded: DecodedJWT, departamento: MunicipioProvinciaDepartamento, entrada: DecodificarTokenRequestDto): DecodificarTokenDatosDto {
     const sistema = decoded.systemData;
     const usuario = decoded.userData;
+
+    const modulos = (sistema.modules ?? []).map((modulo: ModuloJWT) => JwtMapeoUtilidades.mapearModuloRecursivo(modulo)) as ModuloDto[];
 
     return {
       tokens: {

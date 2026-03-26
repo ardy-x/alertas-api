@@ -57,12 +57,12 @@ export class KerberosAdapter implements KerberosPort {
     private readonly httpClientPrivado: HttpClientPrivadoService,
   ) {}
 
-  async intercambioCodigo(code: string): Promise<{ token: string }> {
+  async intercambioCodigo(code: string): Promise<string> {
     const url = `${this.kerberosUrl}${KERBEROS_ENDPOINTS.EXCHANGE_CODE}`;
     try {
       const response = await this.httpClientPublico.post<KerberosApiResponse<IntercambioCodigoDatos>>(url, { code });
       this.logger.log('Intercambio exitoso, token recibido');
-      return response.data!;
+      return response.data!.token;
     } catch (error) {
       const infoError = analizarErrorHttp(error);
       this.logger.error(`Error en intercambioCodigo desde ${url} - Status: ${infoError.status}, Mensaje: ${infoError.mensaje}`);

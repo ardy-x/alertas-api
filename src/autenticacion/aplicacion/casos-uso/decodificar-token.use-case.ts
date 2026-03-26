@@ -1,12 +1,12 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
-import { Inject, Injectable, Logger } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, InternalServerErrorException, Logger, UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
 import { DecodificarTokenRequestDto } from '@/autenticacion/presentacion/dtos/entrada/decodificar-token-request.dto';
-import { DecodificarTokenDatosDto, ModuloDto } from '@/autenticacion/presentacion/dtos/salida/decodificar-token-response.dto';
+import { DecodificarTokenDatosDto } from '@/autenticacion/presentacion/dtos/salida/decodificar-token-response.dto';
 import { EncontrarDepartamentoUseCase } from '@/integraciones/aplicacion/casos-uso/encontrar-departamento.use-case';
 import { RegistrarUsuarioWebUseCase } from '@/usuarios-web/aplicacion/casos-uso/registrar-usuario-web.use-case';
-import { DecodedJWT, ModuloJWT } from '../../dominio/entidades/jwt-entity';
+import { DecodedJWT } from '../../dominio/entidades/jwt-entity';
 import { KerberosPort } from '../../dominio/puertos/kerberos.port';
 import { KERBEROS_PORT_TOKEN } from '../../dominio/tokens/autenticacion.tokens';
 import { JwtMapeoUtilidades } from '../../dominio/utilidades/jwt-mapeo.utilidades';
@@ -25,60 +25,49 @@ export class DecodificarTokenUseCase {
   }
 
   async ejecutar(entrada: DecodificarTokenRequestDto): Promise<DecodificarTokenDatosDto> {
+    // 1. Intercambiar código por token en Kerberos
+    const token = await this.kerberosPort.intercambioCodigo(entrada.codigo);
+
+    // 2. Verificar JWT usando clave pública
+    let datos: DecodedJWT;
     try {
-      // Primero, intercambiar el código por el token
-      const exchangeData = await this.kerberosPort.intercambioCodigo(entrada.codigo);
-
-      const token = exchangeData.token;
-
-      // Ahora, decodificar el token
-      const decoded = jwt.verify(token, this.publicKey, { algorithms: ['RS256'] }) as DecodedJWT;
-
-      // Validar que los datos obligatorios estén presentes
-      if (!decoded.systemData || !decoded.userData || !decoded.tokens) {
-        throw new Error('Datos obligatorios faltan en el token JWT');
-      }
-
-      const sistema = decoded.systemData;
-      const usuario = decoded.userData;
-
-      if (!sistema.modules || !Array.isArray(sistema.modules)) {
-        throw new Error('Módulos no encontrados o inválidos en systemData');
-      }
-
-      const modulos = sistema.modules.map((modulo: ModuloJWT) => JwtMapeoUtilidades.mapearModuloRecursivo(modulo)) as ModuloDto[];
-
-      this.logger.log(`Token decodificado exitosamente para usuario: ${usuario.username || usuario.userId}`);
-
-      // Encontrar departamento basado en coordenadas del entrada
-      const departamento = await this.encontrarDepartamentoUseCase.ejecutar({
-        latitud: entrada.latitud,
-        longitud: entrada.longitud,
-      });
-
-      const datosTraducidos = JwtMapeoUtilidades.mapearADecodificarTokenResponse(decoded, departamento, modulos, entrada);
-
-      // Registrar o actualizar usuario en la base de datos
-      await this.registrarUsuarioWebUseCase.ejecutar({
-        id: usuario.userId,
-        grado: usuario.grado,
-        nombreCompleto: usuario.fullName,
-        unidad: usuario.unidad,
-        idDepartamento: departamento.departamento.id,
-        rol: sistema.role,
-        estadoSession: true,
-      });
-
-      this.logger.log(`Usuario registrado exitosamente: ${usuario.username}`);
-
-      return datosTraducidos;
+      datos = jwt.verify(token, this.publicKey, { algorithms: ['RS256'] }) as DecodedJWT;
     } catch (error) {
-      if ((error as Error).message.includes('403')) {
-        throw new Error('Código de autenticación expirado o ya utilizado. Obtén un nuevo código.');
-      } else {
-        // Para otros errores, relanzar la excepción original para que conserve el mensaje correcto
-        throw error;
+      if (error instanceof jwt.TokenExpiredError) {
+        throw new UnauthorizedException('Token expirado. Por favor, vuelve a iniciar sesión.');
       }
+      if (error instanceof jwt.JsonWebTokenError) {
+        throw new BadRequestException('Token JWT inválido. Verifica el token recibido del servicio Kerberos.');
+      }
+      throw new InternalServerErrorException('Error al verificar el token JWT.');
     }
+
+    // 3. Verificación de datos requeridos
+    if (!datos.systemData || !datos.userData || !datos.tokens) {
+      throw new BadRequestException('faltan datos en el token decodificado.');
+    }
+
+    this.logger.log(`Token decodificado exitosamente para usuario: ${datos.userData.username}`);
+
+    // 4. Encontrar departamento basado en coordenadas
+    const departamento = await this.encontrarDepartamentoUseCase.ejecutar({
+      latitud: entrada.latitud,
+      longitud: entrada.longitud,
+    });
+
+    const datosTraducidos = JwtMapeoUtilidades.mapearADecodificarTokenResponse(datos, departamento, entrada);
+
+    // 5. Registrar o actualizar usuario en la base de datos
+    await this.registrarUsuarioWebUseCase.ejecutar({
+      id: datos.userData.userId,
+      grado: datos.userData.grado,
+      nombreCompleto: datos.userData.fullName,
+      unidad: datos.userData.unidad,
+      idDepartamento: departamento.departamento.id,
+      rol: datos.systemData.role,
+      estadoSession: true,
+    });
+
+    return datosTraducidos;
   }
 }
