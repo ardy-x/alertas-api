@@ -259,20 +259,35 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
   }> {
     try {
       const execAsync = promisify(exec);
-      // Usar df para obtener info del sistema de archivos raíz
-      const { stdout } = await execAsync('df -k /');
+      // Usar df para obtener info de disco global (excluyendo tmpfs/devtmpfs)
+      const { stdout } = await execAsync('df -k -x tmpfs -x devtmpfs');
       const lines = stdout.trim().split('\n');
 
       if (lines.length < 2) return {};
 
-      // Parsear la segunda línea (primera es header)
-      const parts = lines[1].split(/\s+/);
+      let totalKB = 0;
+      let usedKB = 0;
+      let availableKB = 0;
 
-      // df output: Filesystem 1K-blocks Used Available Use% Mounted
-      const totalKB = parseInt(parts[1], 10) || 0;
-      const usedKB = parseInt(parts[2], 10) || 0;
-      const availableKB = parseInt(parts[3], 10) || 0;
-      const usagePercent = parts[4];
+      for (let i = 1; i < lines.length; i++) {
+        const parts = lines[i].split(/\s+/);
+        if (parts.length < 6) continue;
+
+        // df output: Filesystem 1K-blocks Used Available Use% Mounted on
+        const filesystem = parts[0] || '';
+        const mountedOn = parts[5] || '';
+
+        // Ignorar duplicados de mounts puntuales con overlay o bind en contenedores
+        if (filesystem.startsWith('overlay') || mountedOn.startsWith('/proc') || mountedOn.startsWith('/sys') || mountedOn.startsWith('/dev')) {
+          continue;
+        }
+
+        totalKB += parseInt(parts[1], 10) || 0;
+        usedKB += parseInt(parts[2], 10) || 0;
+        availableKB += parseInt(parts[3], 10) || 0;
+      }
+
+      const usagePercent = totalKB > 0 ? `${Math.round((usedKB * 100) / totalKB)}%` : '0%';
 
       return {
         disk_total: this.formatearBytes(totalKB * 1024),
