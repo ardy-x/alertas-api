@@ -1,4 +1,5 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { InvestigadorActivoDto } from '../../dtos/salida/investigador.dto';
 
 export class AlertaVictimaDto {
   @ApiProperty({
@@ -152,26 +153,6 @@ export class VictimaResumenDto {
   })
   estadoCuenta: string;
 }
-export class InvestigadorActivoDto {
-  @ApiProperty()
-  declare id: string;
-  @ApiProperty()
-  declare idVictima: string;
-  @ApiProperty()
-  declare idUsuarioInvestigador: string;
-  @ApiProperty()
-  declare fechaAsignacion: Date;
-  @ApiProperty()
-  declare observaciones: string | null;
-  // Datos del funcionario desde UsuarioWebKerberos
-  @ApiProperty()
-  declare nombreCompleto: string;
-  @ApiProperty()
-  declare grado: string;
-  @ApiProperty()
-  declare unidad: string;
-}
-
 export class HistorialAlertasVictimaDto {
   @ApiProperty({
     description: 'Información de la víctima',
