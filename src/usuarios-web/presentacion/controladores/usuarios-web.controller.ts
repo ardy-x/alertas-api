@@ -36,7 +36,8 @@ export class UsuariosWebController {
   }
 
   @Get(':idUsuarioWeb/perfil')
-  @ApiOperation({ summary: 'Obtener perfil del usuario', description: 'Roles permitidos: ADMINISTRADOR' })
+  @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.OPERADOR, RolesPermitidos.INVESTIGADOR)
+  @ApiOperation({ summary: 'Obtener perfil del usuario', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR, INVESTIGADOR' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Usuario obtenido exitosamente', type: UsuarioWebResponseDto })
   async obtenerPerfil(@Param('idUsuarioWeb', ParseUUIDPipe) idUsuarioWeb: string): Promise<RespuestaBaseDto<{ usuarioWeb: UsuarioWebResponseDto }>> {
     const usuarioWeb = await this.obtenerUsuarioWebUseCase.ejecutar(idUsuarioWeb);
@@ -44,7 +45,8 @@ export class UsuariosWebController {
   }
 
   @Patch(':idUsuarioWeb/token-fcm')
-  @ApiOperation({ summary: 'Actualizar token FCM', description: 'Roles permitidos: ADMINISTRADOR' })
+  @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.OPERADOR, RolesPermitidos.INVESTIGADOR)
+  @ApiOperation({ summary: 'Actualizar token FCM', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR, INVESTIGADOR' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Token FCM registrado exitosamente' })
   async registrarTokenFCM(@Param('idUsuarioWeb', ParseUUIDPipe) idUsuarioWeb: string, @Body() dto: RegistrarTokenFCMRequestDto): Promise<RespuestaBaseDto> {
     await this.registrarTokenFCMUseCase.ejecutar(dto, idUsuarioWeb);

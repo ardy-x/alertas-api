@@ -33,7 +33,7 @@ export class VictimasWebController {
   ) {}
 
   @Get()
-  @Roles(RolesPermitidos.INVESTIGADOR)
+  @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.INVESTIGADOR)
   @ApiOperation({ summary: 'Listar víctimas con filtros y paginación', description: 'Roles permitidos: ADMINISTRADOR, INVESTIGADOR' })
   @ApiResponse({ status: HttpStatus.OK, type: ListarVictimasData })
   async listarTodas(@Query() query: ListarVictimasRequestDto, @IdUsuarioActual() idUsuario: string, @RolUsuarioActual() rolUsuario: string): Promise<PaginacionRespuestaBaseDto<ListarVictimasData>> {
@@ -50,7 +50,7 @@ export class VictimasWebController {
   }
 
   @Get(':idVictima/historial-alertas')
-  @Roles(RolesPermitidos.INVESTIGADOR)
+  @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.INVESTIGADOR)
   @ApiOperation({ summary: 'Obtener historial de alertas de una víctima por ID', description: 'Roles permitidos: ADMINISTRADOR, INVESTIGADOR' })
   @ApiResponse({ status: HttpStatus.OK, type: HistorialAlertasVictimaDto })
   async obtenerHistorialAlertasPorId(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto<HistorialAlertasVictimaDto>> {

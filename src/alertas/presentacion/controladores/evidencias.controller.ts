@@ -51,7 +51,7 @@ export class EvidenciasController {
   ) {}
 
   @Post(':idAlerta/evidencias')
-  @Roles(RolesPermitidos.OPERADOR, RolesPermitidos.INVESTIGADOR)
+  @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.OPERADOR, RolesPermitidos.INVESTIGADOR)
   @ApiOperation({ summary: 'Subir evidencias a una alerta (hasta 10 archivos).', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR, INVESTIGADOR' })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Evidencia(s) subida(s) exitosamente' })
   @ApiConsumes('multipart/form-data')
@@ -152,7 +152,7 @@ export class EvidenciasController {
   }
 
   @Get(':idAlerta/evidencias')
-  @Roles(RolesPermitidos.OPERADOR, RolesPermitidos.INVESTIGADOR)
+  @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.OPERADOR, RolesPermitidos.INVESTIGADOR)
   @ApiOperation({ summary: 'Listar evidencias de una alerta', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR, INVESTIGADOR' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Evidencias obtenidas exitosamente', type: ListarEvidenciasResponseDto })
   async listarEvidencias(@Param('idAlerta', ParseUUIDPipe) idAlerta: string): Promise<RespuestaBaseDto<ListarEvidenciasResponseDto>> {

@@ -21,7 +21,6 @@ import { AlertaActivaDto, AlertaDetalleDto, ObtenerHistorialAlertasResponseDto }
 @ApiRespuestasComunes()
 @Controller('alertas')
 @UseGuards(KerberosJwtAuthGuard, RolesGuard)
-@Roles(RolesPermitidos.ADMINISTRADOR)
 export class AlertasWebController {
   constructor(
     private readonly obtenerAlertasActivasUseCase: ListarAlertasActivasUseCase,
@@ -31,7 +30,7 @@ export class AlertasWebController {
   ) {}
 
   @Get('alertas-activas')
-  @Roles(RolesPermitidos.OPERADOR)
+  @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.OPERADOR)
   @ApiOperation({ summary: 'Obtener alertas activas', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Alertas activas obtenidas exitosamente', type: [AlertaActivaDto] })
   async obtenerAlertasActivas(@Query() filtros: FiltrosAlertasActivasRequestDto): Promise<RespuestaBaseDto<AlertaActivaDto[]>> {
@@ -40,7 +39,7 @@ export class AlertasWebController {
   }
 
   @Get('historial-alertas')
-  @Roles(RolesPermitidos.OPERADOR)
+  @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.OPERADOR)
   @ApiOperation({ summary: 'Obtener historial de alertas finalizadas', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Historial de alertas obtenido exitosamente', type: ObtenerHistorialAlertasResponseDto })
   async obtenerHistorialAlertas(@Query() paginacionDto: AlertasPaginacionQueryDto): Promise<RespuestaBaseDto<ObtenerHistorialAlertasResponseDto>> {
@@ -49,7 +48,7 @@ export class AlertasWebController {
   }
 
   @Get(':idAlerta/detalle')
-  @Roles(RolesPermitidos.OPERADOR, RolesPermitidos.INVESTIGADOR)
+  @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.OPERADOR, RolesPermitidos.INVESTIGADOR)
   @ApiOperation({ summary: 'Obtener detalle de una alerta', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR, INVESTIGADOR' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Alerta obtenida exitosamente', type: AlertaDetalleDto })
   async obtenerAlertaPorId(@Param('idAlerta', ParseUUIDPipe) idAlerta: string): Promise<RespuestaBaseDto<AlertaDetalleDto>> {
@@ -58,7 +57,7 @@ export class AlertasWebController {
   }
 
   @Patch(':idAlerta/en-atencion')
-  @Roles(RolesPermitidos.OPERADOR)
+  @Roles(RolesPermitidos.ADMINISTRADOR, RolesPermitidos.OPERADOR)
   @ApiOperation({ summary: 'Marcar alerta en atención', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR' })
   @ApiBody({ type: RegistrarLlegadaRequestDto })
   @ApiResponse({ status: HttpStatus.OK, description: 'Alerta marcada en atención exitosamente' })
