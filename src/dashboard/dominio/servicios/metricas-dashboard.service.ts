@@ -65,19 +65,19 @@ export class MetricasDashboardService {
       alertasResueltas: datos.alertasResueltas,
       promedioAsignacion: {
         tiempo: this.formatearTiempo(promedioAsignacion),
-        descripcion: 'Tiempo que tarda en asignarse un policía',
+        descripcion: 'Tiempo promedio que tarda en asignarse un policía a una alerta',
       },
       promedioAtencionTotal: {
         tiempo: this.formatearTiempo(promedioAtencionTotal),
-        descripcion: 'Tiempo que toma resolver la alerta',
+        descripcion: 'Tiempo promedio que toma resolver la alerta, desde que se recibe hasta que se cierra',
       },
       promedioRegistro: {
         tiempo: this.formatearTiempo(promedioRegistro),
-        descripcion: 'Tiempo que tarda en registrarse en el sistema',
+        descripcion: 'Tiempo promedio que tarda una alerta en llegar al sistema',
       },
       promedioLlegada: {
         tiempo: this.formatearTiempo(promedioLlegada),
-        descripcion: 'Tiempo que tarda el policía en llegar',
+        descripcion: 'Tiempo promedio que tarda el policía en llegar a la ubicación de la víctima',
       },
     };
   }
@@ -153,7 +153,7 @@ export class MetricasDashboardService {
    */
   procesarAlertasRecientes(alertasCrudas: AlertaRecienteBase[]): AlertaReciente[] {
     return alertasCrudas.map((alerta) => {
-      const tiempoTranscurrido = Math.floor((Date.now() - alerta.creadoEn.getTime()) / 1000);
+      const tiempoTranscurrido = (Date.now() - alerta.creadoEn.getTime()) / 1000;
 
       return {
         idAlerta: alerta.id,
@@ -168,15 +168,16 @@ export class MetricasDashboardService {
   }
 
   /**
-   * Convierte segundos a formato HH:MM:SS
+   * Convierte segundos a formato HH:MM:SS.mmm
    */
   private formatearTiempo(segundos: number): string {
-    if (!segundos || Number.isNaN(segundos)) return '00:00:00';
+    if (!segundos || Number.isNaN(segundos)) return '00:00:00.000';
 
     const horas = Math.floor(segundos / 3600);
     const minutos = Math.floor((segundos % 3600) / 60);
     const segs = Math.floor(segundos % 60);
+    const milisegundos = Math.floor(Math.round(segundos * 1000) % 1000);
 
-    return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segs).padStart(2, '0')}`;
+    return `${String(horas).padStart(2, '0')}:${String(minutos).padStart(2, '0')}:${String(segs).padStart(2, '0')}.${String(milisegundos).padStart(3, '0')}`;
   }
 }
