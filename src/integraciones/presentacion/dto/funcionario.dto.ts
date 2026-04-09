@@ -1,5 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString, Matches } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsInt, IsNotEmpty, IsOptional, IsString, Matches, Min } from 'class-validator';
+import { PaginacionQueryDto } from '@/core/dto/paginacion-query.dto';
+import { PaginacionDto } from '@/core/dto/paginacion-response.dto';
 
 export class BuscarFuncionarioQueryDto {
   @ApiProperty({ example: '' })
@@ -35,4 +38,21 @@ export class FuncionarioDto {
 export class BuscarFuncionarioResponseDto {
   @ApiProperty({ type: [FuncionarioDto] })
   declare funcionarios: FuncionarioDto[];
+}
+
+export class ListarFuncionariosQueryDto extends PaginacionQueryDto {
+  @ApiProperty({ required: false })
+  @IsOptional()
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  declare idUnidad?: number;
+}
+
+export class ListarFuncionariosResponseDto {
+  @ApiProperty({ type: [FuncionarioDto] })
+  declare funcionarios: FuncionarioDto[];
+
+  @ApiProperty({ type: PaginacionDto })
+  declare paginacion: PaginacionDto;
 }

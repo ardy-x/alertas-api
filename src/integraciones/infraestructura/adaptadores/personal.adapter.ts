@@ -1,57 +1,58 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, Logger } from '@nestjs/common';
 import { SERVICIOS_CONFIG } from '@/config/servicios.config';
 import { HttpClientPublicoService } from '@/core/utilidades/http-client-publico.service';
-import { analizarErrorHttp, esErrorNoEncontrado } from '@/core/utilidades/http-error.util';
 import { FuncionarioEntity } from '../../dominio/entidades/funcionario.entity';
-import { PersonalPort } from '../../dominio/puertos/personal.port';
+import { ListarFuncionariosDatos, ListarFuncionariosFiltros, PersonalPort } from '../../dominio/puertos/personal.port';
 
 interface Funcionario {
-  cedulaIdentidad?: string;
-  grado?: string;
+  cedulaIdentidad?: string | null;
+  grado?: string | null;
   escalafon?: string | null;
-  nombreCompleto?: string;
-  nombres?: string;
-  paterno?: string;
-  materno?: string;
-  idUnidadPolicial?: number;
-  unidadPolicial?: string;
-  idCargo?: number;
-  cargo?: string;
-  estadoPersonal?: string;
-  fotografia?: string;
+  nombreCompleto?: string | null;
+  nombres?: string | null;
+  paterno?: string | null;
+  materno?: string | null;
+  idUnidadPolicial?: number | null;
+  unidadPolicial?: string | null;
+  idCargo?: number | null;
+  cargo?: string | null;
+  estadoPersonal?: string | null;
+  fotografia?: string | null;
 }
 
-interface ServicioPersonal {
+interface RespuestaServicioPersonal<TResponse> {
   error: boolean;
   message: string;
-  response: {
-    personalPolicial?: Funcionario | null;
-  };
+  response: TResponse;
   status: number;
 }
+
+type BuscarFuncionarioResponse = {
+  personalPolicial?: Funcionario | null;
+};
+
+type ListarFuncionariosResponse = {
+  personalPolicial?: Funcionario[];
+  paginacion?: {
+    totalElementos: number;
+  } | null;
+};
 
 @Injectable()
 export class PersonalAdapter implements PersonalPort {
   private readonly logger = new Logger(PersonalAdapter.name);
-  private readonly urlBase: string;
+  private readonly personalPolicialUrl: string;
 
   constructor(private readonly httpClientPublico: HttpClientPublicoService) {
-    this.urlBase = SERVICIOS_CONFIG.personalApiBase;
+    this.personalPolicialUrl = new URL('/api/personal-policial', SERVICIOS_CONFIG.personalApiBase).toString();
   }
 
   async buscarFuncionario(ci: string): Promise<FuncionarioEntity[] | null> {
-    const cedulaIdentidad = ci?.trim();
-
-    if (!cedulaIdentidad) {
-      throw new Error('CI es requerido');
-    }
-
-    const url = `${this.urlBase}/api/personal-policial`;
     try {
-      const respuesta = await this.httpClientPublico.post<ServicioPersonal>(
-        url,
+      const data = await this.httpClientPublico.post<RespuestaServicioPersonal<BuscarFuncionarioResponse>>(
+        this.personalPolicialUrl,
         {
-          cedulaIdentidad,
+          cedulaIdentidad: ci,
         },
         {
           headers: {
@@ -60,54 +61,66 @@ export class PersonalAdapter implements PersonalPort {
           },
         },
       );
-      const data = respuesta;
-
-      // Manejar respuesta con error del servicio externo
-      if (data.error) {
-        if (data.status === 404) {
-          throw new Error('Funcionario no encontrado');
-        }
-        throw new Error(data.message || 'Error del servicio externo');
-      }
-
-      // Validar que haya resultados
-      if (!data.response?.personalPolicial) {
-        return null;
-      }
-
-      // Mantener contrato de salida anterior (lista de FuncionarioEntity)
-      const func = data.response.personalPolicial;
-      const nombres = func.nombres?.trim() || '';
-      const paterno = func.paterno?.trim() || '';
-      const materno = func.materno?.trim() || '';
-      const nombreCompleto = (func.nombreCompleto?.trim() || [nombres, paterno, materno].filter(Boolean).join(' ')).trim();
-
-      const funcionarios: FuncionarioEntity[] = [
-        {
-          cedulaIdentidad: func.cedulaIdentidad || '',
-          nroEscalafon: func.escalafon || '',
-          grado: func.grado || '',
-          nombreCompleto,
-          unidad: func.unidadPolicial || '',
-          cargo: func.cargo || '',
-          procesoDisciplinario: false,
-        },
-      ];
-
-      return funcionarios;
+      return data.response?.personalPolicial ? [this.mapearFuncionario(data.response.personalPolicial)] : null;
     } catch (err: unknown) {
-      if (esErrorNoEncontrado(err)) {
-        throw new Error('Funcionario no encontrado');
-      }
-
-      const infoError = analizarErrorHttp(err);
-      // Si ya es un error manejado, no lo envolvemos
-      if (infoError.mensaje === 'Funcionario no encontrado' || infoError.mensaje.includes('Error del servicio externo')) {
-        throw err;
-      }
-
-      this.logger.error(`Error al buscar funcionario en ${url}: ${infoError.mensaje}`);
-      throw new Error('Error al buscar funcionario en servicio de Personal');
+      this.logger.error(`Error al buscar funcionario en ${this.personalPolicialUrl}: ${err instanceof Error ? err.message : String(err)}`);
+      throw new InternalServerErrorException('Error al buscar funcionario en servicio de Personal');
     }
+  }
+
+  async listarFuncionarios(filtros: ListarFuncionariosFiltros): Promise<ListarFuncionariosDatos> {
+    const params = new URLSearchParams({
+      pagina: String(filtros.pagina),
+      elementosPorPagina: String(filtros.elementosPorPagina),
+    });
+
+    if (filtros.busqueda !== undefined && filtros.busqueda !== '') {
+      params.set('busqueda', filtros.busqueda);
+    }
+
+    if (filtros.ordenarPor !== undefined && filtros.ordenarPor !== '') {
+      params.set('ordenarPor', filtros.ordenarPor);
+    }
+
+    if (filtros.orden !== undefined) {
+      params.set('orden', filtros.orden.toUpperCase());
+    }
+
+    if (filtros.idUnidad !== undefined) {
+      params.set('idUnidad', String(filtros.idUnidad));
+    }
+
+    const url = `${this.personalPolicialUrl}?${params.toString()}`;
+
+    try {
+      const data = await this.httpClientPublico.get<RespuestaServicioPersonal<ListarFuncionariosResponse>>(url, {
+        headers: {
+          accept: 'application/json',
+        },
+      });
+
+      const personal = data.response.personalPolicial ?? [];
+      const total = data.response.paginacion?.totalElementos ?? 0;
+
+      return {
+        funcionarios: personal.map((func) => this.mapearFuncionario(func)),
+        total,
+      };
+    } catch (err: unknown) {
+      this.logger.error(`Error al listar funcionarios en ${url}: ${err instanceof Error ? err.message : String(err)}`);
+      throw new InternalServerErrorException('Error al listar funcionarios en servicio de Personal');
+    }
+  }
+
+  private mapearFuncionario(func: Funcionario): FuncionarioEntity {
+    return {
+      cedulaIdentidad: func.cedulaIdentidad ?? '',
+      nroEscalafon: func.escalafon ?? '',
+      grado: func.grado ?? '',
+      nombreCompleto: func.nombreCompleto || `${func.nombres || ''} ${func.paterno || ''} ${func.materno || ''}`,
+      unidad: func.unidadPolicial ?? '',
+      cargo: func.cargo ?? '',
+      procesoDisciplinario: false,
+    };
   }
 }
