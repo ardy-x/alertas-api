@@ -6,23 +6,27 @@ import { FuncionarioEntity } from '../../dominio/entidades/funcionario.entity';
 import { PersonalPort } from '../../dominio/puertos/personal.port';
 
 interface Funcionario {
-  id?: string;
-  nroDocumento?: string;
-  nroEscalafon?: string;
-  nombres?: string;
-  primerApellido?: string;
-  segundoApellido?: string;
+  cedulaIdentidad?: string;
   grado?: string;
-  unidad?: string;
+  escalafon?: string | null;
+  nombreCompleto?: string;
+  nombres?: string;
+  paterno?: string;
+  materno?: string;
+  idUnidadPolicial?: number;
+  unidadPolicial?: string;
+  idCargo?: number;
   cargo?: string;
-  procesoDisciplinario?: boolean;
-  unidadId?: number;
+  estadoPersonal?: string;
+  fotografia?: string;
 }
 
 interface ServicioPersonal {
   error: boolean;
   message: string;
-  response: Funcionario[];
+  response: {
+    personalPolicial?: Funcionario | null;
+  };
   status: number;
 }
 
@@ -36,17 +40,26 @@ export class PersonalAdapter implements PersonalPort {
   }
 
   async buscarFuncionario(ci: string): Promise<FuncionarioEntity[] | null> {
-    if (!ci || ci.trim().length === 0) {
+    const cedulaIdentidad = ci?.trim();
+
+    if (!cedulaIdentidad) {
       throw new Error('CI es requerido');
     }
 
-    const url = `${this.urlBase}/personas/buscar-persona?nroDocumento=${encodeURIComponent(ci)}`;
+    const url = `${this.urlBase}/api/personal-policial`;
     try {
-      const respuesta = await this.httpClientPublico.get<ServicioPersonal>(url, {
-        headers: {
-          accept: 'application/json',
+      const respuesta = await this.httpClientPublico.post<ServicioPersonal>(
+        url,
+        {
+          cedulaIdentidad,
         },
-      });
+        {
+          headers: {
+            accept: 'application/json',
+            'Content-Type': 'application/json',
+          },
+        },
+      );
       const data = respuesta;
 
       // Manejar respuesta con error del servicio externo
@@ -58,27 +71,28 @@ export class PersonalAdapter implements PersonalPort {
       }
 
       // Validar que haya resultados
-      if (!data.response || data.response.length === 0) {
+      if (!data.response?.personalPolicial) {
         return null;
       }
 
-      // Mapear todos los resultados
-      const funcionarios = data.response.map((func) => {
-        const nombres = func.nombres?.trim() || '';
-        const primerApellido = func.primerApellido?.trim() || '';
-        const segundoApellido = func.segundoApellido?.trim() || '';
-        const nombreCompleto = [nombres, primerApellido, segundoApellido].filter(Boolean).join(' ').trim();
+      // Mantener contrato de salida anterior (lista de FuncionarioEntity)
+      const func = data.response.personalPolicial;
+      const nombres = func.nombres?.trim() || '';
+      const paterno = func.paterno?.trim() || '';
+      const materno = func.materno?.trim() || '';
+      const nombreCompleto = (func.nombreCompleto?.trim() || [nombres, paterno, materno].filter(Boolean).join(' ')).trim();
 
-        return {
-          cedulaIdentidad: func.nroDocumento || '',
-          nroEscalafon: func.nroEscalafon || '',
+      const funcionarios: FuncionarioEntity[] = [
+        {
+          cedulaIdentidad: func.cedulaIdentidad || '',
+          nroEscalafon: func.escalafon || '',
           grado: func.grado || '',
-          nombreCompleto: nombreCompleto,
-          unidad: func.unidad || '',
+          nombreCompleto,
+          unidad: func.unidadPolicial || '',
           cargo: func.cargo || '',
-          procesoDisciplinario: func.procesoDisciplinario || false,
-        };
-      });
+          procesoDisciplinario: false,
+        },
+      ];
 
       return funcionarios;
     } catch (err: unknown) {
