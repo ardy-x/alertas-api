@@ -1,0 +1,97 @@
+# Informe Formal de Pruebas de Caja Blanca
+
+Fecha: 2026-04-09  
+Proyecto: Alertas API (NestJS)
+
+## 1. Objetivo
+
+Verificar, mediante pruebas unitarias de caja blanca, la logica interna de tres servicios funcionales del sistema:
+
+1. Servicio de activacion de cuenta.
+2. Servicio de emision de alerta.
+3. Servicio de autenticacion.
+
+## 2. Alcance
+
+Las pruebas cubren rutas de ejecucion internas, validaciones, manejo de errores y contratos de colaboracion con dependencias externas simuladas (mocks).
+
+## 3. Artefactos de prueba
+
+1. src/autenticacion/aplicacion/casos-uso/activacion-cuenta.servicio.spec.ts
+2. src/alertas/aplicacion/casos-uso/emision-alerta.servicio.spec.ts
+3. src/autenticacion/aplicacion/casos-uso/autenticacion.servicio.spec.ts
+
+## 4. Definiciones de resultado (Jest)
+
+| Termino | Definicion formal |
+|---|---|
+| Suite | Conjunto de casos de prueba agrupados en un archivo o bloque `describe`. |
+| Test | Caso de prueba individual definido con `it` o `test`. |
+| PASS | Estado de prueba aprobada: el comportamiento real coincide con el esperado. |
+
+## 5. Matriz de casos por servicio
+
+| Servicio | Caso validado | Resultado esperado |
+|---|---|---|
+| Activacion de cuenta | Validacion CI/CUD contra JUPITER | Retorno de datos de victima validos |
+| Activacion de cuenta | Generacion de OTP | Codigo numerico de 6 digitos |
+| Activacion de cuenta | Persistencia de OTP en Redis | Registro con TTL de 600 segundos |
+| Activacion de cuenta | Verificacion OTP correcta | Generacion de API Key y persistencia de hash |
+| Activacion de cuenta | OTP invalido/expirado | Excepcion `BadRequestException` |
+| Activacion de cuenta | Victima inexistente | Excepcion `NotFoundException` |
+| Emision de alerta | Resolucion de jurisdiccion por GPS (GeoServer) | Obtencion de municipio/departamento |
+| Emision de alerta | Creacion de alerta | Estado `PENDIENTE` persistido |
+| Emision de alerta | Notificacion operativa | Emision de evento de notificacion |
+| Emision de alerta | Jurisdiccion no disponible | Excepcion `BadRequestException` |
+| Autenticacion | Intercambio OAuth 2.0 con Kerberos | Recepcion de token |
+| Autenticacion | Verificacion JWT | Token validado con clave publica |
+| Autenticacion | Extraccion de rol | Rol de usuario mapeado correctamente |
+| Autenticacion | Token expirado | Excepcion `UnauthorizedException` |
+| Autenticacion | Token invalido | Excepcion `BadRequestException` |
+
+## 6. Cobertura tecnica relevante
+
+| Archivo de produccion | Statements | Branches | Functions | Lines |
+|---|---:|---:|---:|---:|
+| src/victimas/aplicacion/casos-uso/verificar-denuncia.use-case.ts | 90.00% | 0.00% | 100.00% | 87.50% |
+| src/victimas/aplicacion/casos-uso/validacion/solicitar-codigo-whatsapp.use-case.ts | 87.50% | 44.44% | 100.00% | 86.66% |
+| src/victimas/aplicacion/casos-uso/validacion/verificar-codigo-celular.use-case.ts | 100.00% | 100.00% | 100.00% | 100.00% |
+| src/alertas/aplicacion/casos-uso/crear-alerta.use-case.ts | 92.15% | 61.53% | 100.00% | 91.83% |
+| src/autenticacion/aplicacion/casos-uso/decodificar-token.use-case.ts | 93.54% | 83.33% | 100.00% | 93.10% |
+
+### 6.1 Significado de los porcentajes de cobertura
+
+| Metrica | Significado |
+|---|---|
+| Statements | Porcentaje de sentencias/instrucciones del codigo que fueron ejecutadas por las pruebas. |
+| Branches | Porcentaje de ramas de decision cubiertas (por ejemplo, caminos `if/else`, `switch`, condiciones verdaderas y falsas). |
+| Functions | Porcentaje de funciones o metodos invocados al menos una vez durante la ejecucion de pruebas. |
+| Lines | Porcentaje de lineas de codigo ejecutadas por las pruebas. |
+
+Interpretacion general:
+
+1. Un porcentaje alto indica mayor evidencia de ejecucion sobre la logica evaluada.
+2. `Branches` suele ser el indicador mas estricto para caja blanca, porque valida caminos alternos de decision.
+3. La combinacion de las cuatro metricas permite una evaluacion mas completa que usar solo una.
+
+## 7. Evidencia de ejecucion
+
+Comando ejecutado:
+
+`pnpm jest activacion-cuenta.servicio.spec.ts emision-alerta.servicio.spec.ts autenticacion.servicio.spec.ts --runInBand --coverage`
+
+Resultado consolidado:
+
+| Indicador | Valor |
+|---|---:|
+| Suites ejecutadas | 3 |
+| Suites aprobadas | 3 |
+| Tests ejecutados | 10 |
+| Tests aprobados | 10 |
+| Exit code | 0 |
+
+## 8. Conclusiones
+
+1. Los tres servicios definidos en el alcance fueron validados con enfoque de caja blanca.
+2. Se obtuvo aprobacion completa de ejecucion (`PASS`) en suites y tests.
+3. Las metricas de cobertura muestran alta verificacion de la logica principal en los casos de uso criticos evaluados.
