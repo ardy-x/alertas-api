@@ -16,12 +16,16 @@ import { WebSocketsModule } from './websockets/websockets.module';
 
 @Module({
   imports: [
-    ThrottlerModule.forRoot([
-      {
-        ttl: THROTTLER_CONFIG.ttl,
-        limit: THROTTLER_CONFIG.limit,
-      },
-    ]),
+    ...(THROTTLER_CONFIG.enabled
+      ? [
+          ThrottlerModule.forRoot([
+            {
+              ttl: THROTTLER_CONFIG.ttl,
+              limit: THROTTLER_CONFIG.limit,
+            },
+          ]),
+        ]
+      : []),
     CoreModule,
     AutenticacionModule,
     IntegracionesModule,
@@ -34,10 +38,14 @@ import { WebSocketsModule } from './websockets/websockets.module';
     ReportesModule,
   ],
   providers: [
-    {
-      provide: APP_GUARD,
-      useClass: ThrottlerGuard,
-    },
+    ...(THROTTLER_CONFIG.enabled
+      ? [
+          {
+            provide: APP_GUARD,
+            useClass: ThrottlerGuard,
+          },
+        ]
+      : []),
   ],
 })
 export class AppModule {}

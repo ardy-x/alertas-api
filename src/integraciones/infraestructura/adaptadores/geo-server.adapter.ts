@@ -19,10 +19,8 @@ interface MunicipioProperties {
 
 interface MunicipioCacheado {
   properties: MunicipioProperties;
-  geometria: {
-    type: 'MultiPolygon';
-    coordinates: [[[number, number][]]];
-  };
+  geometria: GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
+  bbox?: [number, number, number, number];
 }
 
 @Injectable()
@@ -31,6 +29,7 @@ export class GeoServerAdapter implements GeoServerPort {
   private readonly CACHE_KEY = 'geo_server';
   private readonly urlGeoserver: string;
   private cacheandoEnProgreso = false;
+  private municipiosEnMemoria: MunicipioCacheado[] | null = null;
 
   constructor(
     private readonly httpClientPublico: HttpClientPublicoService,
@@ -40,8 +39,13 @@ export class GeoServerAdapter implements GeoServerPort {
   }
 
   private async obtenerMunicipiosCacheados(): Promise<MunicipioCacheado[]> {
+    if (this.municipiosEnMemoria && this.municipiosEnMemoria.length > 0) {
+      return this.municipiosEnMemoria;
+    }
+
     const cached = await this.redisService.get<MunicipioCacheado[]>(this.CACHE_KEY);
     if (cached && cached.length > 0) {
+      this.municipiosEnMemoria = cached;
       return cached;
     }
     if (!this.cacheandoEnProgreso) {
@@ -54,13 +58,23 @@ export class GeoServerAdapter implements GeoServerPort {
     if (!data) {
       throw new InternalServerErrorException('Error al cachear municipios de GeoServer');
     }
+    this.municipiosEnMemoria = data;
     return data;
   }
 
   async encontrarDepartamento(datos: EncontrarDepartamento): Promise<MunicipioProvinciaDepartamento> {
     const municipiosCacheados = await this.obtenerMunicipiosCacheados();
     const punto = turf.point([datos.ubicacion.longitud, datos.ubicacion.latitud]);
+    const puntoLng = datos.ubicacion.longitud;
+    const puntoLat = datos.ubicacion.latitud;
+
     for (const municipio of municipiosCacheados) {
+      const bbox = municipio.bbox ?? (turf.bbox(municipio.geometria) as [number, number, number, number]);
+      const [minLng, minLat, maxLng, maxLat] = bbox;
+      if (puntoLng < minLng || puntoLng > maxLng || puntoLat < minLat || puntoLat > maxLat) {
+        continue;
+      }
+
       if (turf.booleanPointInPolygon(punto, municipio.geometria)) {
         return {
           municipio: {
@@ -102,10 +116,12 @@ export class GeoServerAdapter implements GeoServerPort {
         },
       });
       const municipiosCacheados = respuesta.features.map((feature) => ({
-        properties: feature.properties,
-        geometria: turf.feature(feature.geometry as GeoJSON.Geometry),
+        properties: feature.properties as MunicipioProperties,
+        geometria: turf.feature(feature.geometry as GeoJSON.Polygon | GeoJSON.MultiPolygon),
+        bbox: turf.bbox(feature.geometry as GeoJSON.Polygon | GeoJSON.MultiPolygon) as [number, number, number, number],
       }));
       await this.redisService.set(this.CACHE_KEY, municipiosCacheados);
+      this.municipiosEnMemoria = municipiosCacheados;
       this.logger.log('Cacheo de municipios de GeoServer completado.');
     } catch (error) {
       const infoError = analizarErrorHttp(error);
