@@ -4,9 +4,10 @@ import { BadRequestException, NotFoundException } from '@nestjs/common';
 
 import { obtenerFechaBoliviaYYYYMMDD } from '@/utils/fecha.utils';
 import { generarApiKey, hashString } from '@/utils/security.utils';
-import { SolicitarCodigoWhatsappUseCase } from '@/victimas/aplicacion/casos-uso/validacion/solicitar-codigo-whatsapp.use-case';
-import { VerificarCodigoCelularUseCase } from '@/victimas/aplicacion/casos-uso/validacion/verificar-codigo-celular.use-case';
+import { SolicitarCodigoUseCase } from '@/victimas/aplicacion/casos-uso/validacion/solicitar-codigo.use-case';
+import { VerificarCodigoUseCase } from '@/victimas/aplicacion/casos-uso/validacion/verificar-codigo.use-case';
 import { VerificarDenunciaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-denuncia.use-case';
+import { CanalSolicitudCodigo } from '@/victimas/presentacion/dto/entrada/validacion/solicitar-codigo-request.dto';
 
 jest.mock('@/utils/security.utils', () => ({
   generarApiKey: jest.fn(),
@@ -53,7 +54,7 @@ describe('Flujo de Activacion de Cuenta', () => {
 
   describe('Paso 2: Generar OTP y almacenar en Redis con TTL', () => {
     const victimaRepositorio = {
-      obtenerPorCelular: jest.fn(),
+      obtenerVictimaConDispositivo: jest.fn(),
     };
 
     const codigoValidacionRepositorio = {
@@ -68,15 +69,17 @@ describe('Flujo de Activacion de Cuenta', () => {
       enviarMensajeWhatsapp: jest.fn(),
     };
 
-    let useCase: SolicitarCodigoWhatsappUseCase;
+    let useCase: SolicitarCodigoUseCase;
 
     beforeEach(() => {
       jest.clearAllMocks();
-      useCase = new SolicitarCodigoWhatsappUseCase(victimaRepositorio as never, codigoValidacionRepositorio as never, mensajePort as never);
+      useCase = new SolicitarCodigoUseCase(victimaRepositorio as never, codigoValidacionRepositorio as never, mensajePort as never);
     });
 
     it('genera OTP de 6 digitos y lo guarda en Redis con TTL de 600 segundos', async () => {
-      victimaRepositorio.obtenerPorCelular.mockResolvedValue({
+      victimaRepositorio.obtenerVictimaConDispositivo.mockResolvedValue({
+        id: 'victima-1',
+        nombreCompleto: 'Victima Demo',
         celular: '70000000',
         correo: 'victima@test.com',
       });
@@ -85,7 +88,7 @@ describe('Flujo de Activacion de Cuenta', () => {
       (obtenerFechaBoliviaYYYYMMDD as jest.Mock).mockReturnValue('2026-04-09');
       jest.spyOn(Math, 'random').mockReturnValue(0.123456);
 
-      const respuesta = await useCase.ejecutar({ celular: '70000000' });
+      const respuesta = await useCase.ejecutar({ idVictima: 'victima-1', canal: CanalSolicitudCodigo.WHATSAPP });
 
       expect(codigoValidacionRepositorio.crear).toHaveBeenCalledWith(
         expect.objectContaining({
@@ -94,13 +97,17 @@ describe('Flujo de Activacion de Cuenta', () => {
         }),
         600,
       );
-      expect(respuesta).toEqual({ codigoEnviado: true });
+      expect(respuesta).toEqual(
+        expect.objectContaining({
+          codigoEnviado: true,
+        }),
+      );
     });
   });
 
   describe('Paso 3: Generar API Key al verificar OTP', () => {
     const victimaRepositorio = {
-      obtenerPorCelular: jest.fn(),
+      obtenerVictimaConDispositivo: jest.fn(),
       actualizarApiKey: jest.fn(),
     };
 
@@ -109,26 +116,30 @@ describe('Flujo de Activacion de Cuenta', () => {
       eliminarCodigoPorCelular: jest.fn(),
     };
 
-    let useCase: VerificarCodigoCelularUseCase;
+    const enviarNotificacionUseCase = {
+      ejecutar: jest.fn(),
+    };
+
+    let useCase: VerificarCodigoUseCase;
 
     beforeEach(() => {
       jest.clearAllMocks();
-      useCase = new VerificarCodigoCelularUseCase(victimaRepositorio as never, codigoValidacionRepositorio as never);
+      useCase = new VerificarCodigoUseCase(victimaRepositorio as never, codigoValidacionRepositorio as never, enviarNotificacionUseCase as never);
     });
 
     it('valida OTP en Redis, genera API key, guarda hash y elimina codigo usado', async () => {
       codigoValidacionRepositorio.validarCodigoPorCelular.mockResolvedValue(true);
-      victimaRepositorio.obtenerPorCelular.mockResolvedValue({ id: 'victima-1' });
+      victimaRepositorio.obtenerVictimaConDispositivo.mockResolvedValue({ id: 'victima-1', celular: '70000000' });
       (generarApiKey as jest.Mock).mockReturnValue('api-key-raw');
       (hashString as jest.Mock).mockReturnValue('api-key-hash');
 
       const respuesta = await useCase.ejecutar({
-        celular: '70000000',
+        idVictima: 'victima-1',
+        canal: CanalSolicitudCodigo.WHATSAPP,
         codigo: '123456',
       });
 
       expect(codigoValidacionRepositorio.validarCodigoPorCelular).toHaveBeenCalledWith('70000000', '123456');
-      expect(victimaRepositorio.obtenerPorCelular).toHaveBeenCalledWith('70000000');
       expect(generarApiKey).toHaveBeenCalledTimes(1);
       expect(hashString).toHaveBeenCalledWith('api-key-raw');
       expect(victimaRepositorio.actualizarApiKey).toHaveBeenCalledWith('victima-1', 'api-key-hash');
@@ -146,22 +157,24 @@ describe('Flujo de Activacion de Cuenta', () => {
 
       await expect(
         useCase.ejecutar({
-          celular: '70000000',
+          idVictima: 'victima-1',
+          canal: CanalSolicitudCodigo.WHATSAPP,
           codigo: '000000',
         }),
       ).rejects.toBeInstanceOf(BadRequestException);
 
-      expect(victimaRepositorio.obtenerPorCelular).not.toHaveBeenCalled();
+      expect(victimaRepositorio.obtenerVictimaConDispositivo).toHaveBeenCalledWith('victima-1');
       expect(victimaRepositorio.actualizarApiKey).not.toHaveBeenCalled();
     });
 
-    it('lanza NotFoundException cuando no existe victima para el celular', async () => {
+    it('lanza NotFoundException cuando no existe victima para el id', async () => {
       codigoValidacionRepositorio.validarCodigoPorCelular.mockResolvedValue(true);
-      victimaRepositorio.obtenerPorCelular.mockResolvedValue(null);
+      victimaRepositorio.obtenerVictimaConDispositivo.mockResolvedValue(null);
 
       await expect(
         useCase.ejecutar({
-          celular: '70000000',
+          idVictima: 'victima-1',
+          canal: CanalSolicitudCodigo.WHATSAPP,
           codigo: '123456',
         }),
       ).rejects.toBeInstanceOf(NotFoundException);

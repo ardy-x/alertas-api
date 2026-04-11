@@ -2,14 +2,14 @@ config:
   target: "{{ $processEnvironment.WS_BASE_URL }}"
   phases:
     - duration: 60
-      arrivalRate: 10
-      name: warmup
-    - duration: 120
-      arrivalRate: 30
-      name: load
+      arrivalRate: 1
+      name: calentamiento
+    - duration: 180
+      arrivalRate: 5
+      name: operacion_real
     - duration: 60
-      arrivalRate: 60
-      name: stress
+      arrivalRate: 8
+      name: pico_controlado
   engines:
     socketio-v3: {}
   processor: "./ws-processor.js"

@@ -58,7 +58,7 @@ describe('CrearAlertaUseCase', () => {
   it('crea alerta PENDIENTE, consulta GeoServer por jurisdicción y emite notificación a operadores', async () => {
     const entrada = {
       idVictima: '8ab5b2f6-69b0-4b4f-8274-093faffb0c72',
-      fechaHora: '2026-04-09T10:00:00.000Z',
+      fechaHora: new Date().toISOString(),
       codigoDenuncia: 'CUD-001',
       codigoRegistro: 'REG-001',
       ubicacion: {
@@ -119,7 +119,7 @@ describe('CrearAlertaUseCase', () => {
   it('lanza error si no puede determinar jurisdicción/departamento', async () => {
     const entrada = {
       idVictima: 'f9b348be-e3bb-4493-b25f-c662d447905a',
-      fechaHora: '2026-04-09T10:00:00.000Z',
+      fechaHora: new Date().toISOString(),
       ubicacion: {
         latitud: -16.5,
         longitud: -68.15,

@@ -1,6 +1,6 @@
 # Informe Formal de Pruebas de Caja Blanca
 
-Fecha: 2026-04-09  
+Fecha: 2026-04-11  
 Proyecto: Alertas API (NestJS)
 
 ## 1. Objetivo
@@ -28,6 +28,30 @@ Las pruebas cubren rutas de ejecucion internas, validaciones, manejo de errores 
 | Suite | Conjunto de casos de prueba agrupados en un archivo o bloque `describe`. |
 | Test | Caso de prueba individual definido con `it` o `test`. |
 | PASS | Estado de prueba aprobada: el comportamiento real coincide con el esperado. |
+
+### 4.1 Explicacion en palabras simples
+
+Si no eres tecnico, puedes leerlo asi:
+
+| Termino | Que significa en sencillo |
+|---|---|
+| Suite | Un grupo de pruebas de un archivo. En este informe hay 3 suites (una por servicio). |
+| Test | Una verificacion puntual dentro de una suite. Ejemplo: "si el codigo OTP es invalido, debe fallar". |
+| PASS | La prueba salio bien. Se comporto como se esperaba. |
+| FAIL | La prueba salio mal. El sistema no respondio como se esperaba. |
+| Coverage | Porcentaje de codigo que realmente se ejecuto durante las pruebas. |
+
+Regla rapida para interpretar resultados:
+
+1. Si todas las suites estan en `PASS`, los servicios probados funcionan segun los casos definidos.
+2. Si todos los tests estan en `PASS`, no hubo fallas en los escenarios evaluados.
+3. Si el `exit code` es `0`, la ejecucion termino correctamente.
+
+Ejemplo con este informe:
+
+1. Suites aprobadas: 3 de 3.
+2. Tests aprobados: 10 de 10.
+3. Conclusion sencilla: las pruebas de caja blanca salieron correctas.
 
 ## 5. Matriz de casos por servicio
 
@@ -89,6 +113,12 @@ Resultado consolidado:
 | Tests ejecutados | 10 |
 | Tests aprobados | 10 |
 | Exit code | 0 |
+
+Suites aprobadas en la re-ejecucion final:
+
+1. PASS src/autenticacion/aplicacion/casos-uso/activacion-cuenta.servicio.spec.ts
+2. PASS src/alertas/aplicacion/casos-uso/emision-alerta.servicio.spec.ts
+3. PASS src/autenticacion/aplicacion/casos-uso/autenticacion.servicio.spec.ts
 
 ## 8. Conclusiones
 
