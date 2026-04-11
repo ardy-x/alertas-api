@@ -1,0 +1,30 @@
+config:
+  target: "{{ $processEnvironment.WS_BASE_URL }}"
+  phases:
+    - duration: 60
+      arrivalRate: 10
+      name: warmup
+    - duration: 120
+      arrivalRate: 30
+      name: load
+    - duration: 60
+      arrivalRate: 60
+      name: stress
+  engines:
+    socketio-v3: {}
+  processor: "./ws-processor.js"
+
+scenarios:
+  - name: websocket-operadores
+    engine: socketio-v3
+    flow:
+      - function: "buildHandshake"
+      - connect:
+          namespace: "/"
+          query:
+            tipo: "OPERADOR"
+            idDepartamento: "{{ idDepartamento }}"
+          auth:
+            token: "{{ token }}"
+      - think: 2
+      - think: 2
