@@ -39,7 +39,7 @@ export class VictimasController {
   @Post()
   @ApiOperation({ summary: 'Crear nueva víctima' })
   @ApiBody({ type: CrearVictimaRequestDto })
-  @ApiResponse({ status: HttpStatus.CREATED, type: RespuestaBaseDto, description: 'Víctima creada exitosamente' })
+  @ApiResponse({ status: HttpStatus.CREATED, type: RespuestaBaseDto, description: 'Registro completado exitosamente' })
   async crear(@Body() crearVictimaDto: CrearVictimaRequestDto): Promise<RespuestaBaseDto<{ victima: { id: string } }>> {
     const resultado = await this.crearVictimaUseCase.ejecutar(crearVictimaDto);
     return RespuestaBuilder.exito(HttpStatus.CREATED, 'Registro completado exitosamente', resultado);

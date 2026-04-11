@@ -20,10 +20,8 @@ import { DesasignarInvestigadorUseCase } from './aplicacion/casos-uso/investigad
 import { ListarHistorialInvestigadoresUseCase } from './aplicacion/casos-uso/investigadores/listar-historial-investigadores.use-case';
 import { ObtenerInvestigadorActivoUseCase } from './aplicacion/casos-uso/investigadores/obtener-investigador-activo.use-case';
 import { ObtenerVictimaUseCase } from './aplicacion/casos-uso/obtener-victima.use-case';
-import { SolicitarCodigoEmailUseCase } from './aplicacion/casos-uso/validacion/solicitar-codigo-email.use-case';
-import { SolicitarCodigoWhatsappUseCase } from './aplicacion/casos-uso/validacion/solicitar-codigo-whatsapp.use-case';
-import { VerificarCodigoCelularUseCase } from './aplicacion/casos-uso/validacion/verificar-codigo-celular.use-case';
-import { VerificarCodigoEmailUseCase } from './aplicacion/casos-uso/validacion/verificar-codigo-email.use-case';
+import { SolicitarCodigoUseCase } from './aplicacion/casos-uso/validacion/solicitar-codigo.use-case';
+import { VerificarCodigoUseCase } from './aplicacion/casos-uso/validacion/verificar-codigo.use-case';
 import { VerificarDenunciaUseCase } from './aplicacion/casos-uso/verificar-denuncia.use-case';
 import { VerificarVictimaUseCase } from './aplicacion/casos-uso/verificar-victima.use-case';
 import { ActivarCuentaUseCase } from './aplicacion/casos-uso/web/activar-cuenta.use-case';
@@ -90,10 +88,8 @@ import { VictimasWebController } from './presentacion/controladores/victimas-web
     ListarHistorialInvestigadoresUseCase,
 
     // Casos de Uso - Validación
-    SolicitarCodigoEmailUseCase,
-    SolicitarCodigoWhatsappUseCase,
-    VerificarCodigoCelularUseCase,
-    VerificarCodigoEmailUseCase,
+    SolicitarCodigoUseCase,
+    VerificarCodigoUseCase,
 
     // Servicios de Dominio
     {
