@@ -4,17 +4,21 @@ import { IsNumber, IsUUID, Max, Min } from 'class-validator';
 export class DecodificarTokenRequestDto {
   @ApiProperty()
   @IsUUID()
-  codigo: string;
+  declare codigo: string;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: -17.7833,
+  })
   @IsNumber()
-  @Min(-90)
-  @Max(90)
-  latitud: number;
+  @Min(-22.9)
+  @Max(-9.6)
+  declare latitud: number;
 
-  @ApiProperty()
+  @ApiProperty({
+    example: -63.1821,
+  })
   @IsNumber()
-  @Min(-180)
-  @Max(180)
-  longitud: number;
+  @Min(-69.7)
+  @Max(-57.4)
+  declare longitud: number;
 }
