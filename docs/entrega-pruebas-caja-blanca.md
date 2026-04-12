@@ -75,13 +75,15 @@ Ejemplo con este informe:
 
 ## 6. Cobertura tecnica relevante
 
+Fuente de estos porcentajes: archivo de cobertura del proyecto `coverage/lcov.info` generado en la ultima corrida.
+
 | Archivo de produccion | Statements | Branches | Functions | Lines |
 |---|---:|---:|---:|---:|
-| src/victimas/aplicacion/casos-uso/verificar-denuncia.use-case.ts | 90.00% | 0.00% | 100.00% | 87.50% |
-| src/victimas/aplicacion/casos-uso/validacion/solicitar-codigo-whatsapp.use-case.ts | 87.50% | 44.44% | 100.00% | 86.66% |
-| src/victimas/aplicacion/casos-uso/validacion/verificar-codigo-celular.use-case.ts | 100.00% | 100.00% | 100.00% | 100.00% |
-| src/alertas/aplicacion/casos-uso/crear-alerta.use-case.ts | 92.15% | 61.53% | 100.00% | 91.83% |
-| src/autenticacion/aplicacion/casos-uso/decodificar-token.use-case.ts | 93.54% | 83.33% | 100.00% | 93.10% |
+| src/victimas/aplicacion/casos-uso/verificar-denuncia.use-case.ts | 87.50% | 0.00% | 100.00% | 87.50% |
+| src/victimas/aplicacion/casos-uso/validacion/solicitar-codigo.use-case.ts | 55.22% | 26.09% | 80.00% | 55.22% |
+| src/victimas/aplicacion/casos-uso/validacion/verificar-codigo.use-case.ts | 66.67% | 47.06% | 100.00% | 66.67% |
+| src/alertas/aplicacion/casos-uso/crear-alerta.use-case.ts | 91.84% | 61.54% | 100.00% | 91.84% |
+| src/autenticacion/aplicacion/casos-uso/decodificar-token.use-case.ts | 93.10% | 83.33% | 100.00% | 93.10% |
 
 ### 6.1 Significado de los porcentajes de cobertura
 
