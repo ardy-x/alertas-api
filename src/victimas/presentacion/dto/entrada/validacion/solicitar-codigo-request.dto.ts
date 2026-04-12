@@ -8,10 +8,7 @@ export enum CanalSolicitudCodigo {
 }
 
 export class SolicitarCodigoRequestDto {
-  @ApiProperty({
-    description: 'ID de la víctima',
-    example: 'de305d54-75b4-431b-adb2-eb6b9e546014',
-  })
+  @ApiProperty({})
   @IsUUID()
   @IsNotEmpty()
   declare idVictima: string;

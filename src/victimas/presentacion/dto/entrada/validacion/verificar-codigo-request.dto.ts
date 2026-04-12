@@ -5,10 +5,7 @@ import { IsEnum, IsNotEmpty, IsString, IsUUID, Length } from 'class-validator';
 import { CanalSolicitudCodigo } from './solicitar-codigo-request.dto';
 
 export class VerificarCodigoRequestDto {
-  @ApiProperty({
-    description: 'ID de la víctima',
-    example: 'de305d54-75b4-431b-adb2-eb6b9e546014',
-  })
+  @ApiProperty({})
   @IsUUID()
   @IsNotEmpty()
   idVictima: string;
@@ -23,7 +20,7 @@ export class VerificarCodigoRequestDto {
 
   @ApiProperty({
     description: 'Código de verificación de 6 dígitos',
-    example: '123456',
+    example: '',
   })
   @IsString()
   @IsNotEmpty()
