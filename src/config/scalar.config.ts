@@ -1,9 +1,41 @@
 import type { NestJSReferenceConfiguration } from '@scalar/nestjs-api-reference';
 
-export const SCALAR_CONFIG: NestJSReferenceConfiguration = {
+const scalarConfig = {
   theme: 'moon',
-  url: '/api-json',
-  hideModels: true,
+  layout: 'modern',
   hideClientButton: true,
+  showSidebar: true,
+  showDeveloperTools: 'always',
+  showToolbar: 'localhost',
+  operationTitleSource: 'summary',
+  persistAuth: true,
+  telemetry: false,
+  externalUrls: {
+    dashboardUrl: 'https://dashboard.scalar.com',
+    registryUrl: 'https://registry.scalar.com',
+    proxyUrl: 'https://proxy.scalar.com',
+    apiBaseUrl: 'https://api.scalar.com',
+  },
+  isEditable: false,
+  isLoading: false,
+  hideModels: true,
+  documentDownloadType: 'both',
+  hideTestRequestButton: false,
+  hideSearch: false,
+  showOperationId: false,
+  hideDarkModeToggle: false,
+  withDefaultFonts: true,
+  defaultOpenFirstTag: true,
   defaultOpenAllTags: false,
+  expandAllModelSections: false,
+  expandAllResponses: false,
+  orderSchemaPropertiesBy: 'alpha',
+  orderRequiredPropertiesFirst: true,
+  _integration: 'nestjs',
+  default: false,
+  slug: 'api-1',
+  title: 'API #1',
+  url: '/api-json',
 };
+
+export const SCALAR_CONFIG = scalarConfig as NestJSReferenceConfiguration;
