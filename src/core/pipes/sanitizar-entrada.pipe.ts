@@ -8,6 +8,10 @@ export class SanitizarEntradaPipe implements PipeTransform {
   }
 
   private sanitizarRecursivo(valor: unknown, ruta: string): unknown {
+    if (this.esBuffer(valor) || this.esArchivoMulter(valor)) {
+      return valor;
+    }
+
     if (typeof valor === 'string') {
       return this.sanitizarString(valor, ruta);
     }
@@ -29,6 +33,17 @@ export class SanitizarEntradaPipe implements PipeTransform {
     }
 
     return valor;
+  }
+
+  private esBuffer(valor: unknown): boolean {
+    return Buffer.isBuffer(valor);
+  }
+
+  private esArchivoMulter(valor: unknown): boolean {
+    if (!valor || typeof valor !== 'object') return false;
+
+    const posibleArchivo = valor as Record<string, unknown>;
+    return Buffer.isBuffer(posibleArchivo.buffer) && typeof posibleArchivo.originalname === 'string' && typeof posibleArchivo.mimetype === 'string';
   }
 
   private sanitizarString(texto: string, ruta: string): string {
