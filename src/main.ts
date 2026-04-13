@@ -8,6 +8,7 @@ import { apiReference } from '@scalar/nestjs-api-reference';
 import * as express from 'express';
 import { Request, Response } from 'express';
 import { ExcepcionGlobalFilter } from '@/core/filtros/excepcion-global.filter';
+import { SanitizarEntradaPipe } from '@/core/pipes/sanitizar-entrada.pipe';
 import { AppModule } from './app.module';
 import { APP_CONFIG } from './config/app.config';
 import { CORS_CONFIG } from './config/cors.config';
@@ -46,7 +47,7 @@ async function bootstrap() {
   app.setGlobalPrefix(APP_CONFIG.globalPrefix);
 
   // Habilitar validacion global
-  app.useGlobalPipes(VALIDATION_PIPE_CONFIG);
+  app.useGlobalPipes(new SanitizarEntradaPipe(), VALIDATION_PIPE_CONFIG);
 
   await app.listen(APP_CONFIG.port);
 
