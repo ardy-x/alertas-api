@@ -1,6 +1,7 @@
 onlyBuiltDependencies:
   - '@firebase/util'
   - '@nestjs/core'
+  - '@playwright/browser-chromium'
   - '@prisma/client'
   - '@prisma/engines'
   - '@scarf/scarf'
@@ -8,3 +9,4 @@ onlyBuiltDependencies:
   - prisma
   - protobufjs
   - sharp
+  - unix-dgram

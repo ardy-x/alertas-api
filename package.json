@@ -7,6 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "build": "nest build",
+    "test": "NODE_OPTIONS=--no-deprecation jest --runInBand --coverage --silent",
+    "test:captura": "NODE_OPTIONS=--no-deprecation jest --runInBand --coverage --silent --collectCoverageFrom=autenticacion/aplicacion/casos-uso/decodificar-token.use-case.ts --collectCoverageFrom=integraciones/aplicacion/casos-uso/encontrar-departamento.use-case.ts --collectCoverageFrom=victimas/aplicacion/casos-uso/verificar-denuncia.use-case.ts --collectCoverageFrom=victimas/aplicacion/casos-uso/validacion/verificar-codigo.use-case.ts --collectCoverageFrom=alertas/aplicacion/casos-uso/crear-alerta.use-case.ts --collectCoverageFrom=alertas/aplicacion/casos-uso/notificar-creacion-alerta.use-case.ts --collectCoverageFrom=victimas/aplicacion/casos-uso/investigadores/asignar-investigador.use-case.ts --collectCoverageFrom=victimas/aplicacion/casos-uso/investigadores/desasignar-investigador.use-case.ts --collectCoverageFrom=victimas/aplicacion/casos-uso/web/suspender-cuenta.use-case.ts --collectCoverageFrom=dashboard/aplicacion/casos-uso/obtener-metricas-generales.use-case.ts --collectCoverageFrom=dashboard/aplicacion/casos-uso/obtener-alertas-por-ubicacion.use-case.ts --collectCoverageFrom=dashboard/infraestructura/adaptadores/monitor-sistema.adapter.ts",
     "start": "nest start",
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
@@ -114,6 +116,9 @@
     "transform": {
       "^.+\\.(t|j)s$": "ts-jest"
     },
+    "setupFilesAfterEnv": [
+      "<rootDir>/jest.setup.ts"
+    ],
     "collectCoverageFrom": [
       "**/*.(t|j)s"
     ],
