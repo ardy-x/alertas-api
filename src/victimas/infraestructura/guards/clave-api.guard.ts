@@ -21,7 +21,7 @@ export class ClaveApiGuard implements CanActivate {
       return true;
     }
 
-    const claveApi = (request.headers as unknown as Record<string, string | undefined>)['x-api-key'] || (request.headers as unknown as Record<string, string | undefined>)['xapikey'];
+    const claveApi = (request.headers as unknown as Record<string, string | undefined>)['x-api-key'];
 
     if (!claveApi) {
       throw new UnauthorizedException('Clave API requerida en header X-API-Key');
