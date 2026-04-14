@@ -13,7 +13,7 @@ export class ValidarVictimaService {
   async validarVictimaExiste(idVictima: string): Promise<void> {
     const victima = await this.alertaRepositorio.verificarVictimaExiste(idVictima);
     if (!victima) {
-      throw new BadRequestException(`La víctima con ID ${idVictima} no existe en el sistema`);
+      throw new BadRequestException(`Víctima no encontrada.`);
     }
   }
 

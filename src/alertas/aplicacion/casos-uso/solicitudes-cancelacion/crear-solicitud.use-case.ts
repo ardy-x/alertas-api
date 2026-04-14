@@ -65,7 +65,7 @@ export class CrearSolicitudUseCase {
     // 4. Obtener el nombre completo de la víctima
     const victima = await this.victimaRepo.obtenerVictimaSimple(alerta.idVictima!);
     if (!victima) {
-      throw new NotFoundException(`La víctima con ID ${alerta.idVictima} no existe`);
+      throw new NotFoundException(`Víctima no encontrada`);
     }
 
     // 5. Obtener idDepartamento desde idMunicipio
