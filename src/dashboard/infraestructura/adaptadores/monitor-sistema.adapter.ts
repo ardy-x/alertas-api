@@ -33,16 +33,7 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
     return new Promise((resolve) => {
       pm2.connect((err) => {
         if (err) {
-          resolve(
-            nombresProcesos.map((nombre) => ({
-              nombre,
-              status: 'unknown' as const,
-              uptime: 'N/A',
-              restarts: 0,
-              memory: 'N/A',
-              cpu: 'N/A',
-            })),
-          );
+          resolve(nombresProcesos.map((nombre) => this.construirProcesoDesconocido(nombre)));
           return;
         }
 
@@ -50,74 +41,11 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
           pm2.disconnect();
 
           if (err || !lista) {
-            resolve(
-              nombresProcesos.map((nombre) => ({
-                nombre,
-                status: 'unknown' as const,
-                uptime: 'N/A',
-                restarts: 0,
-                memory: 'N/A',
-                cpu: 'N/A',
-              })),
-            );
+            resolve(nombresProcesos.map((nombre) => this.construirProcesoDesconocido(nombre)));
             return;
           }
 
-          const resultado = nombresProcesos.map((nombre) => {
-            const proceso = lista.find((p) => p.name === nombre);
-
-            if (!proceso) {
-              return {
-                nombre,
-                status: 'unknown' as const,
-                uptime: 'N/A',
-                restarts: 0,
-                memory: 'N/A',
-                cpu: 'N/A',
-              };
-            }
-
-            const status = proceso.pm2_env?.status;
-            let estadoFinal: 'online' | 'errored' | 'stopped' | 'unknown';
-
-            if (status === 'online') {
-              estadoFinal = 'online';
-            } else if (status === 'errored') {
-              estadoFinal = 'errored';
-            } else if (status === 'stopped' || status === 'stopping') {
-              estadoFinal = 'stopped';
-            } else {
-              estadoFinal = 'unknown';
-            }
-
-            // Calcular uptime
-            const pmUptime = proceso.pm2_env?.pm_uptime;
-            let uptime = 'N/A';
-            if (pmUptime && estadoFinal === 'online') {
-              const uptimeMs = Date.now() - pmUptime;
-              uptime = this.formatearUptime(uptimeMs);
-            }
-
-            // Extraer memoria
-            const memory = proceso.monit?.memory;
-            const memoryFormatted = memory ? this.formatearBytes(memory) : 'N/A';
-
-            // Extraer CPU
-            const cpu = proceso.monit?.cpu;
-            const cpuFormatted = cpu !== undefined ? `${cpu}%` : 'N/A';
-
-            // Extraer reinicios
-            const restarts = proceso.pm2_env?.restart_time ?? 0;
-
-            return {
-              nombre,
-              status: estadoFinal,
-              uptime,
-              restarts,
-              memory: memoryFormatted,
-              cpu: cpuFormatted,
-            };
-          });
+          const resultado = nombresProcesos.map((nombre) => this.mapearEstadoProceso(nombre, lista));
 
           resolve(resultado);
         });
@@ -125,96 +53,98 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
     });
   }
 
+  private construirProcesoDesconocido(nombre: string): EstadoProcesoPM2 {
+    return {
+      nombre,
+      status: 'unknown',
+      uptime: 'N/A',
+      restarts: 0,
+      memory: 'N/A',
+      cpu: 'N/A',
+    };
+  }
+
+  private mapearEstadoProceso(
+    nombre: string,
+    lista: Array<{
+      name?: string;
+      pm2_env?: { status?: string; pm_uptime?: number; restart_time?: number };
+      monit?: { memory?: number; cpu?: number };
+    }>,
+  ): EstadoProcesoPM2 {
+    const proceso = lista.find((p) => p.name === nombre) as
+      | {
+          pm2_env?: { status?: string; pm_uptime?: number; restart_time?: number };
+          monit?: { memory?: number; cpu?: number };
+        }
+      | undefined;
+
+    if (!proceso) {
+      return this.construirProcesoDesconocido(nombre);
+    }
+
+    const estadoFinal = this.mapearEstadoPM2(proceso.pm2_env?.status);
+    const pmUptime = proceso.pm2_env?.pm_uptime;
+    const uptime = pmUptime && estadoFinal === 'online' ? this.formatearUptime(Date.now() - pmUptime) : 'N/A';
+
+    return {
+      nombre,
+      status: estadoFinal,
+      uptime,
+      restarts: proceso.pm2_env?.restart_time ?? 0,
+      memory: proceso.monit?.memory ? this.formatearBytes(proceso.monit.memory) : 'N/A',
+      cpu: proceso.monit?.cpu !== undefined ? `${proceso.monit.cpu}%` : 'N/A',
+    };
+  }
+
+  private mapearEstadoPM2(status?: string): 'online' | 'errored' | 'stopped' | 'unknown' {
+    if (status === 'online') return 'online';
+    if (status === 'errored') return 'errored';
+    if (status === 'stopped' || status === 'stopping') return 'stopped';
+    return 'unknown';
+  }
+
   async verificarConexionBaseDatos(): Promise<EstadoBaseDatos> {
     try {
-      // Verificar conexión básica
       await this.prismaService.$queryRaw`SELECT 1`;
 
-      // Obtener versión de PostgreSQL
       const versionResult = await this.prismaService.$queryRaw<Array<{ version: string }>>`SELECT version()`;
       const versionString = versionResult[0]?.version;
       const versionMatch = versionString?.match(/PostgreSQL ([\d.]+)/);
-      const version = versionMatch ? `PostgreSQL ${versionMatch[1]}` : 'PostgreSQL';
-
-      // Obtener configuración de conexiones máximas
-      const maxConnResult = await this.prismaService.$queryRaw<Array<{ max_connections: string }>>`SHOW max_connections`;
-      const maxConnections = maxConnResult[0]?.max_connections ? parseInt(maxConnResult[0].max_connections, 10) : 0;
-
-      // Obtener número de conexiones activas
-      const activeConnResult = await this.prismaService.$queryRaw<Array<{ count: bigint }>>`
-        SELECT count(*) FROM pg_stat_activity WHERE state = 'active'
-      `;
-      const activeConnections = activeConnResult[0]?.count ? Number(activeConnResult[0].count) : 0;
 
       return {
         db_status: 'connected',
-        version,
-        max_connections: maxConnections,
-        active_connections: activeConnections,
+        version: versionMatch ? `PostgreSQL ${versionMatch[1]}` : 'PostgreSQL',
       };
     } catch {
       return {
         db_status: 'error',
         version: 'N/A',
-        max_connections: 0,
-        active_connections: 0,
       };
     }
   }
 
   async verificarConexionRedis(): Promise<EstadoRedis> {
     try {
-      // Verificar si Redis está conectado
       const isConnected = this.redisService.getConnectionStatus();
-
       if (!isConnected) {
         return {
           status: 'disconnected',
-          uptime: 'N/A',
           used_memory: 'N/A',
-          connected_clients: 0,
         };
       }
 
-      // Obtener información de Redis usando el comando INFO
-      const infoString = await this.redisService.getServerInfo('server');
-      const statsString = await this.redisService.getServerInfo('stats');
       const memoryString = await this.redisService.getServerInfo('memory');
-
-      if (!infoString || !statsString || !memoryString) {
-        return {
-          status: 'connected',
-          uptime: 'N/A',
-          used_memory: 'N/A',
-          connected_clients: 0,
-        };
-      }
-
-      // Parsear uptime
-      const uptimeMatch = infoString.match(/uptime_in_seconds:(\d+)/);
-      const uptimeSeconds = uptimeMatch ? parseInt(uptimeMatch[1], 10) : 0;
-      const uptime = uptimeSeconds ? this.formatearUptime(uptimeSeconds * 1000) : 'N/A';
-
-      // Parsear memoria usada
-      const memoryMatch = memoryString.match(/used_memory_human:([^\r\n]+)/);
-      const usedMemory = memoryMatch ? memoryMatch[1].trim() : 'N/A';
-
-      // Parsear clientes conectados
-      const clientsMatch = statsString.match(/connected_clients:(\d+)/);
-      const connectedClients = clientsMatch ? parseInt(clientsMatch[1], 10) : 0;
+      const memoryMatch = memoryString?.match(/used_memory_human:([^\r\n]+)/);
 
       return {
         status: 'connected',
-        uptime,
-        used_memory: usedMemory,
-        connected_clients: connectedClients,
+        used_memory: memoryMatch ? memoryMatch[1].trim() : 'N/A',
       };
     } catch {
       return {
         status: 'disconnected',
-        uptime: 'N/A',
         used_memory: 'N/A',
-        connected_clients: 0,
       };
     }
   }
@@ -277,8 +207,8 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
         const filesystem = parts[0] || '';
         const mountedOn = parts[5] || '';
 
-        // Ignorar duplicados de mounts puntuales con overlay o bind en contenedores
-        if (filesystem.startsWith('overlay') || mountedOn.startsWith('/proc') || mountedOn.startsWith('/sys') || mountedOn.startsWith('/dev')) {
+        // Ignorar mounts de sistema y overlays
+        if (this.debeIgnorarMount(filesystem, mountedOn)) {
           continue;
         }
 
@@ -298,6 +228,10 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
     } catch {
       return {};
     }
+  }
+
+  private debeIgnorarMount(filesystem: string, mountedOn: string): boolean {
+    return filesystem.startsWith('overlay') || mountedOn.startsWith('/proc') || mountedOn.startsWith('/sys') || mountedOn.startsWith('/dev');
   }
 
   async obtenerEstadoConexionesWebSocket(): Promise<EstadoWebSocket> {

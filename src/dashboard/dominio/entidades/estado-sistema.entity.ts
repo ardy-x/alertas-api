@@ -10,15 +10,11 @@ export interface EstadoProcesoPM2 {
 export interface EstadoBaseDatos {
   db_status: 'connected' | 'disconnected' | 'error';
   version: string;
-  max_connections: number;
-  active_connections: number;
 }
 
 export interface EstadoRedis {
   status: 'connected' | 'disconnected';
-  uptime: string;
   used_memory: string;
-  connected_clients: number;
 }
 
 export interface RecursosHardware {
