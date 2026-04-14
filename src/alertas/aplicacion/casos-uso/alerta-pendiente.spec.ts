@@ -12,6 +12,7 @@ jest.mock('uuid', () => ({
 
 describe('Creación de alerta con estado PENDIENTE', () => {
   it('crea la alerta en estado PENDIENTE y notifica a operadores', async () => {
+    const fechaReciente = new Date().toISOString();
     // Arrange: simular repositorios, validaciones y notificación externa.
     const alertaRepositorio = {
       obtenerDatosVictimaParaAlerta: jest.fn().mockResolvedValue({
@@ -60,13 +61,13 @@ describe('Creación de alerta con estado PENDIENTE', () => {
     // Act: ejecutar la creación de alerta con datos mínimos válidos.
     const resultado = await useCase.ejecutar({
       idVictima: '7d0d7a79-3ae0-4bd6-9d7e-d8e6adfcb7d1',
-      fechaHora: '2026-04-13T12:00:00.000Z',
+      fechaHora: fechaReciente,
       codigoDenuncia: 'DEN-001',
       ubicacion: {
         latitud: -16.5,
         longitud: -68.15,
         precision: 10,
-        marcaTiempo: '2026-04-13T12:00:00.000Z',
+        marcaTiempo: fechaReciente,
       },
     });
 
@@ -100,6 +101,7 @@ describe('Creación de alerta con estado PENDIENTE', () => {
   });
 
   it('usa municipio de la victima cuando no hay ubicacion y deriva departamento', async () => {
+    const fechaReciente = new Date().toISOString();
     const alertaRepositorio = {
       obtenerDatosVictimaParaAlerta: jest.fn().mockResolvedValue({
         idMunicipio: 101,
@@ -140,7 +142,7 @@ describe('Creación de alerta con estado PENDIENTE', () => {
 
     await useCase.ejecutar({
       idVictima: 'victima-1',
-      fechaHora: '2026-04-13T12:00:00.000Z',
+      fechaHora: fechaReciente,
       codigoDenuncia: 'DEN-001',
     } as never);
 
@@ -154,6 +156,7 @@ describe('Creación de alerta con estado PENDIENTE', () => {
   });
 
   it('lanza error cuando no puede determinar departamento', async () => {
+    const fechaReciente = new Date().toISOString();
     const alertaRepositorio = {
       obtenerDatosVictimaParaAlerta: jest.fn().mockResolvedValue({
         idMunicipio: null,
@@ -177,7 +180,7 @@ describe('Creación de alerta con estado PENDIENTE', () => {
     await expect(
       useCase.ejecutar({
         idVictima: 'victima-2',
-        fechaHora: '2026-04-13T12:00:00.000Z',
+        fechaHora: fechaReciente,
       } as never),
     ).rejects.toBeInstanceOf(BadRequestException);
 

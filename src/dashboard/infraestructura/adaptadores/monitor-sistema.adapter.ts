@@ -324,16 +324,13 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
       }
 
       const inicio = Date.now();
+      const controller = new AbortController();
+      const timeout = setTimeout(() => controller.abort(), 5000);
       try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 5000);
-
         await fetch(servicio.url, {
           method: 'HEAD',
           signal: controller.signal,
         });
-
-        clearTimeout(timeout);
         const tiempoRespuesta = Date.now() - inicio;
 
         return {
@@ -348,6 +345,8 @@ export class MonitorSistemaAdapter implements MonitorSistemaPuerto {
           url: servicio.url,
           status: 'offline' as const,
         };
+      } finally {
+        clearTimeout(timeout);
       }
     });
 

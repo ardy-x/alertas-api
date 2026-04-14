@@ -178,22 +178,23 @@ Fuente de estos porcentajes: archivo de cobertura del proyecto `coverage/lcov.in
 
 | Caso de uso evaluado | Statements | Branches | Functions | Lines |
 |---|---:|---:|---:|---:|
-| Decodificar token (autenticacion) | 96.77% | 100.00% | 100.00% | 96.55% |
-| Crear alerta | 100.00% | 92.30% | 100.00% | 100.00% |
-| Notificar creacion de alerta | 100.00% | 100.00% | 100.00% | 100.00% |
-| Obtener metricas generales | 100.00% | 100.00% | 100.00% | 100.00% |
-| Obtener alertas por ubicacion | 100.00% | 100.00% | 100.00% | 100.00% |
-| Monitor de sistema | 96.07% | 77.96% | 92.85% | 97.10% |
-| Encontrar departamento | 100.00% | 100.00% | 100.00% | 100.00% |
-| Verificar denuncia | 100.00% | 100.00% | 100.00% | 100.00% |
-| Asignar investigador | 100.00% | 100.00% | 100.00% | 100.00% |
-| Desasignar investigador | 100.00% | 100.00% | 100.00% | 100.00% |
-| Verificar codigo | 100.00% | 100.00% | 100.00% | 100.00% |
-| Suspender cuenta | 100.00% | 100.00% | 100.00% | 100.00% |
+| Cobertura global (todos los archivos evaluados) | 98.28% | 87.27% | 96.36% | 98.64% |
+| Decodificar token (autenticacion) | 96.77% | 100% | 100% | 96.55% |
+| Crear alerta | 100% | 92.3% | 100% | 100% |
+| Notificar creacion de alerta | 100% | 100% | 100% | 100% |
+| Obtener metricas generales | 100% | 100% | 100% | 100% |
+| Obtener alertas por ubicacion | 100% | 100% | 100% | 100% |
+| Monitor de sistema | 96.07% | 77.96% | 92.85% | 97.1% |
+| Encontrar departamento | 100% | 100% | 100% | 100% |
+| Verificar denuncia | 100% | 100% | 100% | 100% |
+| Asignar investigador | 100% | 100% | 100% | 100% |
+| Desasignar investigador | 100% | 100% | 100% | 100% |
+| Verificar codigo | 100% | 100% | 100% | 100% |
+| Suspender cuenta | 100% | 100% | 100% | 100% |
 
 Cobertura global de la corrida:
 
-1. Statements: 99.53%
+1. Statements: 98.28%
 2. Branches: 87.27%
 3. Functions: 96.36%
 4. Lines: 98.64%
