@@ -29,7 +29,14 @@ export class FuncionarioAtencionRequestDto {
   @IsEnum(RolAtencion)
   rolAtencion?: RolAtencion;
 
-  @ApiPropertyOptional()
+  @ApiPropertyOptional({
+    example: {
+      latitud: -16.5,
+      longitud: -68.15,
+      precision: 10,
+      marcaTiempo: '2026-04-14T12:00:00.000Z',
+    },
+  })
   @IsOptional()
   ubicacion?: UbicacionSimpleDto;
 
