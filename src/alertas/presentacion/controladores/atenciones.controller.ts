@@ -26,20 +26,20 @@ export class AtencionesController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Crear atención completa con funcionarios', description: 'Roles permitidos: ADMINISTRADO, OPERADOR' })
+  @ApiOperation({ summary: 'Asignar personal policial', description: 'Roles permitidos: ADMINISTRADO, OPERADOR' })
   @ApiBody({ type: CrearAtencionCompletaRequestDto })
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'Atención con funcionarios asignada exitosamente' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Se asignó correctamente el personal policial' })
   async crearAtencionCompleta(@IdUsuarioActual() idUsuarioWeb: string, @Body() entrada: CrearAtencionCompletaRequestDto): Promise<RespuestaBaseDto> {
     await this.crearAtencionCompletaUseCase.ejecutar(entrada, idUsuarioWeb);
-    return RespuestaBuilder.exito(HttpStatus.CREATED, 'Atención con funcionarios asignada exitosamente');
+    return RespuestaBuilder.exito(HttpStatus.CREATED, 'Se asignó correctamente el personal policial');
   }
 
   @Post(':idAtencion/funcionarios')
-  @ApiOperation({ summary: 'Agregar funcionario a atención existente', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR' })
+  @ApiOperation({ summary: 'Agregar personal policial', description: 'Roles permitidos: ADMINISTRADOR, OPERADOR' })
   @ApiBody({ type: CrearFuncionarioAtencionRequestDto })
-  @ApiResponse({ status: HttpStatus.CREATED, description: 'Funcionario agregado exitosamente a la atención' })
+  @ApiResponse({ status: HttpStatus.CREATED, description: 'Se agregó correctamente el personal policial' })
   async agregarFuncionario(@Param('idAtencion', ParseUUIDPipe) idAtencion: string, @Body() entrada: CrearFuncionarioAtencionRequestDto): Promise<RespuestaBaseDto> {
     await this.agregarFuncionarioUseCase.ejecutar(idAtencion, entrada);
-    return RespuestaBuilder.exito(HttpStatus.CREATED, 'Funcionario agregado exitosamente a la atención');
+    return RespuestaBuilder.exito(HttpStatus.CREATED, 'Se agregó correctamente el personal policial');
   }
 }
