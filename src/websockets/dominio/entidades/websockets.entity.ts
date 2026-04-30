@@ -26,3 +26,9 @@ export interface NotificarPuntoRutaAgregadoDatos {
   };
   idDepartamento: number;
 }
+
+export interface NotificarLlegadaConfirmadaDatos {
+  idAlerta: string;
+  ciFuncionario: string;
+  idDepartamento: number;
+}

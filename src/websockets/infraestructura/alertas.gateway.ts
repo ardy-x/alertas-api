@@ -5,7 +5,13 @@ import { Server, Socket } from 'socket.io';
 
 import { EstadoAlerta, EstadoSolicitudCancelacion } from '@/alertas/dominio/enums/alerta-enums';
 
-import { AlertasGatewayPort, NotificarAlertaCreadaDatos, NotificarCancelacionSolicitudDatos, NotificarPuntoRutaAgregadoDatos } from '../dominio/puertos/alertas-gateway.port';
+import {
+  AlertasGatewayPort,
+  NotificarAlertaCreadaDatos,
+  NotificarCancelacionSolicitudDatos,
+  NotificarLlegadaConfirmadaDatos,
+  NotificarPuntoRutaAgregadoDatos,
+} from '../dominio/puertos/alertas-gateway.port';
 import { AuthWebSocketService } from '../dominio/servicios/auth-websocket.service';
 
 interface DatosConexion {
@@ -123,6 +129,18 @@ export class AlertasGateway implements OnGatewayConnection, OnGatewayDisconnect,
     this.emitirASala(datosRuta.idDepartamento, 'puntoRutaAgregado', {
       idAlerta: datosRuta.idAlerta,
       coordenadas: [datosRuta.ultimoPunto.latitud, datosRuta.ultimoPunto.longitud],
+    });
+  }
+
+  /**
+   * Notificar llegada confirmada a operadores
+   */
+  notificarLlegadaConfirmada(datos: NotificarLlegadaConfirmadaDatos): void {
+    this.logger.log(`Llegada confirmada - Alerta: ${datos.idAlerta}, Funcionario: ${datos.ciFuncionario}, Departamento: ${datos.idDepartamento}`);
+
+    this.emitirASala(datos.idDepartamento, 'llegadaConfirmada', {
+      idAlerta: datos.idAlerta,
+      ciFuncionario: datos.ciFuncionario,
     });
   }
 }
