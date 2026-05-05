@@ -4,8 +4,12 @@ import { MetadatoPar, PdfGeneratorService, TablaColumna } from '@/reportes/infra
 import { formatearFechaBoliviaSoloFecha, separarFechaHoraBolivia } from '@/utils/fecha.utils';
 import { ObtenerInvestigadorActivoUseCase } from '@/victimas/aplicacion/casos-uso/investigadores/obtener-investigador-activo.use-case';
 import { ObtenerHistorialAlertasVictimaUseCase } from '@/victimas/aplicacion/casos-uso/web/obtener-historial-alertas-victima.use-case';
-import { ObtenerHistorialAlertasParamsDto } from '@/victimas/presentacion/dto/entrada/victima.dto';
 import { AlertaVictimaDto } from '@/victimas/presentacion/dto/salida/historial-alertas-victima.dto';
+
+type ReporteHistorialParams = {
+  ci?: string;
+  idVictima?: string;
+};
 
 @Injectable()
 export class ReporteHistorialVictimaUseCase {
@@ -15,7 +19,7 @@ export class ReporteHistorialVictimaUseCase {
     private readonly pdfGenerator: PdfGeneratorService,
   ) {}
 
-  async ejecutar(params: ObtenerHistorialAlertasParamsDto): Promise<Buffer> {
+  async ejecutar(params: ReporteHistorialParams): Promise<Buffer> {
     const datos = await this.obtenerHistorialAlertasVictimaUseCase.ejecutar(params);
 
     // Obtener investigador activo

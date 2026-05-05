@@ -58,7 +58,7 @@ import { VictimasWebController } from './presentacion/controladores/victimas-web
 
 @Module({
   imports: [CoreModule, PrismaModule, RedisModule, NotificacionesModule, UsuariosWebModule],
-  controllers: [VictimasController, VictimasWebController, ContactosEmergenciaController, ValidacionController, InvestigadoresController],
+  controllers: [VictimasWebController, VictimasController, ContactosEmergenciaController, ValidacionController, InvestigadoresController],
   providers: [
     // Casos de Uso - Víctimas
     CrearVictimaUseCase,

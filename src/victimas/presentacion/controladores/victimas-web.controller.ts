@@ -14,7 +14,7 @@ import { ActivarCuentaUseCase } from '@/victimas/aplicacion/casos-uso/web/activa
 import { ListarVictimasUseCase } from '@/victimas/aplicacion/casos-uso/web/listar-victimas.use-case';
 import { ObtenerHistorialAlertasVictimaUseCase } from '@/victimas/aplicacion/casos-uso/web/obtener-historial-alertas-victima.use-case';
 import { SuspenderCuentaUseCase } from '@/victimas/aplicacion/casos-uso/web/suspender-cuenta.use-case';
-import { ListarVictimasRequestDto, ObtenerHistorialAlertasParamsDto } from '../dto/entrada/victima.dto';
+import { ListarVictimasRequestDto, VerificarVictimaParamsDto } from '../dto/entrada/victima.dto';
 import { HistorialAlertasVictimaDto } from '../dto/salida/historial-alertas-victima.dto';
 import { ListarVictimasData } from '../dto/salida/victima.dto';
 
@@ -44,8 +44,8 @@ export class VictimasWebController {
   @Get('historial-alertas')
   @ApiOperation({ summary: 'Obtener historial de alertas de una víctima por CI', description: 'Consulta para el sistema JUPITER' })
   @ApiResponse({ status: HttpStatus.OK, type: HistorialAlertasVictimaDto })
-  async obtenerHistorialAlertas(@Query() query: ObtenerHistorialAlertasParamsDto): Promise<RespuestaBaseDto> {
-    const historial = await this.obtenerHistorialAlertasVictimaUseCase.ejecutar(query);
+  async obtenerHistorialAlertas(@Query() query: VerificarVictimaParamsDto): Promise<RespuestaBaseDto> {
+    const historial = await this.obtenerHistorialAlertasVictimaUseCase.ejecutar({ ci: query.ci });
     return RespuestaBuilder.exito(HttpStatus.OK, 'Historial de alertas obtenido exitosamente', historial) as RespuestaBaseDto;
   }
 

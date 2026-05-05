@@ -67,6 +67,7 @@ export class AlertaVictimaPrismaAdapter implements AlertaVictimaRepositorioPort 
         idMunicipio: alerta.idMunicipio,
         codigoCud: alerta.codigoCud,
         codigoRegistro: alerta.codigoRegistro,
+        ubicacion: alerta.ubicacion as { type: string; coordinates: [number, number] } | null,
         creadoEn: alerta.creadoEn,
         atencion: alerta.atencion,
         cierre: alerta.cierre,

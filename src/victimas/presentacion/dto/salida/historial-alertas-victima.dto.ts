@@ -59,6 +59,19 @@ export class AlertaVictimaDto {
   tiempoCierre: string | null;
 
   @ApiProperty({
+    description: 'Ubicación de la alerta en formato GeoJSON',
+    example: {
+      type: 'Point',
+      coordinates: [-68.1449, -16.2902],
+    },
+    nullable: true,
+  })
+  ubicacion: {
+    type: string;
+    coordinates: [number, number];
+  } | null;
+
+  @ApiProperty({
     description: 'Fecha de creación del registro',
     example: '2025-10-08T14:30:12Z',
   })

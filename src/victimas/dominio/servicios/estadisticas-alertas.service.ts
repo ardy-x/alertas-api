@@ -21,6 +21,10 @@ export interface AlertaConTiempos {
   idMunicipio: number | null;
   codigoCud: string | null;
   codigoRegistro: string | null;
+  ubicacion: {
+    type: string;
+    coordinates: [number, number];
+  } | null;
   tiempoAsignacion: string | null;
   tiempoCierre: string | null;
   creadoEn: Date;
@@ -60,6 +64,7 @@ export class EstadisticasAlertasService {
         idMunicipio: alerta.idMunicipio,
         codigoCud: alerta.codigoCud,
         codigoRegistro: alerta.codigoRegistro,
+        ubicacion: alerta.ubicacion || null,
         tiempoAsignacion,
         tiempoCierre,
         creadoEn: alerta.creadoEn,

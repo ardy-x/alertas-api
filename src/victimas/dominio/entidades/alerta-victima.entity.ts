@@ -8,6 +8,10 @@ export interface AlertaVictima {
   idMunicipio: number | null;
   codigoCud: string | null;
   codigoRegistro: string | null;
+  ubicacion: {
+    type: string;
+    coordinates: [number, number];
+  } | null;
   creadoEn: Date;
   atencion?: {
     creadoEn: Date;

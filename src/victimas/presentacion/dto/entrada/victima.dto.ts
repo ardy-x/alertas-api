@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
 import { Transform, Type } from 'class-transformer';
-import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsDateString, IsEmail, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, IsUUID, Length, ValidateNested } from 'class-validator';
+import { ArrayMaxSize, ArrayMinSize, IsArray, IsBoolean, IsDateString, IsEmail, IsEnum, IsInt, IsNotEmpty, IsNumber, IsOptional, IsString, Length, ValidateNested } from 'class-validator';
 
 import { PaginacionQueryDto } from '@/core/dto/paginacion-query.dto';
 import { EstadoCuenta } from '@/victimas/dominio/enums/victima-enums';
@@ -186,18 +186,6 @@ export class ListarVictimasRequestDto extends PaginacionQueryDto {
   @Type(() => Number)
   @IsInt()
   idMunicipio?: number;
-}
-
-export class ObtenerHistorialAlertasParamsDto {
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsString()
-  ci?: string;
-
-  @ApiPropertyOptional()
-  @IsOptional()
-  @IsUUID()
-  idVictima?: string;
 }
 
 export class VerificarVictimaParamsDto {

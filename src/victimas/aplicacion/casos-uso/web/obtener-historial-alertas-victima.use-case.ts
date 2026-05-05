@@ -8,7 +8,10 @@ import { EstadisticasAlertasService } from '@/victimas/dominio/servicios/estadis
 import { ALERTA_VICTIMA_REPOSITORIO, VICTIMA_REPOSITORIO } from '@/victimas/dominio/tokens/victima.tokens';
 import { HistorialAlertasVictimaDto } from '@/victimas/presentacion/dto/salida/historial-alertas-victima.dto';
 
-import { ObtenerHistorialAlertasParamsDto } from '../../../presentacion/dto/entrada/victima.dto';
+type ObtenerHistorialParams = {
+  ci?: string;
+  idVictima?: string;
+};
 
 @Injectable()
 export class ObtenerHistorialAlertasVictimaUseCase {
@@ -22,7 +25,7 @@ export class ObtenerHistorialAlertasVictimaUseCase {
     private readonly obtenerInvestigadorActivoUseCase: ObtenerInvestigadorActivoUseCase,
   ) {}
 
-  async ejecutar(params: ObtenerHistorialAlertasParamsDto): Promise<HistorialAlertasVictimaDto> {
+  async ejecutar(params: ObtenerHistorialParams): Promise<HistorialAlertasVictimaDto> {
     if (!params.ci && !params.idVictima) {
       throw new Error('Debe proporcionar CI o ID de víctima');
     }
