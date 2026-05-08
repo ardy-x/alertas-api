@@ -20,13 +20,7 @@ interface DatosConexion {
   idDepartamento: string;
 }
 
-@WebSocketGateway({
-  cors: {
-    origin: process.env.CORS_ORIGIN!,
-    methods: ['GET', 'POST'],
-    credentials: true,
-  },
-})
+@WebSocketGateway()
 export class AlertasGateway implements OnGatewayConnection, OnGatewayDisconnect, AlertasGatewayPort {
   @WebSocketServer()
   servidor!: Server;

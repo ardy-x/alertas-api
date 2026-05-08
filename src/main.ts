@@ -11,7 +11,6 @@ import { ExcepcionGlobalFilter } from '@/core/filtros/excepcion-global.filter';
 import { SanitizarEntradaPipe } from '@/core/pipes/sanitizar-entrada.pipe';
 import { AppModule } from './app.module';
 import { APP_CONFIG } from './config/app.config';
-import { CORS_CONFIG } from './config/cors.config';
 import { SCALAR_CONFIG } from './config/scalar.config';
 import { SWAGGER_CONFIG, swaggerEnv } from './config/swagger.config';
 import { VALIDATION_PIPE_CONFIG } from './config/validation.config';
@@ -39,9 +38,6 @@ async function bootstrap() {
 
   // Aplicar filtros globales
   app.useGlobalFilters(new ExcepcionGlobalFilter());
-
-  // Habilitar CORS para permitir requests desde el frontend
-  app.enableCors(CORS_CONFIG);
 
   // Establecer prefijo global para rutas - DESPUÉS de archivos estáticos
   app.setGlobalPrefix(APP_CONFIG.globalPrefix);
