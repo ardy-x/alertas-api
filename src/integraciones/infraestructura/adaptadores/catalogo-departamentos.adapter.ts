@@ -34,6 +34,7 @@ export class CatalogoDepartamentosAdapter implements DepartamentosPort {
   private readonly CACHE_KEY = 'departamentos_completa';
   private readonly API_URL: string;
   private cachingPromise: Promise<void> | null = null;
+  private departamentosEnMemoria: ApiResponse['response']['data'] | null = null;
 
   constructor(
     private readonly httpClientPublico: HttpClientPublicoService,
@@ -43,14 +44,22 @@ export class CatalogoDepartamentosAdapter implements DepartamentosPort {
   }
 
   private async obtenerDatosDepartamentos(): Promise<ApiResponse['response']['data']> {
-    let data = await this.redisService.get<ApiResponse['response']['data']>(this.CACHE_KEY);
-    if (!data || !Array.isArray(data)) {
-      await this.cachearDepartamentos();
-      data = await this.redisService.get<ApiResponse['response']['data']>(this.CACHE_KEY);
-      if (!data) {
-        throw new InternalServerErrorException('Los datos de departamentos en cache son inválidos o faltantes');
-      }
+    if (this.departamentosEnMemoria && this.departamentosEnMemoria.length > 0) {
+      return this.departamentosEnMemoria;
     }
+
+    let data = await this.redisService.get<ApiResponse['response']['data']>(this.CACHE_KEY);
+    if (data && Array.isArray(data) && data.length > 0) {
+      this.departamentosEnMemoria = data;
+      return data;
+    }
+
+    await this.cachearDepartamentos();
+    data = await this.redisService.get<ApiResponse['response']['data']>(this.CACHE_KEY);
+    if (!data) {
+      throw new InternalServerErrorException('Los datos de departamentos en cache son inválidos o faltantes');
+    }
+    this.departamentosEnMemoria = data;
     return data;
   }
 
@@ -142,6 +151,7 @@ export class CatalogoDepartamentosAdapter implements DepartamentosPort {
         }
         const data = response.response.data;
         await this.redisService.set(this.CACHE_KEY, data);
+        this.departamentosEnMemoria = data;
         this.logger.log('Cacheo de departamentos completado.');
       } catch (error) {
         const infoError = analizarErrorHttp(error);
