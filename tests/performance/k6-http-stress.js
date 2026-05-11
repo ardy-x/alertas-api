@@ -28,8 +28,8 @@ const BOLIVIA_DEPARTMENT_COORDS = [
   { departamento: 'Pando', latitud: -11.0267, longitud: -68.7692 },
 ];
 
-// Criterio de estabilidad: todo 2xx-4xx se considera respuesta esperada; 5xx es falla.
-http.setResponseCallback(http.expectedStatuses({ min: 200, max: 499 }));
+// Criterio de estabilidad: solo 2xx se considera respuesta esperada; 3xx-5xx son fallos.
+http.setResponseCallback(http.expectedStatuses({ min: 200, max: 299 }));
 
 export const options = {
   scenarios: {
