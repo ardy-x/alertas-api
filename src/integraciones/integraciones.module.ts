@@ -20,6 +20,7 @@ import { CatalogoDepartamentosAdapter } from './infraestructura/adaptadores/cata
 import { GeoServerAdapter } from './infraestructura/adaptadores/geo-server.adapter';
 import { PersonalAdapter } from './infraestructura/adaptadores/personal.adapter';
 import { UnidadesEstaticasAdapter } from './infraestructura/adaptadores/unidades-estaticas.adapter';
+import { BackupService } from './infraestructura/servicios/backup.service';
 import { InicializacionService } from './infraestructura/servicios/inicializacion.service';
 import { DepartamentosController } from './presentacion/controladores/departamentos.controller';
 import { FuncionariosController } from './presentacion/controladores/funcionarios.controller';
@@ -30,6 +31,7 @@ import { UnidadesController } from './presentacion/controladores/unidades.contro
   imports: [ScheduleModule.forRoot(), CoreModule, PrismaModule, RedisModule, VictimasModule],
   providers: [
     InicializacionService,
+    BackupService,
     {
       provide: DEPARTAMENTOS_PORT_TOKEN,
       useClass: CatalogoDepartamentosAdapter,

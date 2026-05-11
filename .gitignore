@@ -48,6 +48,10 @@ pids
 *.pid
 *.seed
 *.pid.lock
+
+# Backups de base de datos
+/backups
+*.sql
 .temp
 .tmp
 
