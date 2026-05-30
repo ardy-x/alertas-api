@@ -40,10 +40,9 @@ export class BackupService {
 
   private async backupPostgres(rutaCompleta: string): Promise<void> {
     const url = DATABASE_CONFIG.url;
-    const password = this.extraerPassword(url);
-    const connectionString = this.extraerConnectionString(url);
+    const { usuario, password, host, puerto, nombredb } = this.extraerParametrosDB(url);
 
-    const comando = `PGPASSWORD="${password}" pg_dump "${connectionString}" > "${rutaCompleta}"`;
+    const comando = `PGPASSWORD="${password}" pg_dump -h ${host} -p ${puerto} -U ${usuario} -d ${nombredb} > "${rutaCompleta}"`;
 
     try {
       await execAsync(comando);
@@ -85,14 +84,22 @@ export class BackupService {
     }
   }
 
-  private extraerPassword(url: string): string {
-    const match = url.match(/:([^@]+)@/);
-    return match ? match[1] : '';
-  }
-
-  private extraerConnectionString(url: string): string {
-    // Eliminar el prefijo postgresql://
-    return url.replace(/^postgresql:\/\//, '');
+  private extraerParametrosDB(url: string): {
+    usuario: string;
+    password: string;
+    host: string;
+    puerto: string;
+    nombredb: string;
+  } {
+    // Formato: postgresql://usuario:password@host:puerto/nombrebd
+    const urlObj = new URL(url);
+    return {
+      usuario: urlObj.username,
+      password: urlObj.password,
+      host: urlObj.hostname || 'localhost',
+      puerto: urlObj.port || '5432',
+      nombredb: urlObj.pathname.replace(/^\//, ''),
+    };
   }
 
   private extraerNombreBaseDatos(url: string): string {
