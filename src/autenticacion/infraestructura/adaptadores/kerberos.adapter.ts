@@ -27,7 +27,7 @@ export interface KerberosPaginacion {
 const KERBEROS_ENDPOINTS = {
   EXCHANGE_CODE: '/auth/exchange-code',
   SYSTEM_LOGOUT: '/auth/system-logout',
-  REFRESH: '/auth/refresh',
+  SYSTEM_REFRESH: '/auth/system-refresh',
 } as const;
 
 interface KerberosApiResponse<T = void> {
@@ -97,7 +97,7 @@ export class KerberosAdapter implements KerberosPort {
   }
 
   async refreshToken(refreshToken: string): Promise<{ access_token: string; refresh_token: string }> {
-    const url = `${this.kerberosUrl}${KERBEROS_ENDPOINTS.REFRESH}`;
+    const url = `${this.kerberosUrl}${KERBEROS_ENDPOINTS.SYSTEM_REFRESH}`;
     try {
       const config = { headers: { Authorization: `Refresh ${refreshToken}` } };
       const response = await this.httpClientPublico.get<KerberosApiResponse<RefreshTokenDatos>>(url, config);
