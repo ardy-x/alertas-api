@@ -99,7 +99,8 @@ export class KerberosAdapter implements KerberosPort {
   async refreshToken(refreshToken: string): Promise<{ access_token: string; refresh_token: string }> {
     const url = `${this.kerberosUrl}${KERBEROS_ENDPOINTS.REFRESH}`;
     try {
-      const response = await this.httpClientPrivado.get<KerberosApiResponse<RefreshTokenDatos>>(url, refreshToken);
+      const config = { headers: { Authorization: `Refresh ${refreshToken}` } };
+      const response = await this.httpClientPublico.get<KerberosApiResponse<RefreshTokenDatos>>(url, config);
       this.logger.log('Refresh token exitoso');
       return response.data!;
     } catch (error) {
