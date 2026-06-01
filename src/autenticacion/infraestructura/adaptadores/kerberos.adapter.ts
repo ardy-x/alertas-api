@@ -102,7 +102,10 @@ export class KerberosAdapter implements KerberosPort {
       const config = { headers: { Authorization: `Refresh ${refreshToken}` } };
       const response = await this.httpClientPublico.get<KerberosApiResponse<RefreshTokenDatos>>(url, config);
       this.logger.log('Refresh token exitoso');
-      return response.data!;
+      return {
+        access_token: response.data!.access_token,
+        refresh_token: response.data!.refresh_token,
+      };
     } catch (error) {
       const infoError = analizarErrorHttp(error);
       this.logger.error(`Error en refreshToken desde ${url} - Status: ${infoError.status}, Mensaje: ${infoError.mensaje}`);
