@@ -12,6 +12,7 @@ import { RefreshTokenUseCase } from '../../aplicacion/casos-uso/refresh-token.us
 import { CierreSesionSistemaRequestDto } from '../dtos/entrada/cierre-sesion-sistema-request.dto';
 import { DecodificarTokenRequestDto } from '../dtos/entrada/decodificar-token-request.dto';
 import { ObtenerUsuariosSistemaQueryDto } from '../dtos/entrada/obtener-usuarios-sistema-query.dto';
+import { RefreshTokenRequestDto } from '../dtos/entrada/refresh-token-request.dto';
 import { DecodificarTokenDatosDto } from '../dtos/salida/decodificar-token-response.dto';
 import { ObtenerUsuariosSistemaDatosDto } from '../dtos/salida/obtener-usuarios-sistema-response.dto';
 import { RefreshTokenResponseDto } from '../dtos/salida/refresh-token-response.dto';
@@ -61,16 +62,12 @@ export class AutenticacionController {
     return RespuestaBuilder.exito(HttpStatus.OK, 'Usuarios obtenidos exitosamente', resultado);
   }
 
-  @Get('refresh')
+  @Post('refresh')
   @ApiOperation({ summary: 'Renovar tokens' })
+  @ApiBody({ type: RefreshTokenRequestDto })
   @ApiResponse({ status: HttpStatus.OK, description: 'Renovación de tokens exitosa', type: RefreshTokenResponseDto })
-  async refreshToken(@Headers('authorization') refreshToken: string): Promise<RespuestaBaseDto<RefreshTokenResponseDto>> {
-    if (!refreshToken) {
-      throw new BadRequestException('Header de autorización faltante');
-    }
-    // Extraer el token si viene con 'Refresh '
-    const token = refreshToken.replace('Refresh ', '');
-    const datos = await this.refreshTokenUseCase.ejecutar(token);
+  async refreshToken(@Body() dto: RefreshTokenRequestDto): Promise<RespuestaBaseDto<RefreshTokenResponseDto>> {
+    const datos = await this.refreshTokenUseCase.ejecutar(dto.refreshToken);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Renovación de tokens exitosa', datos);
   }
 }
