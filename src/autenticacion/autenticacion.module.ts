@@ -5,6 +5,7 @@ import { ExcepcionGlobalFilter } from '@/core/filtros/excepcion-global.filter';
 import { CoreModule } from '../core/core.module';
 
 import { PrismaModule } from '../prisma/prisma.module';
+import { RedisModule } from '../redis/redis.module';
 import { UsuariosWebModule } from '../usuarios-web/usuarios-web.module';
 import { CierreSesionSistemaUseCase } from './aplicacion/casos-uso/cierre-sesion-sistema.use-case';
 import { DecodificarTokenUseCase } from './aplicacion/casos-uso/decodificar-token.use-case';
@@ -18,7 +19,7 @@ import { RolesGuard } from './infraestructura/guards/roles.guard';
 import { AutenticacionController } from './presentacion/controladores/autenticacion.controller';
 
 @Module({
-  imports: [PassportModule, CoreModule, PrismaModule, UsuariosWebModule],
+  imports: [PassportModule, CoreModule, PrismaModule, UsuariosWebModule, RedisModule],
   controllers: [AutenticacionController],
   providers: [
     {

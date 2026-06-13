@@ -1,4 +1,4 @@
-import { BadRequestException, Body, Controller, Get, Headers, HttpStatus, Post, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Headers, HttpStatus, Post, Query, UseGuards } from '@nestjs/common';
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { IdSistemaActual } from '@/autenticacion/infraestructura/decoradores/id-sistema.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';

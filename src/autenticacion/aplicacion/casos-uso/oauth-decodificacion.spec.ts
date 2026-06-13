@@ -34,7 +34,12 @@ describe('Intercambio OAuth 2.0 con KERBEROS y decodificación de token', () => 
       }),
     };
 
-    const useCase = new DecodificarTokenUseCase(kerberosPort as never, registrarUsuarioWebUseCase as never, encontrarDepartamentoUseCase as never);
+    const redisService = {
+      set: jest.fn().mockResolvedValue(true),
+      get: jest.fn().mockResolvedValue(null),
+    };
+
+    const useCase = new DecodificarTokenUseCase(kerberosPort as never, registrarUsuarioWebUseCase as never, encontrarDepartamentoUseCase as never, redisService as never);
 
     // Act: ejecutar flujo de intercambio OAuth y decodificacion del token.
     await useCase.ejecutar({
@@ -55,7 +60,12 @@ describe('Intercambio OAuth 2.0 con KERBEROS y decodificación de token', () => 
       throw new jwt.TokenExpiredError('expirado', new Date());
     });
 
-    const useCase = new DecodificarTokenUseCase({ intercambioCodigo: jest.fn().mockResolvedValue('jwt-exp') } as never, { ejecutar: jest.fn() } as never, { ejecutar: jest.fn() } as never);
+    const useCase = new DecodificarTokenUseCase(
+      { intercambioCodigo: jest.fn().mockResolvedValue('jwt-exp') } as never,
+      { ejecutar: jest.fn() } as never,
+      { ejecutar: jest.fn() } as never,
+      { set: jest.fn() } as never,
+    );
 
     await expect(
       useCase.ejecutar({
@@ -72,7 +82,12 @@ describe('Intercambio OAuth 2.0 con KERBEROS y decodificación de token', () => 
       throw new jwt.JsonWebTokenError('invalido');
     });
 
-    const useCase = new DecodificarTokenUseCase({ intercambioCodigo: jest.fn().mockResolvedValue('jwt-bad') } as never, { ejecutar: jest.fn() } as never, { ejecutar: jest.fn() } as never);
+    const useCase = new DecodificarTokenUseCase(
+      { intercambioCodigo: jest.fn().mockResolvedValue('jwt-bad') } as never,
+      { ejecutar: jest.fn() } as never,
+      { ejecutar: jest.fn() } as never,
+      { set: jest.fn() } as never,
+    );
 
     await expect(
       useCase.ejecutar({
@@ -95,6 +110,7 @@ describe('Intercambio OAuth 2.0 con KERBEROS y decodificación de token', () => 
       { intercambioCodigo: jest.fn().mockResolvedValue('jwt-missing') } as never,
       { ejecutar: jest.fn() } as never,
       { ejecutar: jest.fn().mockResolvedValue({ departamento: { id: 10, departamento: 'La Paz' } }) } as never,
+      { set: jest.fn() } as never,
     );
 
     await expect(
