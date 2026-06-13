@@ -1,9 +1,7 @@
-import * as fs from 'node:fs';
-import * as path from 'node:path';
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import * as jwt from 'jsonwebtoken';
-
 import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
+import { APP_CONFIG } from '@/config/app.config';
 
 interface TokenPayload {
   userId: string;
@@ -18,15 +16,11 @@ interface TokenPayload {
 
 @Injectable()
 export class AuthWebSocketService {
-  private publicKey: string;
-
-  constructor() {
-    this.publicKey = fs.readFileSync(path.join(process.cwd(), 'keys', 'public.pem'), 'utf8');
-  }
+  constructor() {}
 
   validarToken(token: string): { idUsuario: string; userSystemId: string } {
     try {
-      const payload = jwt.verify(token, this.publicKey, { algorithms: ['RS256'] }) as TokenPayload;
+      const payload = jwt.verify(token, APP_CONFIG.jwt.secret) as TokenPayload;
       return {
         idUsuario: payload.userId,
         userSystemId: payload.userSystemId,
