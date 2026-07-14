@@ -8,6 +8,7 @@ const envSchema = z.object({
   JWT_SECRET: z.string().min(1),
   JWT_EXPIRES_IN: z.string().min(1),
   REFRESH_TOKEN_TTL: z.coerce.number().int().positive(),
+  JUPITER_API_KEY: z.string().min(1),
 });
 
 const env = envSchema.parse(process.env);
@@ -24,4 +25,5 @@ export const APP_CONFIG = {
     expiresIn: env.JWT_EXPIRES_IN,
     refreshTokenTtl: env.REFRESH_TOKEN_TTL,
   },
+  jupiterApiKey: env.JUPITER_API_KEY,
 };

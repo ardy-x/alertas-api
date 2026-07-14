@@ -3,10 +3,12 @@ import { ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestjs/swagger
 
 import { RolesPermitidos } from '@/autenticacion/dominio/enums/roles-permitidos.enum';
 import { IdUsuarioActual } from '@/autenticacion/infraestructura/decoradores/id-usuario.decorator';
+import { Public } from '@/autenticacion/infraestructura/decoradores/public.decorator';
 import { RolUsuarioActual } from '@/autenticacion/infraestructura/decoradores/rol-usuario.decorator';
 import { Roles } from '@/autenticacion/infraestructura/decoradores/roles-permitidos.decorator';
 import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/kerberos-jwt-auth.guard';
 import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
+import { ServiceApiKeyGuard } from '@/autenticacion/infraestructura/guards/service-api-key.guard';
 import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { PaginacionRespuestaBaseDto, RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
@@ -42,6 +44,9 @@ export class VictimasWebController {
   }
 
   @Get('historial-alertas')
+  @Public()
+  @UseGuards(ServiceApiKeyGuard)
+  @ApiSecurity('api-key')
   @ApiOperation({ summary: 'Obtener historial de alertas de una víctima por CI', description: 'Consulta para el sistema JUPITER' })
   @ApiResponse({ status: HttpStatus.OK, type: HistorialAlertasVictimaDto })
   async obtenerHistorialAlertas(@Query() query: VerificarVictimaParamsDto): Promise<RespuestaBaseDto> {
