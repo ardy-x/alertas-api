@@ -1,5 +1,6 @@
 import { CanActivate, ExecutionContext, Inject, Injectable, Logger, UnauthorizedException } from '@nestjs/common';
 import { APP_CONFIG } from '@/config/app.config';
+import { AppleReviewService } from '@/core/servicios/apple-review.service';
 import { hashString } from '@/utils/security.utils';
 import { ClavesApiPort } from '../../dominio/puertos/claves-api.port';
 import { CLAVES_API_PORT_TOKEN } from '../../dominio/tokens/victima.tokens';
@@ -11,6 +12,7 @@ export class ClaveApiGuard implements CanActivate {
   constructor(
     @Inject(CLAVES_API_PORT_TOKEN)
     private readonly clavesApiPort: ClavesApiPort,
+    private readonly appleReviewService: AppleReviewService,
   ) {}
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
@@ -25,6 +27,16 @@ export class ClaveApiGuard implements CanActivate {
 
     if (!claveApi) {
       throw new UnauthorizedException('Clave API requerida en header X-API-Key');
+    }
+
+    // Bypass exclusivo para revisión de Apple
+    if (this.appleReviewService.esApiKeyReview(claveApi)) {
+      request.victima = {
+        id: this.appleReviewService.demoIdVictima,
+        estadoCuenta: 'ACTIVA',
+      };
+      request.claveApi = claveApi;
+      return true;
     }
 
     try {

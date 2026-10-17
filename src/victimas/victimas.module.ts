@@ -15,6 +15,7 @@ import { AgregarContactoVictimaUseCase } from './aplicacion/casos-uso/contactos-
 import { EliminarContactoEmergenciaUseCase } from './aplicacion/casos-uso/contactos-emergencia/eliminar-contacto-emergencia.use-case';
 import { MarcarContactoPrincipalUseCase } from './aplicacion/casos-uso/contactos-emergencia/marcar-contacto-principal.use-case';
 import { CrearVictimaUseCase } from './aplicacion/casos-uso/crear-victima.use-case';
+import { EliminarCuentaUseCase } from './aplicacion/casos-uso/eliminar-cuenta.use-case';
 import { AsignarInvestigadorUseCase } from './aplicacion/casos-uso/investigadores/asignar-investigador.use-case';
 import { DesasignarInvestigadorUseCase } from './aplicacion/casos-uso/investigadores/desasignar-investigador.use-case';
 import { ListarHistorialInvestigadoresUseCase } from './aplicacion/casos-uso/investigadores/listar-historial-investigadores.use-case';
@@ -72,6 +73,7 @@ import { VictimasWebController } from './presentacion/controladores/victimas-web
     ActivarCuentaUseCase,
     ObtenerHistorialAlertasVictimaUseCase,
     CerrarSesionUseCase,
+    EliminarCuentaUseCase,
     ActualizarPermisosUseCase,
 
     // Casos de Uso - Contactos de Emergencia

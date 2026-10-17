@@ -3,6 +3,7 @@ import { ApiBody, ApiOperation, ApiResponse, ApiSecurity, ApiTags } from '@nestj
 import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { LogDatosInterceptor } from '@/core/interceptores/log-datos.interceptor';
+import { AppleReviewService } from '@/core/servicios/apple-review.service';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { ActualizarDatosContactoUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-datos-contacto.use-case';
 import { ActualizarDatosCuentaUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-datos-cuenta.use-case';
@@ -10,6 +11,7 @@ import { ActualizarPermisosUseCase } from '@/victimas/aplicacion/casos-uso/actua
 import { ActualizarUbicacionUseCase } from '@/victimas/aplicacion/casos-uso/actualizar-ubicacion.use-case';
 import { CerrarSesionUseCase } from '@/victimas/aplicacion/casos-uso/cerrar-sesion.use-case';
 import { CrearVictimaUseCase } from '@/victimas/aplicacion/casos-uso/crear-victima.use-case';
+import { EliminarCuentaUseCase } from '@/victimas/aplicacion/casos-uso/eliminar-cuenta.use-case';
 import { ObtenerVictimaUseCase } from '@/victimas/aplicacion/casos-uso/obtener-victima.use-case';
 import { VerificarDenunciaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-denuncia.use-case';
 import { VerificarVictimaUseCase } from '@/victimas/aplicacion/casos-uso/verificar-victima.use-case';
@@ -33,7 +35,9 @@ export class VictimasController {
     private readonly verificarVictimaUseCase: VerificarVictimaUseCase,
     private readonly verificarDenunciaUseCase: VerificarDenunciaUseCase,
     private readonly cerrarSesionUseCase: CerrarSesionUseCase,
+    private readonly eliminarCuentaUseCase: EliminarCuentaUseCase,
     private readonly actualizarPermisosUseCase: ActualizarPermisosUseCase,
+    private readonly appleReviewService: AppleReviewService,
   ) {}
 
   @Post()
@@ -57,6 +61,9 @@ export class VictimasController {
   @ApiOperation({ summary: 'Verificar denuncia' })
   @ApiResponse({ status: HttpStatus.OK, type: VictimaDto, description: 'Denuncia verificada exitosamente' })
   async verificarDenuncia(@Query() request: VerificarDenunciaRequestDto): Promise<RespuestaBaseDto<{ victima: VictimaDto }>> {
+    if (this.appleReviewService.esDenunciaReview(request.codigoDenuncia, request.cedulaIdentidad)) {
+      return RespuestaBuilder.exito(HttpStatus.OK, 'Denuncia verificada exitosamente', this.appleReviewService.obtenerDenunciaDemo());
+    }
     const victima = await this.verificarDenunciaUseCase.ejecutar(request.codigoDenuncia, request.cedulaIdentidad);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Denuncia verificada exitosamente', { victima });
   }
@@ -67,6 +74,9 @@ export class VictimasController {
   @ApiOperation({ summary: 'Obtener datos de la cuenta del BP víctima' })
   @ApiResponse({ status: HttpStatus.OK, type: VictimaResponseDto, description: 'Datos de la víctima obtenidos exitosamente' })
   async obtenerPorId(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto<{ victima: VictimaResponseDto }>> {
+    if (this.appleReviewService.esVictimaReview(idVictima)) {
+      return RespuestaBuilder.exito(HttpStatus.OK, 'Víctima obtenida exitosamente', { victima: this.appleReviewService.obtenerPerfilDemo() });
+    }
     const resultado = await this.obtenerVictimaUseCase.ejecutar(idVictima);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Víctima obtenida exitosamente', { victima: resultado });
   }
@@ -123,5 +133,18 @@ export class VictimasController {
   async actualizarPermisos(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() permisosDto: PermisosAppDto): Promise<RespuestaBaseDto> {
     await this.actualizarPermisosUseCase.ejecutar(idVictima, permisosDto);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Permisos actualizados exitosamente');
+  }
+
+  @Patch(':idVictima/eliminar-cuenta')
+  @UseGuards(ClaveApiGuard)
+  @ApiOperation({ summary: 'Eliminar cuenta de la víctima (soft delete - estado INACTIVA)' })
+  @ApiSecurity('api-key')
+  @ApiResponse({ status: HttpStatus.OK, description: 'Cuenta eliminada exitosamente' })
+  async eliminarCuenta(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto> {
+    if (this.appleReviewService.esVictimaReview(idVictima)) {
+      return RespuestaBuilder.exito(HttpStatus.OK, 'Cuenta eliminada exitosamente');
+    }
+    await this.eliminarCuentaUseCase.ejecutar(idVictima);
+    return RespuestaBuilder.exito(HttpStatus.OK, 'Cuenta eliminada exitosamente');
   }
 }
