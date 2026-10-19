@@ -52,7 +52,7 @@ export class AlertasController {
   @ApiBody({ type: ActualizarAlertaRequestDto })
   @ApiResponse({ status: HttpStatus.OK, description: 'Ubicación de alerta actualizada exitosamente' })
   async actualizarAlerta(@Param('idAlerta', ParseUUIDPipe) idAlerta: string, @Body() actualizarAlertaDto: ActualizarAlertaRequestDto): Promise<RespuestaBaseDto> {
-    if (this.appleReviewService.isEnabled() && idAlerta === '00000000-0000-0000-0000-000000000002') {
+    if (this.appleReviewService.isEnabled() && idAlerta === this.appleReviewService.demoIdAlerta) {
       return RespuestaBuilder.exito(HttpStatus.OK, 'Ubicación de alerta actualizada exitosamente');
     }
     await this.actualizarAlertaUseCase.ejecutar(idAlerta, actualizarAlertaDto);
@@ -62,7 +62,7 @@ export class AlertasController {
   @Get(':idAlerta/estado')
   @ApiOperation({ summary: 'Obtener estado de una alerta' })
   async obtenerEstadoAlerta(@Param('idAlerta', ParseUUIDPipe) idAlerta: string): Promise<RespuestaBaseDto<{ estadoAlerta: string }>> {
-    if (this.appleReviewService.isEnabled() && idAlerta === '00000000-0000-0000-0000-000000000002') {
+    if (this.appleReviewService.isEnabled() && idAlerta === this.appleReviewService.demoIdAlerta) {
       return RespuestaBuilder.exito(HttpStatus.OK, 'Estado de alerta obtenido exitosamente', this.appleReviewService.obtenerEstadoAlertaDemo(idAlerta));
     }
     const resultado = await this.obtenerEstadoAlertaUseCase.ejecutar(idAlerta);
@@ -74,7 +74,7 @@ export class AlertasController {
   @ApiBody({ type: CrearSolicitudCancelacionRequestDto })
   @ApiResponse({ status: HttpStatus.CREATED, description: 'Solicitud de cancelación creada exitosamente' })
   async crearSolicitudCancelacion(@Param('idAlerta', ParseUUIDPipe) idAlerta: string, @Body() dto: CrearSolicitudCancelacionRequestDto): Promise<RespuestaBaseDto> {
-    if (this.appleReviewService.isEnabled() && idAlerta === '00000000-0000-0000-0000-000000000002') {
+    if (this.appleReviewService.isEnabled() && idAlerta === this.appleReviewService.demoIdAlerta) {
       this.appleReviewService.solicitarCancelacionDemo(idAlerta);
       return RespuestaBuilder.exito(HttpStatus.CREATED, 'Solicitud de cancelación creada exitosamente');
     }
@@ -86,7 +86,7 @@ export class AlertasController {
   @ApiOperation({ summary: 'Confirmar llegada del personal policial al lugar' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Llegada confirmada exitosamente' })
   async confirmarLlegada(@Param('idAlerta', ParseUUIDPipe) idAlerta: string, @Body() body: ConfirmacionVictimaRequestDto): Promise<RespuestaBaseDto> {
-    if (this.appleReviewService.isEnabled() && idAlerta === '00000000-0000-0000-0000-000000000002') {
+    if (this.appleReviewService.isEnabled() && idAlerta === this.appleReviewService.demoIdAlerta) {
       return RespuestaBuilder.exito(HttpStatus.OK, 'Llegada confirmada exitosamente');
     }
     await this.confirmarLlegadaFuncionarioUseCase.ejecutar(idAlerta, body.ciFuncionario);
@@ -97,7 +97,7 @@ export class AlertasController {
   @ApiOperation({ summary: 'Obtener funcionarios que llegaron para la alerta' })
   @ApiResponse({ status: HttpStatus.OK, description: 'Funcionarios obtenidos exitosamente', type: [FuncionarioLlegadoDto] })
   async obtenerFuncionariosLlegados(@Param('idAlerta', ParseUUIDPipe) idAlerta: string): Promise<RespuestaBaseDto<FuncionarioLlegadoDto[]>> {
-    if (this.appleReviewService.isEnabled() && idAlerta === '00000000-0000-0000-0000-000000000002') {
+    if (this.appleReviewService.isEnabled() && idAlerta === this.appleReviewService.demoIdAlerta) {
       return RespuestaBuilder.exito(HttpStatus.OK, 'Funcionarios obtenidos', this.appleReviewService.obtenerFuncionariosDemo());
     }
     const funcionarios = await this.obtenerFuncionariosLlegadosUseCase.ejecutar(idAlerta);

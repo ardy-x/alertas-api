@@ -53,6 +53,9 @@ export class VictimasController {
   @ApiOperation({ summary: 'Verificar existencia de víctima por CI' })
   @ApiResponse({ status: HttpStatus.OK, type: VerificarVictimaResponse, description: 'Verificación completada' })
   async verificarPorCi(@Query() params: VerificarVictimaParamsDto): Promise<RespuestaBaseDto<VerificarVictimaResponse>> {
+    if (this.appleReviewService.esCiReview(params.ci)) {
+      return RespuestaBuilder.exito(HttpStatus.OK, 'Verificación completada', this.appleReviewService.verificarVictimaDemo());
+    }
     const resultado = await this.verificarVictimaUseCase.ejecutar(params);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Verificación completada', resultado);
   }
@@ -110,6 +113,12 @@ export class VictimasController {
   @ApiBody({ type: ActualizarDatosCuentaRequestDto })
   @ApiResponse({ status: HttpStatus.OK, description: 'Datos de cuenta actualizados exitosamente' })
   async actualizarCuenta(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() actualizarDatosCuentaDto: ActualizarDatosCuentaRequestDto) {
+    if (this.appleReviewService.esVictimaReview(idVictima)) {
+      if (actualizarDatosCuentaDto.fcmToken) {
+        this.appleReviewService.guardarFcmToken(actualizarDatosCuentaDto.fcmToken);
+      }
+      return RespuestaBuilder.exito(HttpStatus.OK, 'Datos de cuenta actualizados exitosamente');
+    }
     await this.actualizarDatosCuentaUseCase.ejecutar(idVictima, actualizarDatosCuentaDto);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Datos de cuenta actualizados exitosamente');
   }
@@ -120,6 +129,9 @@ export class VictimasController {
   @ApiSecurity('api-key')
   @ApiResponse({ status: HttpStatus.OK, description: 'Sesión cerrada exitosamente' })
   async cerrarSesion(@Param('idVictima', ParseUUIDPipe) idVictima: string): Promise<RespuestaBaseDto> {
+    if (this.appleReviewService.esVictimaReview(idVictima)) {
+      return RespuestaBuilder.exito(HttpStatus.OK, 'Sesión cerrada exitosamente');
+    }
     await this.cerrarSesionUseCase.ejecutar(idVictima);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Sesión cerrada exitosamente');
   }
@@ -131,6 +143,9 @@ export class VictimasController {
   @ApiBody({ type: PermisosAppDto })
   @ApiResponse({ status: HttpStatus.OK, description: 'Permisos actualizados exitosamente' })
   async actualizarPermisos(@Param('idVictima', ParseUUIDPipe) idVictima: string, @Body() permisosDto: PermisosAppDto): Promise<RespuestaBaseDto> {
+    if (this.appleReviewService.esVictimaReview(idVictima)) {
+      return RespuestaBuilder.exito(HttpStatus.OK, 'Permisos actualizados exitosamente');
+    }
     await this.actualizarPermisosUseCase.ejecutar(idVictima, permisosDto);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Permisos actualizados exitosamente');
   }
