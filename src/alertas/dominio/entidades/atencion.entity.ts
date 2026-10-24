@@ -24,6 +24,8 @@ export interface CrearAtencionCompleta {
     turnoFin: string;
     ciFuncionario: string;
     unidad: string;
+    grado?: string | null;
+    nombreCompleto?: string | null;
   }>;
 }
 

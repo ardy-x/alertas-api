@@ -44,6 +44,8 @@ export class AtencionPrismaAdapter implements AtencionRepositorioPort {
             turnoFin: funcionario.turnoFin,
             ciFuncionario: funcionario.ciFuncionario,
             unidad: funcionario.unidad,
+            grado: funcionario.grado,
+            nombreCompleto: funcionario.nombreCompleto,
           },
         });
       }

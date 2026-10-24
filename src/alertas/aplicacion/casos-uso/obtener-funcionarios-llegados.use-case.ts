@@ -30,10 +30,14 @@ export class ObtenerFuncionariosLlegadosUseCase {
     // enrich personal data
     for (const func of llegados) {
       if (func.ciFuncionario) {
-        const ext = await this.personalPort.buscarFuncionario(func.ciFuncionario);
-        if (ext && ext.length > 0) {
-          func.grado = ext[0].grado ?? func.grado;
-          func.nombreCompleto = ext[0].nombreCompleto ?? func.nombreCompleto;
+        try {
+          const ext = await this.personalPort.buscarFuncionario(func.ciFuncionario);
+          if (ext && ext.length > 0) {
+            func.grado = ext[0].grado ?? func.grado;
+            func.nombreCompleto = ext[0].nombreCompleto ?? func.nombreCompleto;
+          }
+        } catch {
+          // Si el servicio de Personal externo falla o está caído, se conservan los datos de la base de datos
         }
       }
     }

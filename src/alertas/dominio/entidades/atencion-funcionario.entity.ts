@@ -43,4 +43,6 @@ export interface AgregarFuncionarioDatos {
   turnoFin: string;
   ciFuncionario: string;
   unidad: string | null;
+  grado?: string | null;
+  nombreCompleto?: string | null;
 }

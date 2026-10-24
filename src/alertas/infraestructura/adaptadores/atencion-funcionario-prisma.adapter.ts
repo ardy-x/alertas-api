@@ -39,6 +39,8 @@ export class AtencionFuncionarioPrismaAdapter implements AtencionPersonalPort {
         turnoFin: new Date(datos.turnoFin),
         ciFuncionario: datos.ciFuncionario,
         unidad: datos.unidad || 'EXTERNA',
+        grado: datos.grado || null,
+        nombreCompleto: datos.nombreCompleto || null,
       },
     });
   }
@@ -58,6 +60,8 @@ export class AtencionFuncionarioPrismaAdapter implements AtencionPersonalPort {
       turnoFin: af.turnoFin.toISOString(),
       ciFuncionario: af.ciFuncionario || null,
       unidad: af.unidad || null,
+      grado: af.grado || null,
+      nombreCompleto: af.nombreCompleto || null,
       fechaLlegada: af.fechaLlegada ? af.fechaLlegada.toISOString() : null,
       confirmacionVictima: af.confirmacionVictima,
     }));
