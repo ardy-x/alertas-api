@@ -108,6 +108,8 @@ model AtencionFuncionario {
   id                  String      @id @default(uuid()) @db.Uuid
   idAtencion          String      @map("id_atencion") @db.Uuid
   ciFuncionario       String?     @map("ci_funcionario") @db.VarChar(20)
+  grado               String?     @map("grado") @db.VarChar(50)
+  nombreCompleto      String?     @map("nombre_completo") @db.VarChar(200)
   rolAtencion         RolAtencion @default(ENCARGADO) @map("rol_atencion")
   ubicacion           Json?       @db.JsonB
   unidad              String      @map("unidad") @db.VarChar(255)

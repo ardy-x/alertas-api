@@ -59,6 +59,16 @@ export class FuncionarioAtencionRequestDto {
   @IsNotEmpty()
   @IsString()
   unidad: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  grado?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  nombreCompleto?: string;
 }
 
 export class CrearAtencionCompletaRequestDto {
@@ -114,6 +124,16 @@ export class CrearFuncionarioAtencionRequestDto {
   @IsNotEmpty()
   @IsString()
   unidad: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  grado?: string;
+
+  @ApiPropertyOptional()
+  @IsOptional()
+  @IsString()
+  nombreCompleto?: string;
 }
 
 export class RegistrarLlegadaRequestDto {

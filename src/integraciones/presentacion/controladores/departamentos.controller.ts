@@ -7,6 +7,7 @@ import { KerberosJwtAuthGuard } from '@/autenticacion/infraestructura/guards/ker
 import { RolesGuard } from '@/autenticacion/infraestructura/guards/roles.guard';
 import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
+import { AppleReviewService } from '@/core/servicios/apple-review.service';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { EncontrarDepartamentoUseCase } from '../../aplicacion/casos-uso/encontrar-departamento.use-case';
 import { ObtenerDepartamentosUseCase } from '../../aplicacion/casos-uso/obtener-departamentos.use-case';
@@ -27,6 +28,7 @@ export class DepartamentosController {
     private readonly obtenerProvinciasPorDepartamentoUseCase: ObtenerProvinciasPorDepartamentoUseCase,
     private readonly obtenerMunicipiosPorProvinciaUseCase: ObtenerMunicipiosPorProvinciaUseCase,
     private readonly encontrarDepartamentoUseCase: EncontrarDepartamentoUseCase,
+    private readonly appleReviewService: AppleReviewService,
   ) {}
 
   @Get()
@@ -58,7 +60,19 @@ export class DepartamentosController {
   @Public()
   @Get('encontrar')
   async encontrarDepartamento(@Query() query: EncontrarDepartamentoQueryDto): Promise<RespuestaBaseDto<MunicipioProvinciaDepartamentoDto>> {
-    const departamento = await this.encontrarDepartamentoUseCase.ejecutar({ latitud: query.latitud, longitud: query.longitud });
-    return RespuestaBuilder.exito(HttpStatus.OK, 'Departamento encontrado exitosamente', departamento);
+    try {
+      const departamento = await this.encontrarDepartamentoUseCase.ejecutar({ latitud: query.latitud, longitud: query.longitud });
+      return RespuestaBuilder.exito(HttpStatus.OK, 'Departamento encontrado exitosamente', departamento);
+    } catch (error) {
+      if (this.appleReviewService.isEnabled()) {
+        const demoDept: MunicipioProvinciaDepartamentoDto = {
+          departamento: { id: 2, departamento: 'La Paz' },
+          provincia: { id: 1, provincia: 'Murillo' },
+          municipio: { id: 1, municipio: 'Nuestra Señora de La Paz' },
+        };
+        return RespuestaBuilder.exito(HttpStatus.OK, 'Departamento encontrado exitosamente', demoDept);
+      }
+      throw error;
+    }
   }
 }

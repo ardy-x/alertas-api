@@ -43,6 +43,8 @@ export class AgregarFuncionarioUseCase {
       turnoFin: entrada.turnoFin,
       ciFuncionario: entrada.ciFuncionario,
       unidad: entrada.unidad || null,
+      grado: entrada.grado || null,
+      nombreCompleto: entrada.nombreCompleto || null,
     };
 
     await this.atencionFuncionarioRepositorio.agregarFuncionario(datosFuncionario);

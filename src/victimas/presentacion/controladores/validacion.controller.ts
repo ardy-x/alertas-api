@@ -4,6 +4,7 @@ import { ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ApiRespuestasComunes } from '@/core/decoradores/api-respuestas-comunes.decorator';
 import { RespuestaBaseDto } from '@/core/dto/respuesta-base.dto';
 import { LogDatosInterceptor } from '@/core/interceptores/log-datos.interceptor';
+import { AppleReviewService } from '@/core/servicios/apple-review.service';
 import { RespuestaBuilder } from '@/core/utilidades/respuesta.builder';
 import { SolicitarCodigoUseCase } from '@/victimas/aplicacion/casos-uso/validacion/solicitar-codigo.use-case';
 import { VerificarCodigoUseCase } from '@/victimas/aplicacion/casos-uso/validacion/verificar-codigo.use-case';
@@ -20,6 +21,7 @@ export class ValidacionController {
   constructor(
     private readonly solicitarCodigoUseCase: SolicitarCodigoUseCase,
     private readonly verificarCodigoUseCase: VerificarCodigoUseCase,
+    private readonly appleReviewService: AppleReviewService,
   ) {}
 
   @Post('solicitar-codigo')
@@ -27,6 +29,9 @@ export class ValidacionController {
   @ApiBody({ type: SolicitarCodigoRequestDto })
   @ApiResponse({ status: HttpStatus.OK, description: 'Código enviado exitosamente', type: SolicitarCodigoResponseDto })
   async solicitarCodigo(@Body() solicitarCodigoDto: SolicitarCodigoRequestDto): Promise<RespuestaBaseDto<SolicitarCodigoResponseDto>> {
+    if (this.appleReviewService.esVictimaReview(solicitarCodigoDto.idVictima)) {
+      return RespuestaBuilder.exito(HttpStatus.OK, 'Código enviado exitosamente', this.appleReviewService.solicitarCodigoDemo());
+    }
     const resultado = await this.solicitarCodigoUseCase.ejecutar(solicitarCodigoDto);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Código enviado exitosamente', resultado);
   }
@@ -36,6 +41,12 @@ export class ValidacionController {
   @ApiBody({ type: VerificarCodigoRequestDto })
   @ApiResponse({ status: HttpStatus.OK, description: 'Código verificado exitosamente', type: VerificarCodigoResponseDto })
   async verificarCodigo(@Body() verificarCodigoDto: VerificarCodigoRequestDto): Promise<RespuestaBaseDto<VerificarCodigoResponseDto>> {
+    if (this.appleReviewService.esVictimaReview(verificarCodigoDto.idVictima)) {
+      const demoResult = this.appleReviewService.verificarCodigoDemo(verificarCodigoDto.codigo);
+      if (demoResult) {
+        return RespuestaBuilder.exito(HttpStatus.OK, 'Código verificado exitosamente', demoResult);
+      }
+    }
     const resultado = await this.verificarCodigoUseCase.ejecutar(verificarCodigoDto);
     return RespuestaBuilder.exito(HttpStatus.OK, 'Código verificado exitosamente', resultado);
   }

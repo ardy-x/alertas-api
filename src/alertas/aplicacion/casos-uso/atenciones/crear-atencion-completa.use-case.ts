@@ -45,6 +45,8 @@ export class CrearAtencionCompletaUseCase {
         turnoFin: funcionarioData.turnoFin,
         ciFuncionario: funcionarioData.ciFuncionario,
         unidad: funcionarioData.unidad,
+        grado: funcionarioData.grado || null,
+        nombreCompleto: funcionarioData.nombreCompleto || null,
       };
     });
 

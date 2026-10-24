@@ -34,12 +34,16 @@ export class ObtenerAlertaPorIdUseCase {
       for (const funcionario of alerta.atencion.atencionFuncionario) {
         if (!funcionario.ciFuncionario) continue;
 
-        const funcionariosExternos = await this.PersonalPort.buscarFuncionario(funcionario.ciFuncionario);
-        const datosExternos = funcionariosExternos?.[0];
+        try {
+          const funcionariosExternos = await this.PersonalPort.buscarFuncionario(funcionario.ciFuncionario);
+          const datosExternos = funcionariosExternos?.[0];
 
-        if (datosExternos) {
-          funcionario.grado = datosExternos.grado ?? funcionario.grado;
-          funcionario.nombreCompleto = datosExternos.nombreCompleto ?? funcionario.nombreCompleto;
+          if (datosExternos) {
+            funcionario.grado = datosExternos.grado ?? funcionario.grado;
+            funcionario.nombreCompleto = datosExternos.nombreCompleto ?? funcionario.nombreCompleto;
+          }
+        } catch {
+          // Si el servicio de Personal externo falla o está caído, se conservan los datos de la base de datos
         }
       }
     }

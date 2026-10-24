@@ -45,6 +45,16 @@ async function bootstrap() {
   // Habilitar validacion global
   app.useGlobalPipes(new SanitizarEntradaPipe(), VALIDATION_PIPE_CONFIG);
 
+  // Configuración de CORS
+  app.enableCors({
+    origin: ['https://jupiter.policia.bo', 'http://localhost:5173', 'http://127.0.0.1:5173'],
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    allowedHeaders: '*',
+    exposedHeaders: ['x-request-id'],
+    credentials: true,
+    maxAge: 3600,
+  });
+
   await app.listen(APP_CONFIG.port);
 
   // Obtener IP local
