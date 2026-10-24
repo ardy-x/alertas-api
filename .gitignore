@@ -52,6 +52,7 @@ pids
 # Backups de base de datos
 /backups
 *.sql
+!prisma/migrations/**/*.sql
 .temp
 .tmp
 
